@@ -71,15 +71,17 @@ nothing to install. Direct links to each topic:
 | 3 | [RISC-V pipeline](https://ksawerym.github.io/ComputerHardwareSimulators/#pipeline): stalls, forwarding and flushes, cycle by cycle |
 | 4 | [Direct-mapped cache](https://ksawerym.github.io/ComputerHardwareSimulators/#cache): blocks, lines, tags, hits and misses |
 | 5 | [I2C](https://ksawerym.github.io/ComputerHardwareSimulators/#io-i2c), [device registers](https://ksawerym.github.io/ComputerHardwareSimulators/#io-mmio), [GPIO controller](https://ksawerym.github.io/ComputerHardwareSimulators/#io-gpio) |
-| 6 | [Polling vs interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-poll), [interrupt step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-irq), [timer and tick](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-tick), [time slice](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-slice), [context switch](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-ctx), [states and priorities](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-states), [shared counter](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-shared) |
+| 6 | [Polling vs interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-poll), [an interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-intr), [interrupt step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-irq), [timer and tick](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-tick), [time slice](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-slice), [context switch](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-ctx), [states and priorities](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-states), [shared counter](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-shared) |
 | 7 | [Race step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-race), [mutex](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-mutex) |
 | 8 | [Deadlock](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-dead), [producer-consumer](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-pc) |
 
 The course also uses these tools:
 
 - [**MARIE.js**](https://marie.js.org): a simple teaching CPU for the first assembly programs
-- [**Ripes**](https://github.com/mortbopet/Ripes): a RISC-V processor simulator with pipeline and cache views
-- [**Wokwi**](https://wokwi.com): an online simulator of the ESP32-C3 with LEDs, buttons and an LCD
+- [**Ripes**](https://ripes.dk): a RISC-V processor simulator with pipeline and cache views, in the browser
+- [**Wokwi**](https://wokwi.com): an online simulator of the ESP32-C3 with LEDs, buttons and an LCD;
+  the circuit from Lecture 5, used again in Lecture 6, is in [`Lecture_6_A_Brief_History_of_Concurrency/Circuit`](Lecture_6_A_Brief_History_of_Concurrency/Circuit/),
+  and the template for Task 1 of Lecture 6 in [`Lecture_6_A_Brief_History_of_Concurrency/Task1`](Lecture_6_A_Brief_History_of_Concurrency/Task1/)
 - [**Compiler Explorer**](https://godbolt.org): to see the assembly that the compiler produces from C++
 
 ---

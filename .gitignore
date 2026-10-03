@@ -13,3 +13,6 @@ build/
 *.synctex.gz
 Lecture_*/main.pdf
 
+
+# Solutions of the tasks: kept locally, not published
+solution/

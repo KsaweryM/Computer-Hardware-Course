@@ -1369,6 +1369,7 @@
 \newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
 \newcommand{\simurl}{\href{\simbase}{\texttt{ksawerym.github.io/ComputerHardwareSimulators}}}
 % a topic of the simulator: the name links to its section of the page
+\expandafter\def\csname simhash@An interrupt\endcsname{cc-intr}
 \expandafter\def\csname simhash@Polling vs interrupt\endcsname{cc-poll}
 \expandafter\def\csname simhash@Interrupt step by step\endcsname{cc-irq}
 \expandafter\def\csname simhash@Timer and tick\endcsname{cc-tick}
@@ -1381,7 +1382,7 @@
 \expandafter\def\csname simhash@Deadlock\endcsname{cc-dead}
 \expandafter\def\csname simhash@Producer--consumer\endcsname{cc-pc}
 \newcommand{\simhash}[1]{\csname simhash@#1\endcsname}
-\newcommand{\simtab}[1]{\href{\simbase\#\simhash{#1}}{\textcolor{ProgramPurple}{\textbf{#1}}}}
+\newcommand{\simtab}[1]{\href{\simbase\#\simhash{#1}}{\textcolor{DeepBlue}{\textbf{#1}}}}
 % the address of a topic, shown at the bottom of a simulator task
 \newcommand{\simaddr}[1]{\href{\simbase\#\simhash{#1}}{\texttt{ksawerym.github.io/ComputerHardwareSimulators/\#\simhash{#1}}}}
 \newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
@@ -1407,26 +1408,32 @@
 \lstdefinestyle{rv6}{style=rv, morekeywords={j,mret,csrr,csrw}}
 
 % ---------- an interrupt on a timeline ----------
-\newcommand{\irqtimeline}{%
+% #1 = stage: 1 the signal, the main program is suspended; 2 the ISR runs; 3 return
+\newcommand{\irqtimeline}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+    \useasboundingbox (-2.2,-2.05) rectangle (9.6,1.75);
     \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,0) {main program};
     \node[anchor=east, font=\scriptsize\bfseries, text=cISR] at (-0.15,-1.0) {ISR};
     \fill[cWork] (0,-0.21) rectangle (3.6,0.21);
-    \fill[cWork] (4.8,-0.21) rectangle (9.2,0.21);
     \node[font=\tiny\bfseries, text=white] at (1.8,0) {main program};
-    \node[font=\tiny\bfseries, text=white] at (7.0,0) {main program continues};
-    \draw[cWork, thick, dashed] (3.6,0) -- (4.8,0);
-    \fill[cISR] (3.6,-1.21) rectangle (4.8,-0.79);
-    \node[font=\tiny\bfseries, text=white] at (4.2,-1.0) {ISR};
-    \draw[->, very thick, DeepBlue] (3.6,-0.25) -- (3.6,-0.75);
-    \draw[->, very thick, DeepBlue] (4.8,-0.75) -- (4.8,-0.25);
-    \node[anchor=east, font=\scriptsize] at (3.5,-0.5) {\badge{1}\ suspend};
-    \node[font=\scriptsize, anchor=north] at (4.2,-1.3) {\badge{2}\ run the ISR};
-    \node[anchor=west, font=\scriptsize] at (4.9,-0.5) {\badge{3}\ return};
     % the signal from the button
     \node[font=\Large, text=cIO] at (3.6,1.45) {\faDotCircle};
     \node[anchor=west, font=\scriptsize\bfseries, text=cIO] at (3.95,1.45) {button A is pressed};
     \draw[->, very thick, cIO] (3.6,1.15) -- (3.6,0.3);
+    \draw[->, very thick, DeepBlue] (3.6,-0.25) -- (3.6,-0.75);
+    \node[anchor=east, font=\scriptsize] at (3.5,-0.5) {\badge{1}\ suspend};
+    \ifnum#1>1
+      \draw[cWork, thick, dashed] (3.6,0) -- (4.8,0);
+      \fill[cISR] (3.6,-1.21) rectangle (4.8,-0.79);
+      \node[font=\tiny\bfseries, text=white] at (4.2,-1.0) {ISR};
+      \node[font=\scriptsize, anchor=north] at (4.2,-1.3) {\badge{2}\ run the ISR};
+    \fi
+    \ifnum#1>2
+      \fill[cWork] (4.8,-0.21) rectangle (9.2,0.21);
+      \node[font=\tiny\bfseries, text=white] at (7.0,0) {main program continues};
+      \draw[->, very thick, DeepBlue] (4.8,-0.75) -- (4.8,-0.25);
+      \node[anchor=west, font=\scriptsize] at (4.9,-0.5) {\badge{3}\ return};
+    \fi
     \draw[->, thick, DeepBlue] (0,-1.95) -- (9.4,-1.95) node[right, font=\tiny] {time};
   \end{tikzpicture}}
 
@@ -1618,6 +1625,37 @@
       {Presses: 3\\Loop: 18452};
     \draw[->, very thick, DeepBlue] (main.east) -- (lcd.west);
   \end{tikzpicture}}
+
+% ---------- inside the ESP32-C3: the interrupt controller finds and starts the ISR ----------
+% #1 = step: 1 the pin changes, 2 the controller looks up the function, 3 the CPU runs the ISR
+\newcommand{\figintctrl}[1]{%
+  \ifnum#1=1 \tikzset{icst/.style={line width=2.4pt}}\else \tikzset{icst/.style={line width=1.2pt}}\fi
+  \ifnum#1=2 \tikzset{tabst/.style={draw=cISR, line width=2pt}}\else \tikzset{tabst/.style={draw=DeepBlue!60, line width=0.6pt}}\fi
+  \ifnum#1=3 \tikzset{isrst/.style={line width=2.4pt}}\else \tikzset{isrst/.style={line width=1.2pt, opacity=0.3}}\fi
+  \ifnum#1>1 \def\isrlbl{ISR: }\else \def\isrlbl{}\fi
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!5] (0,-1.15) rectangle (9.2,3.0);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.1,2.95) {\faMicrochip\ ESP32-C3};
+    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (btn) at (-2.1,1.4)
+      {\faDotCircle\ Button A\\[-1pt]{\tiny\mdseries GPIO 5}};
+    \node[lbox, draw=cISR, fill=cISR!15, minimum width=2.4cm, minimum height=0.95cm, icst] (ic) at (1.75,1.4) {interrupt\\controller};
+    \node[tabst, fill=white, rounded corners=2pt,
+      align=left, font=\tiny\ttfamily, inner sep=4pt] (tab) at (1.75,-0.2)
+      {GPIO 5 $\to$ onButtonA\\GPIO 6 $\to$ (none)};
+    \node[font=\tiny, text=gray, anchor=north] at (tab.south) {filled by \texttt{attachInterrupt}};
+    \node[draw=DeepBlue, very thick, rounded corners=4pt, fill=white, minimum width=3.6cm, minimum height=2.9cm] (cpu) at (6.9,1.05) {};
+    \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north] at (6.9,2.45) {CPU};
+    \node[lbox, draw=cWork, fill=cWork!12, minimum width=3.0cm] (main) at (6.9,1.55)
+      {main program\ifnum#1>2\\[-1pt]{\tiny\mdseries suspended}\fi};
+    \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.0cm, isrst] (isr) at (6.9,0.3)
+      {\isrlbl\texttt{onButtonA()}\\[-1pt]{\ttfamily\mdseries presses++}};
+    \draw[->, very thick, cIO] (btn.east) -- node[above] {\badge{1}} (ic.west);
+    \ifnum#1>1 \draw[<->, thick, cISR] (ic.south) -- node[right] {\badge{2}} (tab.north); \fi
+    \ifnum#1>2 \draw[->, very thick, cISR] (ic.east) -- ++(0.55,0) |- node[pos=0.75, above] {\badge{3}} (isr.west); \fi
+  \end{tikzpicture}}
+
+% a highlighted piece of code inside a listing: (*\hlcode{...}*)
+\newcommand{\hlcode}[1]{{\setlength{\fboxsep}{1pt}\colorbox{AccentOrange}{\textcolor{white}{\bfseries #1}}}}
 
 % ---------- three ways to keep a rhythm: #1 = 1 delay(), 2 millis() in loop(), 3 timer interrupt ----------
 \newcommand{\rhythm}[1]{%
@@ -1941,64 +1979,605 @@
         \centering\large\textbf{Wokwi}\\[0.1cm]
         {\Huge\textcolor{DeepBlue}{\faMicrochip}}\\[0.15cm]
         \normalsize\texttt{wokwi.com}\\[0.05cm]
-        \footnotesize your project \projCircuit\ from Lecture 5
+        \footnotesize your project Circuit from Lecture 5
       \end{beamercolorbox}
     \column{0.48\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.16cm,wd=\linewidth]{block body}
         \centering\large\textbf{Simulators}\\[0.1cm]
         {\Huge\textcolor{DeepBlue}{\faMousePointer}}\\[0.15cm]
         \footnotesize\simurl\\[0.05cm]
-        \footnotesize new: made for today
       \end{beamercolorbox}
   \end{columns}
   \vfill
-  \keymsg{Please open both now. All day we do the same thing: \textbf{a short talk, then you try it}.}
+  \keymsg{No Circuit project from Lecture 5? Download it from GitHub:\\[2pt]
+    \href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_6_A_Brief_History_of_Concurrency/Circuit}%
+    {\scriptsize\texttt{github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture\_6\_A\_Brief\_History\_of\_Concurrency/Circuit}}}
 \end{frame}
 
-\begin{frame}{From last time: polling}
+\begin{frame}{From last time: our circuit}
   \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
+    \column{0.56\textwidth}
       \centering
-      {\scriptsize\textbf{Task 7}: 2 s of work, then one check\par}
-      \vspace{0.1cm}
-      \begin{tikzpicture}
-        \tlbar{0}{CPU}{1.4/cWork/work,0.25/cPoll/?,1.4/cWork/work,0.25/cPoll/?,1.4/cWork/work,0.25/cPoll/?}
-        \foreach \x/\ok in {0.6/0, 1.52/1, 2.4/0, 3.9/0} {
-          \ifnum\ok=1 \def\cc{HitGreen}\else\def\cc{MissRed}\fi
-          \node[font=\scriptsize, text=\cc] at (\x,0.55) {\faDotCircle};
-          \draw[\cc, thick, dashed] (\x,0.4) -- (\x,0.22);
-        }
-        \node[font=\tiny, text=DeepBlue, anchor=west] at (5.05,0.55) {presses};
-      \end{tikzpicture}\\[0.3cm]
-      {\scriptsize\textbf{Task 8}: nothing but checks\par}
-      \vspace{0.1cm}
-      \begin{tikzpicture}
-        \tlbar{0}{CPU}{0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,
-          0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?}
-        \node[font=\tiny, text=white] at (5.05,0) {.};
-      \end{tikzpicture}\\[0.2cm]
-      \cpulegend
+      {\renewcommand{\buildopacity}[2]{1}\resizebox{!}{0.72\textheight}{\buildpic{4}}}
     \column{0.42\textwidth}
-      \stepbox{Check rarely (Task 7)}{Short presses were \textbf{lost}: the LCD showed fewer than 5, often 0 or 1.}
-      \stepbox{Check all the time (Task 8)}{Nothing was lost, but more than \textbf{99.99\%} of the checks found nothing.}
+      \centering\footnotesize
+      \renewcommand{\arraystretch}{1.25}
+      \begin{tabular}{ll}
+        \toprule
+        \textbf{Part} & \textbf{Pin} \\
+        \midrule
+        LED & GPIO 4 \\
+        Button A & GPIO 5 \\
+        Button B & GPIO 6 \\
+        LCD (SDA, SCL) & GPIO 8, 9 \\
+        \bottomrule
+      \end{tabular}\\[0.3cm]
+      \stepbox{Buttons}{Pressed = \textbf{0}, not pressed = \textbf{1}.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{From last time: what is polling?}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.38\textwidth}
+      \defbox{\textbf{Polling}: the CPU reads the device again and again until something happens.}
+    \column{0.58\textwidth}
+      \centering
+      \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+        \node[lbox, draw=DeepBlue, fill=DeepBlue!5, minimum width=1.5cm, minimum height=4.0cm] (c) at (0,0) {\faMicrochip\\CPU};
+        \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.5cm, minimum height=4.0cm] (b) at (4.6,0) {\faDotCircle\\Button A};
+        \foreach \y/\ans/\col in {1.5/no/gray, 0.5/no/gray, -0.5/no/gray, -1.5/yes!/HitGreen} {
+          \draw[->, thick, cPoll] (0.8,\y+0.12) -- node[above, font=\scriptsize\bfseries, inner sep=1pt] {pressed?} (3.8,\y+0.12);
+          \draw[->, thick, \col] (3.8,\y-0.12) -- node[below, font=\scriptsize\bfseries, inner sep=1pt] {\ans} (0.8,\y-0.12);
+        }
+      \end{tikzpicture}
   \end{columns}
   \vfill
-  \keymsg{Better idea: let the \textbf{button tell the processor} when it is pressed.}
+  \keymsg{Polling is simple: one loop that keeps \textbf{asking} the button.}
+\end{frame}
+
+\begin{frame}{Polling is like checking your mailbox}
+  \begin{center}
+    \begin{tikzpicture}[font=\scriptsize]
+      \foreach \t/\x in {9:00/0, 9:05/1.9, 9:10/3.8, 9:15/5.7} {
+        \node[font=\Huge, text=DeepBlue] at (\x,0) {\faInbox};
+        \node[font=\Large, text=MissRed] at (\x+0.55,0.45) {\faTimes};
+        \node[font=\scriptsize\bfseries, text=DeepBlue] at (\x,-0.85) {\t};
+        \node[font=\tiny, text=gray] at (\x,-1.2) {empty};
+      }
+      \node[font=\Huge, text=DeepBlue] at (7.6,0) {\faInbox};
+      \node[font=\Large, text=HitGreen] at (8.15,0.5) {\faEnvelope};
+      \node[font=\scriptsize\bfseries, text=DeepBlue] at (7.6,-0.85) {9:20};
+      \node[font=\tiny\bfseries, text=HitGreen] at (7.6,-1.2) {a letter!};
+      \draw[->, thick, DeepBlue] (-0.6,-1.6) -- (8.4,-1.6) node[right, font=\tiny] {time};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.2cm}
+  \begin{center}
+    \small You walk to the mailbox again and again. Almost every time it is \textbf{empty}.
+  \end{center}
+  \vfill
+  \keymsg{The CPU does the same with the button: it walks to it and looks, again and again.}
+\end{frame}
+
+\begin{frame}{How often should the CPU check the button?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \qcard{\faClock}{\textbf{From time to time}\\[3pt]
+        Do some work, then check once, then work again.}
+    \column{0.48\textwidth}
+      \qcard{\faIcon{sync-alt}}{\textbf{All the time}\\[3pt]
+        Do nothing else: check, check, check.}
+  \end{columns}
+  \vfill
+  \keymsg{We tried both last time. Let us look at each one.}
+\end{frame}
+
+\begin{frame}[fragile]{Check from time to time: the code}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.55\textwidth}
+\begin{lstlisting}[style=rtos]
+int count = 0;
+
+void loop() {
+  delay(2000);                 // "work": 2 s
+  if (digitalRead(BUTTON_A) == LOW) {
+    count++;                   // check once
+  }
+  lcd.setCursor(0, 1);
+  lcd.print(count);
+}
+\end{lstlisting}
+    \column{0.42\textwidth}
+      \stepbox{Work}{\texttt{delay(2000)} stands for 2 s of other work.}
+      \stepbox{One check}{Then the program reads the button \textbf{once}, and goes back to work.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Check from time to time: what happens?}
+  \begin{center}
+    {\small 2 s of work, then one check\par}
+    \vspace{0.2cm}
+    \resizebox{0.8\textwidth}{!}{%
+    \begin{tikzpicture}
+      \tlbar{0}{CPU}{1.4/cWork/work,0.25/cPoll/?,1.4/cWork/work,0.25/cPoll/?,1.4/cWork/work,0.25/cPoll/?}
+      \foreach \x/\ok in {0.6/0, 1.52/1, 2.4/0, 3.9/0} {
+        \ifnum\ok=1 \def\cc{HitGreen}\def\lbl{\faCheck\\counted}\else\def\cc{MissRed}\def\lbl{\faTimes\\missed}\fi
+        \node[font=\scriptsize, text=\cc] at (\x,0.55) {\faDotCircle};
+        \node[font=\tiny\bfseries, text=\cc, align=center, anchor=south, inner sep=1pt] at (\x,0.72) {\lbl};
+        \draw[\cc, thick, dashed] (\x,0.4) -- (\x,0.22);
+      }
+      \node[font=\tiny, text=DeepBlue, anchor=west] at (5.05,0.55) {presses};
+    \end{tikzpicture}}\\[0.2cm]
+    \cpulegend
+  \end{center}
+  \vfill
+  \keymsg{A press counts only if the button is down \textbf{exactly} when the CPU checks it (\textcolor{HitGreen}{green}).\\ Short presses during the work are \textbf{lost} (\textcolor{MissRed}{red}).}
+\end{frame}
+
+\begin{frame}{Check from time to time: we miss presses}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.36\textwidth}
+      \qcard{\faEyeSlash}{\textbf{Presses are lost}}
+    \column{0.6\textwidth}
+      \stepbox{Last time}{We pressed button A 5 times, shortly. The LCD showed fewer than 5, often 0 or 1.}
+      \stepbox{Why}{A short press can come and go \textbf{between two checks}. The CPU never sees it.}
+  \end{columns}
+  \vfill
+  \keymsg{Checking rarely leaves time for work, but the program \textbf{misses events}.}
+\end{frame}
+
+\begin{frame}[fragile]{Check all the time: the code}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.55\textwidth}
+\begin{lstlisting}[style=rtos]
+int last = HIGH;    // the last state
+long checks = 0, presses = 0;
+
+void loop() {
+  int now = digitalRead(BUTTON_A);
+  checks++;
+  if (last == HIGH && now == LOW) {
+    presses++;                 // a new press
+  }
+  last = now;
+}
+\end{lstlisting}
+    \column{0.42\textwidth}
+      \stepbox{No work}{\texttt{loop()} does nothing but read the button.}
+      \stepbox{A new press}{It counts a press when the button was \texttt{HIGH} last time and is \texttt{LOW} now.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Check all the time: what happens?}
+  \begin{center}
+    {\small nothing but checks\par}
+    \vspace{0.2cm}
+    \resizebox{0.8\textwidth}{!}{%
+    \begin{tikzpicture}
+      \tlbar{0}{CPU}{0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,
+        0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?,0.31/cPoll/?}
+      \node[font=\tiny, text=white] at (5.05,0) {.};
+    \end{tikzpicture}}\\[0.2cm]
+    \cpulegend
+  \end{center}
+  \vfill
+  \keymsg{Every press is noticed, but almost every check finds \textbf{nothing}.}
+\end{frame}
+
+\begin{frame}{Check all the time: we waste the CPU}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.36\textwidth}
+      \qcard{\faHourglassHalf}{\textbf{The CPU is wasted}}
+    \column{0.6\textwidth}
+      \stepbox{Last time}{In 10 s the CPU checked the button hundreds of thousands of times.
+        More than \textbf{99.99\%} of the checks found nothing.}
+      \stepbox{Why}{All the CPU time goes to asking. There is \textbf{no time left} for real work.}
+  \end{columns}
+  \vfill
+  \keymsg{Checking all the time misses nothing, but it \textbf{wastes the CPU}.}
+\end{frame}
+
+\begin{frame}{Neither way is good}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \qcard{\faClock}{\textbf{From time to time}\\[3pt]
+        time for work, but \textcolor{MissRed}{\textbf{presses are lost}}}
+    \column{0.48\textwidth}
+      \qcard{\faIcon{sync-alt}}{\textbf{All the time}\\[3pt]
+        no press is lost, but \textcolor{MissRed}{\textbf{the CPU is wasted}}}
+  \end{columns}
+  \vspace{0.5cm}
+  \begin{center}
+    \Large\textbf{So what now?}\\[0.15cm]
+    \small How can the CPU do its work \textbf{and} never miss a press?
+  \end{center}
+  \vfill
+  \keymsg{The problem: with polling the CPU has to \textbf{ask}. It cannot know when the button is pressed.}
+\end{frame}
+
+\begin{frame}{The solution: interrupts}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.48\textwidth}
+      \centering
+      {\scriptsize\textbf{Polling}: the CPU asks\par}
+      \vspace{0.15cm}
+      \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+        \node[lbox, draw=DeepBlue, fill=DeepBlue!5, minimum width=1.4cm, minimum height=0.8cm] (c) at (0,0) {\faMicrochip\ CPU};
+        \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.4cm, minimum height=0.8cm] (b) at (3.4,0) {\faDotCircle\ Button};
+        \foreach \y in {0.25,0,-0.25} \draw[->, thick, cPoll] ([yshift=\y cm]c.east) -- ([yshift=\y cm]b.west);
+        \node[font=\tiny\bfseries, text=cPoll] at (1.7,0.5) {pressed? pressed? pressed?};
+      \end{tikzpicture}
+    \column{0.48\textwidth}
+      \centering
+      {\scriptsize\textbf{Interrupt}: the button tells the CPU\par}
+      \vspace{0.15cm}
+      \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+        \node[lbox, draw=DeepBlue, fill=DeepBlue!5, minimum width=1.4cm, minimum height=0.8cm] (c) at (0,0) {\faMicrochip\ CPU};
+        \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.4cm, minimum height=0.8cm] (b) at (3.4,0) {\faDotCircle\ Button};
+        \draw[->, very thick, cISR] (b.west) -- (c.east);
+        \node[font=\tiny\bfseries, text=cISR] at (1.7,0.35) {I was pressed!};
+      \end{tikzpicture}
+  \end{columns}
+  \vspace{0.5cm}
+  \defbox{The solution is an \textbf{interrupt}: the device itself tells the processor that something happened.
+    Until then, the CPU does its own work.}
+  \vfill
+  \keymsg{No missed presses, and no time wasted on asking. Let us see how it works.}
 \end{frame}
 
 % =====================================================================
 \section{Interrupts}
 % =====================================================================
 
-\begin{frame}{An interrupt}
+\begin{frame}{An interrupt: 1. the signal}
   \defbox{An \textbf{interrupt} is a signal from a device to the processor:
     \emph{something happened, deal with it now}.}
-  \vspace{0.15cm}
+  \vspace{0.1cm}
   \begin{center}
-    \irqtimeline
+    \irqtimeline{1}
   \end{center}
   \vfill
-  \keymsg{\textbf{ISR} = Interrupt Service Routine: a short function that the processor runs when the interrupt arrives.}
+  \keymsg{\badge{1}\ Button A is pressed. The processor \textbf{suspends} the main program at once.}
+\end{frame}
+
+\begin{frame}{An interrupt: 2. the ISR runs}
+  \defbox{\textbf{ISR} = Interrupt Service Routine: a short function that the processor runs when the interrupt arrives.}
+  \vspace{0.1cm}
+  \begin{center}
+    \irqtimeline{2}
+  \end{center}
+  \vfill
+  \keymsg{\badge{2}\ The processor runs the ISR, for example \texttt{presses++}. Meanwhile the main program waits.}
+\end{frame}
+
+\begin{frame}{An interrupt: 3. return}
+  \defbox{When the ISR ends, the processor goes back to the main program, \textbf{exactly where it stopped}.}
+  \vspace{0.1cm}
+  \begin{center}
+    \irqtimeline{3}
+  \end{center}
+  \vfill
+  \keymsg{\badge{3}\ The main program continues. It \textbf{does not know} that it was interrupted.}
+\end{frame}
+
+\begin{frame}{Try it yourself: an interrupt}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.47\textwidth}
+      \begin{beamercolorbox}[rounded=true,sep=0.16cm,wd=\linewidth]{block body}
+        \centering\large\textbf{Simulators}\\[0.1cm]
+        {\Huge\textcolor{DeepBlue}{\faMousePointer}}\\[0.15cm]
+        \footnotesize\simurl\\[0.05cm]
+        topic \simtab{An interrupt}
+      \end{beamercolorbox}
+    \column{0.49\textwidth}
+      \footnotesize
+      \begin{enumerate}\setlength{\itemsep}{6pt}
+        \item Click \textbf{Start}. The main program counts: watch \texttt{Work} on the LCD.
+        \item Press button \textbf{A}. Watch the three steps: \textbf{suspend}, \textbf{run the ISR}, \textbf{return}.
+          What happens to \texttt{Work} meanwhile?
+        \item Turn off \emph{slow the ISR down}. How much of the CPU time does the ISR take now?
+      \end{enumerate}
+  \end{columns}
+  \vfill
+  \keymsg{In the simulator the ISR is slowed down, so that you can see it. Really it takes a few \textmu s.}
+  \simfoot{\simaddr{An interrupt}}
+\end{frame}
+
+\begin{frame}{Handling an interrupt: 1. the pin changes}
+  \begin{center}
+    \resizebox{0.78\textwidth}{!}{\figintctrl{1}}
+  \end{center}
+  \vfill
+  \keymsg{\badge{1}\ Button A pulls GPIO 5 from 1 to 0 (a \texttt{FALLING} edge).
+    A part of the chip, the \textbf{interrupt controller}, notices it. The CPU does not have to check anything.}
+\end{frame}
+
+\begin{frame}{The interrupt controller has a table}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+      \centering\footnotesize
+      \renewcommand{\arraystretch}{1.35}
+      \begin{tabular}{lll}
+        \toprule
+        \textbf{Interrupt} & \textbf{From} & \textbf{Function to run} \\
+        \midrule
+        GPIO 5 & button A & \texttt{onButtonA} \\
+        GPIO 6 & button B & (none) \\
+        \ldots & & \\
+        \bottomrule
+      \end{tabular}
+    \column{0.47\textwidth}
+      \stepbox{One row for each interrupt}{For every interrupt, the table says which function the CPU must run when it arrives.}
+      \stepbox{Who fills it?}{Our program, once at the start, with \texttt{attachInterrupt}.}
+  \end{columns}
+  \vspace{0.3cm}
+  \defbox{Such a function is called an \textbf{ISR}, an \emph{Interrupt Service Routine}: the function that \textbf{handles} an interrupt.
+    Nobody calls it in the program: the processor runs it by itself when the interrupt arrives.}
+\end{frame}
+
+\begin{frame}{Handling an interrupt: 2. which ISR?}
+  \begin{center}
+    \resizebox{0.78\textwidth}{!}{\figintctrl{2}}
+  \end{center}
+  \vfill
+  \keymsg{\badge{2}\ The interrupt controller looks up GPIO 5 in its table. The ISR for it is \texttt{onButtonA}.}
+\end{frame}
+
+\begin{frame}{Handling an interrupt: 3. the CPU runs the ISR}
+  \begin{center}
+    \resizebox{0.78\textwidth}{!}{\figintctrl{3}}
+  \end{center}
+  \vfill
+  \keymsg{\badge{3}\ The CPU suspends the main program and runs the ISR \texttt{onButtonA}: \texttt{presses++}.
+    When the ISR ends, the main program continues.}
+\end{frame}
+
+\begin{frame}{The button with an interrupt: the main program}
+  \begin{center}
+    \resizebox{0.85\textwidth}{!}{\figbuttonisr}
+  \end{center}
+  \vfill
+  \keymsg{The main program \textbf{never checks} the button. It only shows how many presses the ISR counted.}
+\end{frame}
+
+\begin{frame}[fragile]{Interrupts in the code}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int BUTTON_A = 5;
+volatile int presses = 0;
+
+void IRAM_ATTR onButtonA() {     // the ISR
+  presses++;
+}
+
+void setup() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
+                  onButtonA, FALLING);
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{The whole program}{The ISR \texttt{onButtonA} counts the presses. \texttt{setup()} connects it to button A.}
+      \stepbox{Four new things}{\texttt{attachInterrupt}, \texttt{digitalPinToInterrupt}, \texttt{IRAM\_ATTR} and \texttt{volatile}.
+        Let us look at them \textbf{one by one}.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Interrupts in the code: \texttt{attachInterrupt}}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int BUTTON_A = 5;
+volatile int presses = 0;
+
+void IRAM_ATTR onButtonA() {     // the ISR
+  presses++;
+}
+
+void setup() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  (*\hlcode{attachInterrupt}*)(digitalPinToInterrupt(BUTTON_A),
+                  onButtonA, FALLING);
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{Fill the table}{\texttt{attachInterrupt} writes one row into the table of the interrupt controller.}
+      \stepbox{Three arguments}{\textbf{which} interrupt, \textbf{which ISR} to run (\texttt{onButtonA}),
+        and \textbf{when}.}
+      \stepbox{When?}{\texttt{FALLING}: the pin goes from 1 to 0, the button is \textbf{pressed}.}
+  \end{columns}
+  \vfill
+  \keymsg{After this line the CPU never calls \texttt{onButtonA} itself: the interrupt does.}
+\end{frame}
+
+\begin{frame}[fragile]{Interrupts in the code: \texttt{digitalPinToInterrupt}}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int BUTTON_A = 5;
+volatile int presses = 0;
+
+void IRAM_ATTR onButtonA() {     // the ISR
+  presses++;
+}
+
+void setup() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  attachInterrupt((*\hlcode{digitalPinToInterrupt(BUTTON\_A)}*),
+                  onButtonA, FALLING);
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{A pin is not an interrupt}{\texttt{attachInterrupt} wants the \textbf{number of the interrupt},
+        not the number of the pin.}
+      \stepbox{The translation}{\texttt{digitalPinToInterrupt(5)} gives the interrupt that belongs to pin 5.}
+      \stepbox{Why bother?}{On the ESP32 both numbers are the same. On other boards they are not:
+        on an Arduino Uno, pin 2 is interrupt 0. With this function the code works everywhere.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Interrupts in the code: \texttt{IRAM\_ATTR}}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int BUTTON_A = 5;
+volatile int presses = 0;
+
+void (*\hlcode{IRAM\_ATTR}*) onButtonA() {     // the ISR
+  presses++;
+}
+
+void setup() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
+                  onButtonA, FALLING);
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{Where is the program?}{Normally in the \textbf{flash} memory, outside the processor core: big, but slow.}
+      \stepbox{An ISR must start at once}{The flash can be busy at the moment the interrupt arrives.
+        Then the ISR could not start, and the ESP32 would crash.}
+      \stepbox{\texttt{IRAM\_ATTR}}{Put this function into \textbf{IRAM}: fast memory inside the chip, always ready.}
+  \end{columns}
+  \vfill
+  \keymsg{Every ISR on the ESP32 gets \texttt{IRAM\_ATTR}.}
+\end{frame}
+
+\begin{frame}[fragile]{Interrupts in the code: \texttt{volatile}}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int BUTTON_A = 5;
+(*\hlcode{volatile}*) int presses = 0;
+
+void IRAM_ATTR onButtonA() {     // the ISR
+  presses++;
+}
+
+void setup() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
+                  onButtonA, FALLING);
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{The compiler is clever}{\texttt{loop()} never changes \texttt{presses}. So the compiler may read it
+        \textbf{once} into a register and never look at the memory again.}
+      \stepbox{But the ISR changes it}{The ISR writes the new value to memory, ``behind the program's back''.
+        Without \texttt{volatile}, a loop like \texttt{while (presses == 0) \{ \}} could wait \textbf{forever}.}
+      \stepbox{\texttt{volatile}}{Tells the compiler: this variable can change at any moment.
+        \textbf{Read it from memory every time.}}
+  \end{columns}
+  \vfill
+  \keymsg{Every variable that an ISR and the main program share must be \texttt{volatile}.}
+\end{frame}
+
+\begin{frame}[fragile]{Task 1: count the presses}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+\begin{lstlisting}[style=rtos]
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int BUTTON_A = 5;
+volatile int presses = 0;
+// TODO: the ISR
+
+void setup() {
+  Wire.begin(8, 9);
+  lcd.init();  lcd.backlight();
+  // TODO: the pin and the interrupt
+}
+
+void loop() {
+  // TODO: show "Presses: N"
+}
+\end{lstlisting}
+    \column{0.47\textwidth}
+      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5 (button A on GPIO 5, LCD on GPIO 8/9),
+        or the template from GitHub: \href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_6_A_Brief_History_of_Concurrency/Task1}{folder \texttt{Lecture\_6\_\ldots/Task1}}.}
+      \footnotesize
+      \begin{enumerate}\setlength{\itemsep}{4pt}
+        \item Count the presses of button A \textbf{with an interrupt}.
+        \item Show the number on the LCD: \texttt{Presses: N}.
+        \item Add \texttt{delay(2000)} to \texttt{loop()}, as in Task 7 of Lecture 5.
+          Do you still lose any presses? Why not?
+      \end{enumerate}
+      \vspace{0.1cm}
+      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
+        \scriptsize\textbf{If you finish early:} give button B (GPIO 6) its own interrupt that sets the counter
+        back to 0.
+      \end{beamercolorbox}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: count the presses}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.55\textwidth}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onButtonA() { presses++; }
+
+void setup() {
+  Wire.begin(8, 9);
+  lcd.init();  lcd.backlight();
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
+                  onButtonA, FALLING);
+}
+
+void loop() {
+  lcd.setCursor(0, 0);
+  lcd.print("Presses: ");
+  lcd.print(presses);
+  lcd.print("   ");          // clear old digits
+  delay(2000);
+}
+\end{lstlisting}
+    \column{0.42\textwidth}
+      \stepbox{Question 3}{\textbf{No} press is lost. The interrupt counts it even while \texttt{loop()} waits.
+        The LCD just shows the new number up to 2 s later.}
+      \stepbox{Compare with Task 7}{The same \texttt{delay(2000)}, but now nothing is missed.}
+      \stepbox{If you finished early}{\texttt{onButtonB()} sets \texttt{presses = 0}. Attach it to pin 6
+        with \texttt{FALLING}, like button A.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Rules for an ISR}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.31\textwidth}
+      \stepbox{\badge{1}\ Keep it short}{While the ISR runs, the main program waits.}
+    \column{0.31\textwidth}
+      \stepbox{\badge{2}\ No slow work inside}{No \texttt{delay()}, no printing to the LCD or to Serial.}
+    \column{0.31\textwidth}
+      \stepbox{\badge{3}\ Share data through \texttt{volatile} variables}{The ISR changes them, the main program reads them.}
+  \end{columns}
+  \vspace{0.3cm}
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth]
+      \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.4cm, minimum height=0.9cm] (isr) at (0,0)
+        {ISR\\[-1pt]{\mdseries records what happened}};
+      \node[lbox, draw=cWork, fill=cWork!12, minimum width=3.4cm, minimum height=0.9cm] (main) at (6,0)
+        {main program\\[-1pt]{\mdseries does the slow work}};
+      \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\scriptsize\ttfamily] {volatile presses} (main);
+    \end{tikzpicture}
+  \end{center}
+  \vfill
+  \keymsg{The ISR only \textbf{records} what happened. The main program \textbf{does the work}.}
+\end{frame}
+
+\begin{frame}{You can use interrupts. How does the processor do it?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.31\textwidth}
+      \qcard{\faMapMarker}{\textbf{Where to come back?}\\[3pt] How does the processor know where the main program stopped?}
+    \column{0.31\textwidth}
+      \qcard{\faMicrochip}{\textbf{The same registers}\\[3pt] The ISR uses registers too. Why does the main program not notice?}
+    \column{0.31\textwidth}
+      \qcard{\faStepForward}{\textbf{When exactly?}\\[3pt] Does the processor stop in the middle of an instruction?}
+  \end{columns}
+  \vfill
+  \keymsg{Now we look \textbf{inside the processor}: what happens there, step by step.}
 \end{frame}
 
 \begin{frame}{What happens inside the processor}
@@ -2072,132 +2651,6 @@
     \textbf{exactly where it stopped}.}
 \end{frame}
 
-\begin{frame}{The button with an interrupt}
-  \begin{center}
-    \resizebox{0.85\textwidth}{!}{\figbuttonisr}
-  \end{center}
-  \vfill
-  \keymsg{The main program only \textbf{shows} the number. It never checks the button.}
-\end{frame}
-
-\begin{frame}[fragile]{Interrupts in the code}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.53\textwidth}
-\begin{lstlisting}[style=rtos]
-const int BUTTON_A = 5;
-volatile int presses = 0;
-
-void IRAM_ATTR onButtonA() {     // the ISR
-  presses++;
-}
-
-void setup() {
-  pinMode(BUTTON_A, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
-                  onButtonA, FALLING);
-}
-\end{lstlisting}
-    \column{0.44\textwidth}
-      \stepbox{\texttt{attachInterrupt}}{Call \texttt{onButtonA} on a \texttt{FALLING} edge: when the pin goes
-        from 1 to 0, i.e.\ when the button is \textbf{pressed}.}
-      \stepbox{\texttt{IRAM\_ATTR}}{Keep the ISR in fast internal memory. Required on the ESP32.}
-      \stepbox{\texttt{volatile}}{As in Lecture 5: really read the variable every time.
-        The ISR can change it ``behind the program's back''.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Task 1: count the presses}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-\begin{lstlisting}[style=rtos]
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
-const int BUTTON_A = 5;
-volatile int presses = 0;
-// TODO: the ISR
-
-void setup() {
-  Wire.begin(8, 9);
-  lcd.init();  lcd.backlight();
-  // TODO: the pin and the interrupt
-}
-
-void loop() {
-  // TODO: show "Presses: N"
-}
-\end{lstlisting}
-    \column{0.47\textwidth}
-      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5: button A on GPIO 5, LCD on GPIO 8/9.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Count the presses of button A \textbf{with an interrupt}.
-        \item Show the number on the LCD: \texttt{Presses: N}.
-        \item Add \texttt{delay(2000)} to \texttt{loop()}, as in Task 7 of Lecture 5.
-          Do you still lose any presses? Why not?
-      \end{enumerate}
-      \vspace{0.1cm}
-      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
-        \scriptsize\textbf{If you finish early:} give button B (GPIO 6) its own interrupt that sets the counter
-        back to 0.
-      \end{beamercolorbox}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Solution: count the presses}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.55\textwidth}
-\begin{lstlisting}[style=rtos]
-void IRAM_ATTR onButtonA() { presses++; }
-
-void setup() {
-  Wire.begin(8, 9);
-  lcd.init();  lcd.backlight();
-  pinMode(BUTTON_A, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_A),
-                  onButtonA, FALLING);
-}
-
-void loop() {
-  lcd.setCursor(0, 0);
-  lcd.print("Presses: ");
-  lcd.print(presses);
-  lcd.print("   ");          // clear old digits
-  delay(2000);
-}
-\end{lstlisting}
-    \column{0.42\textwidth}
-      \stepbox{Question 3}{\textbf{No} press is lost. The interrupt counts it even while \texttt{loop()} waits.
-        The LCD just shows the new number up to 2 s later.}
-      \stepbox{Compare with Task 7}{The same \texttt{delay(2000)}, but now nothing is missed.}
-      \stepbox{If you finished early}{\texttt{onButtonB()} sets \texttt{presses = 0}. Attach it to pin 6
-        with \texttt{FALLING}, like button A.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Rules for an ISR}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \stepbox{\badge{1}\ Keep it short}{While the ISR runs, the main program waits.}
-    \column{0.31\textwidth}
-      \stepbox{\badge{2}\ No slow work inside}{No \texttt{delay()}, no printing to the LCD or to Serial.}
-    \column{0.31\textwidth}
-      \stepbox{\badge{3}\ Share data through \texttt{volatile} variables}{The ISR changes them, the main program reads them.}
-  \end{columns}
-  \vspace{0.3cm}
-  \begin{center}
-    \begin{tikzpicture}[>=Stealth]
-      \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.4cm, minimum height=0.9cm] (isr) at (0,0)
-        {ISR\\[-1pt]{\mdseries records what happened}};
-      \node[lbox, draw=cWork, fill=cWork!12, minimum width=3.4cm, minimum height=0.9cm] (main) at (6,0)
-        {main program\\[-1pt]{\mdseries does the slow work}};
-      \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\scriptsize\ttfamily] {volatile presses} (main);
-    \end{tikzpicture}
-  \end{center}
-  \vfill
-  \keymsg{The ISR only \textbf{records} what happened. The main program \textbf{does the work}.}
-\end{frame}
 
 \begin{frame}{Interrupts from a timer}
   \defbox{A \textbf{timer} is a counter inside the processor. When it reaches a set value, it raises an interrupt:
