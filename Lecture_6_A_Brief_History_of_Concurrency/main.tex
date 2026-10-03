@@ -1438,14 +1438,19 @@
 % ---------- inside the processor: one interrupt in 4 steps ----------
 % #1 = step (1 signal, 2 save and jump, 3 the ISR runs, 4 return)
 % ---------- the stack, for the slides that introduce it ----------
+% neutral colors for the figures that mark reads, writes and the running instruction:
+% only those three get a colour (ReadBlue, WriteRed, AccentOrange); everything else is grey
+\colorlet{nLine}{gray!65}
+\colorlet{nText}{gray!30!black}
+\colorlet{nUsed}{gray!14}
 \newcommand{\stackonly}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=2.2cm, minimum height=0.5cm, font=\ttfamily\scriptsize}]
-    \node[font=\tiny\bfseries, text=StorageBlue] at (1.1,3.15) {the stack (memory)};
+      mcell/.style={draw=nLine, thick, fill=white, minimum width=2.2cm, minimum height=0.5cm, font=\ttfamily\scriptsize}]
+    \node[font=\tiny\bfseries, text=nText] at (1.1,3.15) {the stack (memory)};
     \foreach \ad/\y in {0x1FF4/2.6, 0x1FF8/2.05, 0x1FFC/1.5, 0x2000/0.95, 0x2004/0.4}
       \node[addr, font=\ttfamily\tiny, anchor=east] at (-0.05,\y) {\ad};
-    \foreach \y in {2.6, 2.05, 1.5} \node[mcell, dashed, draw=StorageBlue!50] at (1.1,\y) {free};
-    \foreach \y in {0.95, 0.4} \node[mcell, fill=cWork!12] at (1.1,\y) {in use};
+    \foreach \y in {2.6, 2.05, 1.5} \node[mcell, dashed, draw=nLine!60] at (1.1,\y) {free};
+    \foreach \y in {0.95, 0.4} \node[mcell, fill=nUsed] at (1.1,\y) {in use};
     \draw[<-, very thick, DeepBlue] (2.25,0.95) -- (2.8,0.95) node[right, font=\tiny\bfseries] {sp: the top};
     \draw[->, thick, gray] (-1.3,0.4) -- (-1.3,2.6) node[above, font=\tiny, align=center] {it grows\\this way};
   \end{tikzpicture}}
@@ -1454,13 +1459,14 @@
 % #1 = step: 1 signal, 2 finish addi, 3 mepc, 4 jump, 5-7 prologue, 8-11 body, 12-14 epilogue, 15 mret
 \newcommand{\irqpass}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      mainstr/.style={instr, draw=cWork, fill=cWork!8},
+      mainstr/.style={instr, draw=nLine, fill=white},
+      gi/.style={instr, draw=nLine, fill=white},
       runm/.style={instr, fill=AccentOrange!45, draw=AccentOrange, very thick},
       runi/.style={isrinstr, fill=AccentOrange!45, draw=AccentOrange, very thick},
-      preg/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, minimum width=2.0cm,
+      preg/.style={draw=nLine, very thick, fill=white, rounded corners=2pt, minimum width=2.0cm,
         minimum height=0.4cm, font=\ttfamily\scriptsize},
-      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=1.9cm, minimum height=0.38cm, font=\ttfamily\scriptsize},
-      free/.style={mcell, dashed, draw=StorageBlue!50},
+      mcell/.style={draw=nLine, thick, fill=white, minimum width=1.9cm, minimum height=0.38cm, font=\ttfamily\scriptsize},
+      free/.style={mcell, dashed, draw=nLine!60},
       wr/.style={draw=WriteRed, line width=1.8pt, rounded corners=2pt},
       rd/.style={draw=ReadBlue, line width=1.8pt, rounded corners=2pt},
       flow/.style={->, very thick, DeepBlue}]
@@ -1471,7 +1477,7 @@
     \ifnum#1<5 \def\runi{99}\else\ifnum#1>15 \def\runi{99}\else \pgfmathtruncatemacro{\runi}{#1-5}\fi\fi
     % the main program: in full until the jump, then folded into one small box
     \ifnum#1<5
-    \node[font=\scriptsize\bfseries, text=cWork] at (1.3,3.35) {main program};
+    \node[font=\scriptsize\bfseries, text=nText] at (1.3,3.35) {main program};
     \foreach \a/\t [count=\k from 0] in {0x0100/{li\ \ \ t0, 0}, 0x0104/{addi t0, t0, 1},
         0x0108/{sw\ \ \ t0, 0(a0)}, 0x010C/{j\ \ \ \ 0x0104}} {
       \ifnum\k=\runm \tikzset{cur/.style={runm}}\else \tikzset{cur/.style={mainstr}}\fi
@@ -1479,21 +1485,21 @@
       \node[cur, minimum width=2.2cm] (m\k) at (1.3,{2.9-0.42*\k}) {\t};
     }
     \else
-    \node[draw=cWork, thick, fill=cWork!8, rounded corners=3pt, align=center, font=\tiny, inner sep=3pt] (mp) at (2.35,2.6)
-      {\textcolor{cWork}{\textbf{main program}}\\ \ifnum#1<15 paused\else continues\fi\\ at \texttt{0x0108}};
+    \node[draw=nLine, thick, fill=white, rounded corners=3pt, align=center, font=\tiny, inner sep=3pt] (mp) at (2.35,2.6)
+      {\textcolor{nText}{\textbf{main program}}\\ \ifnum#1<15 paused\else continues\fi\\ at \texttt{0x0108}};
     \fi
     % the ISR in three parts
-    \node[font=\scriptsize\bfseries, text=cISR] at (4.9,3.35) {ISR: \texttt{onButtonA}};
+    \node[font=\scriptsize\bfseries, text=nText] at (4.9,3.35) {ISR: \texttt{onButtonA}};
     \foreach \a/\t [count=\k from 0] in {0x0200/{addi sp, sp, -16}, 0x0204/{sw\ \ \ t0, 12(sp)}, 0x0208/{sw\ \ \ t1, 8(sp)},
         0x020C/{la\ \ \ t0, presses}, 0x0214/{lw\ \ \ t1, 0(t0)}, 0x0218/{addi t1, t1, 1}, 0x021C/{sw\ \ \ t1, 0(t0)},
         0x0220/{lw\ \ \ t1, 8(sp)}, 0x0224/{lw\ \ \ t0, 12(sp)}, 0x0228/{addi sp, sp, 16}, 0x022C/{mret}} {
-      \ifnum\k=\runi \tikzset{cur/.style={runi}}\else \tikzset{cur/.style={isrinstr}}\fi
+      \ifnum\k=\runi \tikzset{cur/.style={runi}}\else \tikzset{cur/.style={gi}}\fi
       \node[cur, minimum width=2.3cm, minimum height=0.3cm] (i\k) at (4.9,{3.0-0.3*\k}) {\t};
       \node[addr, font=\ttfamily\tiny, anchor=west] at (6.1,{3.0-0.3*\k}) {\a};
     }
     \ifnum#1<5 \def\part{0}\else\ifnum#1<8 \def\part{1}\else\ifnum#1<12 \def\part{2}\else \def\part{3}\fi\fi\fi
     \foreach \f/\l/\n/\q in {0/2/prologue/1, 3/6/body/2, 7/10/epilogue/3} {
-      \ifnum\q=\part \def\pc{cISR}\def\pf{\bfseries}\else \def\pc{gray}\def\pf{}\fi
+      \ifnum\q=\part \def\pc{nText}\def\pf{\bfseries}\else \def\pc{gray!60}\def\pf{}\fi
       \draw[\pc, thick] ([xshift=1.0cm]i\f.north east) -- ++(0.12,0) |- ([xshift=1.0cm]i\l.south east);
       \node[anchor=west, font=\scriptsize\pf, text=\pc] at ($([xshift=1.2cm]i\f.north east)!0.5!([xshift=1.2cm]i\l.south east)$) {\n};
     }
@@ -1514,31 +1520,33 @@
       \or \def\pcv{0x0228}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{1}\def\sb{5}\def\pr{3}%
       \or \def\pcv{0x0108}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{1}\def\sb{5}\def\pr{3}\fi
     % the CPU registers
-    \draw[DeepBlue, thick, rounded corners=4pt, fill=DeepBlue!4] (8.75,0.3) rectangle (11.15,3.5);
-    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (8.8,3.47) {CPU registers};
+    \draw[nLine, thick, rounded corners=4pt, fill=gray!4] (8.75,0.3) rectangle (11.15,3.5);
+    \node[anchor=north west, font=\tiny\bfseries, text=nText] at (8.8,3.47) {CPU registers};
     \node[preg] (pc) at (9.95,2.9) {\textbf{PC}\ \ \pcv};
     \node[preg] (me) at (9.95,2.42) {\textbf{mepc}\ \ \mev};
     \node[preg] (t0) at (9.95,1.79) {\textbf{t0}\ \ \tz};
     \node[preg] (t1) at (9.95,1.31) {\textbf{t1}\ \ \to};
     \node[preg] (sp) at (9.95,0.68) {\textbf{sp}\ \ \spv};
     % the memory
-    \node[font=\tiny\bfseries, text=StorageBlue, anchor=west] at (11.65,3.35) {memory};
+    \node[font=\tiny\bfseries, text=nText, anchor=west] at (11.65,3.35) {memory};
     \node[addr, font=\ttfamily\tiny, anchor=east] at (12.15,2.95) {0x1004};
     \node[mcell] (pres) at (13.15,2.95) {presses = \pr};
-    \node[font=\tiny\bfseries, text=StorageBlue, anchor=west] at (11.65,2.5) {the stack};
-    \ifnum#1<5 \tikzset{st/.style={free}}\else\ifnum#1<14 \tikzset{st/.style={mcell, fill=cISR!12}}\else \tikzset{st/.style={free, text=gray}}\fi\fi
-    \foreach \ad/\y in {0x1FF0/2.1, 0x1FF4/1.72, 0x1FF8/1.34, 0x1FFC/0.96, 0x2000/0.58}
+    \node[font=\tiny\bfseries, text=nText, anchor=west] at (11.65,2.5) {the stack};
+    \ifnum#1<5 \tikzset{st/.style={free}}\else\ifnum#1<14 \tikzset{st/.style={mcell, fill=nUsed}}\else \tikzset{st/.style={free, text=gray}}\fi\fi
+    % two free cells above the frame: the border between free and in use is where sp points
+    \foreach \ad/\y in {0x1FE8/2.1, 0x1FEC/1.74, 0x1FF0/1.38, 0x1FF4/1.02, 0x1FF8/0.66, 0x1FFC/0.30, 0x2000/-0.06}
       \node[addr, font=\ttfamily\tiny, anchor=east] at (12.15,\y) {\ad};
-    \node[st] at (13.15,2.1) {};
-    \node[st] at (13.15,1.72) {};
-    \ifnum#1<7 \node[st] (sb) at (13.15,1.34) {\sb}; \else \node[st] (sb) at (13.15,1.34) {\sb\ (t1)}; \fi
-    \ifnum#1<6 \node[st] (sa) at (13.15,0.96) {\sa}; \else \node[st] (sa) at (13.15,0.96) {\sa\ (t0)}; \fi
-    \node[mcell, fill=cWork!12] at (13.15,0.58) {main's data};
-    \ifnum#1<5 \def\topy{0.58}\else\ifnum#1<14 \def\topy{2.1}\else \def\topy{0.58}\fi\fi
-    \draw[<-, very thick, DeepBlue] (14.15,\topy) -- (14.6,\topy) node[above, font=\tiny\bfseries] {sp};
+    \tikzset{scell/.style={minimum height=0.34cm}}
+    \node[free, scell] at (13.15,2.1) {};
+    \node[free, scell] at (13.15,1.74) {};
+    \node[st, scell] at (13.15,1.38) {};
+    \node[st, scell] at (13.15,1.02) {};
+    \ifnum#1<7 \node[st, scell] (sb) at (13.15,0.66) {\sb}; \else \node[st, scell] (sb) at (13.15,0.66) {\sb\ (t1)}; \fi
+    \ifnum#1<6 \node[st, scell] (sa) at (13.15,0.30) {\sa}; \else \node[st, scell] (sa) at (13.15,0.30) {\sa\ (t0)}; \fi
+    \node[mcell, scell, fill=nUsed] at (13.15,-0.06) {main's data};
     \ifnum#1>4 \ifnum#1<14
-      \draw[cISR, thick, decorate, decoration={brace, amplitude=3pt}] (14.2,2.29) -- (14.2,0.77)
-        node[midway, right=3pt, font=\tiny, text=cISR, align=left] {16\\bytes};
+      \draw[nText, thick, decorate, decoration={brace, amplitude=3pt}] (14.2,1.55) -- (14.2,0.13)
+        node[midway, right=3pt, font=\tiny, text=nText, align=left] {16\\bytes};
     \fi\fi
     % signal, jump, return
     \ifnum#1=1
@@ -1546,7 +1554,7 @@
       \draw[flow, cIO] (sig.south) |- ([xshift=-0.95cm]m1.west);
     \fi
     \ifnum#1=2 \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at ([xshift=2pt]m1.east) {\faCheck\ finished}; \fi
-    \ifnum#1=3 \node[font=\tiny\bfseries, text=WriteRed, anchor=north] at ([yshift=-2pt]m3.south) {$\uparrow$ \texttt{sw}: the next instruction}; \fi
+    \ifnum#1=3 \node[font=\tiny\bfseries, text=nText, anchor=north] at ([yshift=-2pt]m3.south) {$\uparrow$ \texttt{sw}: the next instruction}; \fi
     \ifnum#1=4 \draw[flow] (m1.east) to[out=0, in=180] node[pos=0.35, above, font=\tiny\bfseries] {jump} (i0.west); \fi
     \ifnum#1=15 \draw[flow] (i10.west) to[out=180, in=-90] node[pos=0.55, left, font=\tiny\bfseries] {return} (mp.south); \fi
     % what is read and written
@@ -1572,10 +1580,10 @@
 % #1 = 0 before, 1 make room, 2 store a, 3 compute with a, 4 free the room
 \newcommand{\cstack}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      ins/.style={instr, draw=DeepBlue!50, fill=white, minimum width=2.4cm, anchor=west},
+      ins/.style={instr, draw=nLine, fill=white, minimum width=2.4cm, anchor=west},
       run/.style={ins, fill=AccentOrange!45, draw=AccentOrange, very thick},
-      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=2.0cm, minimum height=0.45cm, font=\ttfamily\scriptsize},
-      preg/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, minimum width=1.9cm,
+      mcell/.style={draw=nLine, thick, fill=white, minimum width=2.0cm, minimum height=0.45cm, font=\ttfamily\scriptsize},
+      preg/.style={draw=nLine, very thick, fill=white, rounded corners=2pt, minimum width=1.9cm,
         minimum height=0.45cm, font=\ttfamily\scriptsize},
       wr/.style={draw=WriteRed, line width=1.8pt, rounded corners=2pt},
       rd/.style={draw=ReadBlue, line width=1.8pt, rounded corners=2pt}]
@@ -1593,24 +1601,24 @@
       \or\def\spv{0x1FF0}\def\topy{2.55}\def\av{7}\def\afive{7}%
       \or\def\spv{0x1FF0}\def\topy{2.55}\def\av{7}\def\afive{8}%
       \or\def\spv{0x2000}\def\topy{0.9}\def\av{7}\def\afive{8}\fi
-    \draw[DeepBlue, thick, rounded corners=4pt, fill=DeepBlue!4] (3.6,1.45) rectangle (5.85,3.25);
-    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (3.65,3.22) {CPU registers};
+    \draw[nLine, thick, rounded corners=4pt, fill=gray!4] (3.6,1.45) rectangle (5.85,3.25);
+    \node[anchor=north west, font=\tiny\bfseries, text=nText] at (3.65,3.22) {CPU registers};
     \node[preg] (sp) at (4.72,2.45) {\textbf{sp}\ \ \spv};
     \node[preg] (a5) at (4.72,1.85) {\textbf{a5}\ \ \afive};
-    \node[font=\tiny\bfseries, text=StorageBlue] at (8.6,3.2) {the stack};
+    \node[font=\tiny\bfseries, text=nText] at (8.6,3.2) {the stack};
     \foreach \ad/\y in {0x1FF0/2.55, 0x1FF4/2.1, 0x1FF8/1.65, 0x1FFC/1.2, 0x2000/0.75}
       \node[addr, font=\ttfamily\tiny, anchor=east] at (7.5,\y) {\ad};
-    \ifnum#1=0 \tikzset{fr/.style={mcell, dashed, draw=StorageBlue!50}}\else\ifnum#1=4 \tikzset{fr/.style={mcell, dashed, draw=StorageBlue!50}}\else \tikzset{fr/.style={mcell, fill=cISR!10}}\fi\fi
+    \ifnum#1=0 \tikzset{fr/.style={mcell, dashed, draw=nLine!60}}\else\ifnum#1=4 \tikzset{fr/.style={mcell, dashed, draw=nLine!60}}\else \tikzset{fr/.style={mcell, fill=nUsed}}\fi\fi
     \node[fr] at (8.6,2.55) {}; \node[fr] at (8.6,2.1) {}; \node[fr] at (8.6,1.65) {};
-    \ifnum#1>1 \ifnum#1<4 \node[mcell, fill=cISR!25] (va) at (8.6,1.2) {a = \av};
-      \else \node[mcell, dashed, draw=StorageBlue!50, text=gray] (va) at (8.6,1.2) {7 (free)}; \fi
+    \ifnum#1>1 \ifnum#1<4 \node[mcell, fill=nUsed] (va) at (8.6,1.2) {a = \av};
+      \else \node[mcell, dashed, draw=nLine!60, text=gray] (va) at (8.6,1.2) {7 (free)}; \fi
     \else \node[fr] (va) at (8.6,1.2) {}; \fi
-    \node[mcell, fill=cWork!12] at (8.6,0.75) {in use};
+    \node[mcell, fill=nUsed] at (8.6,0.75) {in use};
     \ifnum#1=0 \def\topy{0.75}\else\ifnum#1=4 \def\topy{0.75}\else \def\topy{2.55}\fi\fi
     \draw[<-, very thick, DeepBlue] (9.65,\topy) -- (10.15,\topy) node[right, font=\tiny\bfseries] {sp};
     \ifnum#1>0 \ifnum#1<4
-      \draw[cISR, thick, decorate, decoration={brace, amplitude=4pt, mirror}] (6.8,2.8) -- (6.8,0.98)
-        node[midway, left=4pt, font=\tiny, text=cISR] {16 bytes};
+      \draw[nText, thick, decorate, decoration={brace, amplitude=4pt, mirror}] (6.8,2.8) -- (6.8,0.98)
+        node[midway, left=4pt, font=\tiny, text=nText] {16 bytes};
     \fi\fi
     \ifnum#1=1 \draw[wr] (sp.south west) rectangle (sp.north east); \fi
     \ifnum#1=2 \draw[wr] (a5.south west) rectangle (a5.north east); \draw[wr] (va.south west) rectangle (va.north east); \fi
@@ -1658,23 +1666,24 @@
 % ---------- a compiled C ISR overwrites a register of the main program ----------
 \newcommand{\ctrouble}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      prog/.style={very thick, rounded corners=4pt, minimum width=3.0cm, minimum height=1.9cm},
-      rv/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=3pt}]
-    \node[prog, draw=cWork, fill=cWork!8] (m1) at (0,0) {};
-    \node[font=\scriptsize\bfseries, text=cWork, anchor=north] at (m1.north) {main program};
+      prog/.style={draw=nLine, fill=white, very thick, rounded corners=4pt, minimum width=3.0cm, minimum height=1.9cm},
+      rv/.style={draw=nLine, very thick, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=3pt}]
+    \node[prog] (m1) at (0,0) {};
+    \node[font=\scriptsize\bfseries, text=nText, anchor=north] at (m1.north) {main program};
     \node[font=\ttfamily\tiny, align=left] at (0,0.05) {li\ \ \ a5, 42\\\textcolor{gray}{\ldots}};
     \node[rv] at (0,-0.6) {a5 = 42};
-    \node[prog, draw=cISR, fill=cISR!12] (isr) at (4.4,0) {};
-    \node[font=\scriptsize\bfseries, text=cISR, anchor=north] at (isr.north) {\texttt{onButtonA}, compiled};
+    \node[prog] (isr) at (4.4,0) {};
+    \node[font=\scriptsize\bfseries, text=nText, anchor=north] at (isr.north) {\texttt{onButtonA}, compiled};
     \node[font=\ttfamily\tiny, align=left] at (4.4,0.05) {lw\ \ \ a5, 0(a4)\\addi a5, a5, 1};
-    \node[rv, draw=WriteRed] at (4.4,-0.6) {a5 = 3};
-    \node[prog, draw=cWork, fill=cWork!8] (m2) at (8.8,0) {};
-    \node[font=\scriptsize\bfseries, text=cWork, anchor=north] at (m2.north) {main program again};
+    \node[rv, draw=WriteRed, line width=1.8pt] at (4.4,-0.6) {a5 = 3};
+    \node[prog] (m2) at (8.8,0) {};
+    \node[font=\scriptsize\bfseries, text=nText, anchor=north] at (m2.north) {main program again};
     \node[font=\ttfamily\tiny, align=left] at (8.8,0.05) {add\ \ a0, a0, a5\\\textcolor{gray}{\ldots}};
-    \node[rv, draw=WriteRed] at (8.8,-0.6) {a5 = 3 \textcolor{WriteRed}{\faTimes}};
+    \node[rv, draw=ReadBlue, line width=1.8pt] at (8.8,-0.6) {a5 = 3 \textcolor{WriteRed}{\faTimes}};
     \draw[->, very thick, DeepBlue] (m1) -- node[above, font=\tiny\bfseries] {interrupt} (isr);
     \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\tiny\bfseries] {return} (m2);
-    \node[font=\tiny\bfseries, text=WriteRed, anchor=north] at (8.8,-1.1) {it expected 42};
+    \node[font=\tiny\bfseries, text=nText, anchor=north] at (8.8,-1.1) {it expected 42};
+    \node[font=\tiny] at (4.4,-1.55) {\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written\quad\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read};
   \end{tikzpicture}}
 
 % ---------- a timer is a stopwatch with an alarm ----------
@@ -2000,22 +2009,22 @@
 % #1 = step (1 tick, 2 save A, 3 choose B, 4 restore B)
 \newcommand{\ctxswitch}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      cell/.style={draw=DeepBlue!50, minimum width=1.8cm, minimum height=0.42cm, inner sep=0pt, font=\ttfamily\tiny},
+      cell/.style={draw=nLine, minimum width=1.8cm, minimum height=0.42cm, inner sep=0pt, font=\ttfamily\tiny},
       src/.style={draw=ReadBlue, line width=1.6pt},
       dst/.style={draw=WriteRed, line width=1.6pt},
-      tcell/.style={draw=DeepBlue!50, fill=white, minimum height=0.45cm, inner sep=0pt}]
+      tcell/.style={draw=nLine, fill=white, minimum height=0.45cm, inner sep=0pt}]
     \useasboundingbox (-0.2,-0.7) rectangle (12.5,4.75);
     % ----- the CPU -----
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6] (0,0) rectangle (3.0,3.6);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.08,3.55) {CPU};
+    \draw[nLine, very thick, rounded corners=6pt, fill=gray!4] (0,0) rectangle (3.0,3.6);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nText] at (0.08,3.55) {CPU};
     \ifcase#1 \or \def\running{task A}\or \def\running{scheduler}\or \def\running{scheduler}\or \def\running{task B}\fi
     \node[anchor=north east, font=\tiny] at (2.95,3.55) {running: \textbf{\running}};
     \ifnum#1<4 \colorlet{ctxc}{cTaskA}\def\who{A}\else \colorlet{ctxc}{cTaskB}\def\who{B}\fi
     \foreach \r/\y in {PC/2.75, t0/2.1, t1/1.45} {
-      \node[draw=ctxc, very thick, fill=ctxc!12, rounded corners=2pt, minimum width=2.4cm, minimum height=0.48cm,
+      \node[draw=nLine, very thick, fill=white, rounded corners=2pt, minimum width=2.4cm, minimum height=0.48cm,
         font=\ttfamily\scriptsize] at (1.5,\y) {\textbf{\r}\ \ \who's \r};
     }
-    \node[draw=ctxc, very thick, fill=ctxc!12, rounded corners=2pt, minimum width=2.4cm, minimum height=0.48cm,
+    \node[draw=nLine, very thick, fill=white, rounded corners=2pt, minimum width=2.4cm, minimum height=0.48cm,
       font=\ttfamily\scriptsize] at (1.5,0.55) {\textbf{sp}\ \ top of \who};
     \ifnum#1=2
       \draw[src, rounded corners=3pt] (0.22,1.14) rectangle (2.78,3.06);
@@ -2027,46 +2036,44 @@
     \fi
     % ----- the two stacks -----
     \foreach \sx/\n/\c in {4.9/A/cTaskA, 7.6/B/cTaskB} {
-      \node[font=\scriptsize\bfseries, text=\c] at (\sx,3.3) {stack of \n};
-      \draw[\c, thick] (\sx-0.95,0.15) rectangle (\sx+0.95,3.0);
-      \node[cell, fill=\c!8, font=\tiny] at (\sx,0.45) {data of \n};
-      \node[cell, fill=\c!8, font=\tiny] at (\sx,0.87) {data of \n};
+      \node[font=\scriptsize\bfseries, text=nText] at (\sx,3.3) {stack of \n};
+      \draw[nLine, thick] (\sx-0.95,0.15) rectangle (\sx+0.95,3.0);
+      \node[cell, fill=nUsed, font=\tiny] at (\sx,0.45) {data of \n};
+      \node[cell, fill=nUsed, font=\tiny] at (\sx,0.87) {data of \n};
     }
     \ifnum#1>1
-      \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=cTaskA!30] at (4.9,\y) {A's \r};
+      \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=nUsed] at (4.9,\y) {A's \r};
     \else
-      \foreach \y in {1.29,1.71,2.13} \node[cell, draw=DeepBlue!25, dashed] at (4.9,\y) {};
+      \foreach \y in {1.29,1.71,2.13} \node[cell, draw=nLine!50, dashed] at (4.9,\y) {};
     \fi
     \ifnum#1=2 \draw[dst, rounded corners=2pt] (3.98,1.06) rectangle (5.82,2.36); \fi
-    \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=cTaskB!30] at (7.6,\y) {B's \r};
+    \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=nUsed] at (7.6,\y) {B's \r};
     \ifnum#1=4 \draw[src, rounded corners=2pt] (6.68,1.06) rectangle (8.52,2.36); \fi
     % top of each stack
     \ifnum#1>1 \def\topA{2.34}\else \def\topA{1.08}\fi
     \ifnum#1>3 \def\topB{1.08}\else \def\topB{2.34}\fi
-    \draw[->, thick, cTaskA] (6.15,\topA) -- (5.88,\topA);
-    \node[anchor=west, font=\tiny, text=cTaskA] at (6.12,\topA) {top};
-    \draw[->, thick, cTaskB] (8.85,\topB) -- (8.58,\topB);
-    \node[anchor=west, font=\tiny, text=cTaskB] at (8.82,\topB) {top};
+    \draw[->, thick, nText] (6.15,\topA) -- (5.88,\topA);
+    \node[anchor=west, font=\tiny, text=nText] at (6.12,\topA) {top};
+    \draw[->, thick, nText] (8.85,\topB) -- (8.58,\topB);
+    \node[anchor=west, font=\tiny, text=nText] at (8.82,\topB) {top};
     % ----- the table of saved stack pointers -----
-    \node[draw=DeepBlue, fill=DeepBlue, text=white, font=\tiny\bfseries, minimum width=2.6cm, minimum height=0.42cm]
+    \node[draw=nLine, fill=gray!25, text=nText, font=\tiny\bfseries, minimum width=2.6cm, minimum height=0.42cm]
       at (10.7,3.0) {saved sp};
     \ifnum#1>1 \def\valA{top of A}\else \def\valA{-}\fi
-    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskA] at (9.85,2.55) {task A};
+    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=nText] at (9.85,2.55) {task A};
     \node[tcell, minimum width=1.7cm, font=\ttfamily\tiny] (va) at (11.15,2.55) {\valA};
-    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskB] at (9.85,2.1) {task B};
+    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=nText] at (9.85,2.1) {task B};
     \node[tcell, minimum width=1.7cm, font=\ttfamily\tiny] (vb) at (11.15,2.1) {top of B};
     \ifnum#1=2 \draw[dst] (va.south west) rectangle (va.north east); \fi
-    \ifnum#1=3 \draw[cSched, line width=1.6pt] (9.4,1.875) rectangle (12.0,2.325); \fi
+    \ifnum#1=3 \draw[nText, line width=1.6pt, dashed] (9.4,1.875) rectangle (12.0,2.325); \fi
     \ifnum#1=4 \draw[src] (vb.south west) rectangle (vb.north east); \fi
     % ----- legend -----
     \node[font=\tiny, anchor=west] at (4.1,4.4) {\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read from here
-      \quad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here
-      \quad\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ task A
-      \quad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ task B};
+      \quad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here};
     % ----- what happens in this step -----
     \ifnum#1=1
-      \node[lbox, draw=cISR, fill=cISR!15] (tick) at (1.5,4.3) {\faClock\ tick: timer interrupt};
-      \draw[->, very thick, cISR] (tick) -- (1.5,3.62);
+      \node[lbox, draw=cIO, fill=cIO!12, text=cIO!60!black] (tick) at (1.5,4.3) {\faClock\ tick: timer interrupt};
+      \draw[->, very thick, cIO] (tick) -- (1.5,3.62);
     \fi
     \ifnum#1=2
       \draw[->, very thick, DeepBlue] (2.8,2.1) -- (3.96,1.71);
@@ -2074,8 +2081,8 @@
         -- (12.3,2.55) -- (12.02,2.55);
     \fi
     \ifnum#1=3
-      \node[lbox, draw=cSched, fill=cSched!20] (sch) at (10.7,1.1) {scheduler: next task = B};
-      \draw[->, very thick, cSched] (sch) -- (10.7,1.86);
+      \node[lbox, draw=nLine, fill=white] (sch) at (10.7,1.1) {scheduler: next task = B};
+      \draw[->, very thick, DeepBlue] (sch) -- (10.7,1.86);
     \fi
     \ifnum#1=4
       \draw[->, very thick, DeepBlue, rounded corners=3pt] (12.02,2.1) -- (12.3,2.1) -- (12.3,-0.45) -- (3.4,-0.45)
@@ -2086,9 +2093,7 @@
   \end{tikzpicture}}
 \newcommand{\ctxlegend}{%
   {\tiny\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read from here
-  \qquad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here
-  \qquad\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ task A
-  \qquad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ task B}}
+  \qquad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here}}
 
 % ---------- task states ----------
 \newcommand{\taskstates}{%
@@ -3893,21 +3898,21 @@ void loop() {
     \column{0.31\textwidth}
       \uncover<2->{\qcard{\faMapMarker}{\textbf{PC}\\ where the task stopped: the next instruction}}
     \column{0.31\textwidth}
-      \uncover<3->{\qcard{\faMicrochip}{\textbf{Registers}\\ the values it was working with, e.g.\ \texttt{x5}, \texttt{x6} in Ripes}}
+      \uncover<3->{\qcard{\faMicrochip}{\textbf{Registers}\\ the values it was working with, e.g.\ \texttt{t0}, \texttt{t1}}}
     \column{0.31\textwidth}
       \uncover<4->{\qcard{\faLayerGroup}{\textbf{Stack}\\ its local variables and the functions it is in}}
   \end{columns}
   \vspace{0.25cm}
   \uncover<4->{\defbox{Together this is the task's \textbf{context}.}}
   \vfill
-  \uncover<4->{\keymsg{The ISR in Simulator 1 already saved \texttt{t0}: the same idea, but now we save \textbf{everything}.}}
+  \uncover<4->{\keymsg{The interrupt entry code already puts \textbf{all} registers and \texttt{mepc} on the task's stack: that is its context.}}
 \end{frame}
 
 \begin{frame}{Each task has its own stack}
   \begin{columns}[c,onlytextwidth]
     \column{0.5\textwidth}
       \centering
-      \stackmem
+      \resizebox{!}{0.62\textheight}{\stackmem}
     \column{0.47\textwidth}
       \stepbox{Its own stack}{Each task has \textbf{its own stack} in memory: its local variables and saved registers.}
       \stepbox{The register \texttt{sp}}{The stack pointer points to the stack of the task that is \textbf{running now}.}
@@ -3926,9 +3931,9 @@ void loop() {
     }
   \end{center}
   \vspace{-0.15cm}
-  \only<1>{\stepbox{\badge{1}\ Tick}{Task A runs. The timer interrupt arrives and the CPU jumps to the scheduler.}}
-  \only<2>{\stepbox{\badge{2}\ Save A}{A's registers and PC go onto \textbf{stack A}. The new top of stack A goes
-    into the table of saved stack pointers.}}
+  \only<1>{\stepbox{\badge{1}\ Tick}{Task A runs. The timer interrupt (the tick) arrives: \texttt{mepc} $\leftarrow$ PC, and the CPU jumps to the interrupt entry code.}}
+  \only<2>{\stepbox{\badge{2}\ Save A}{The entry code puts A's registers and its PC (from \texttt{mepc}) onto \textbf{stack A}, as we saw.
+    The new top of stack A goes into the table of saved stack pointers.}}
   \only<3>{\stepbox{\badge{3}\ Choose B}{The scheduler picks the next task: \textbf{B}.}}
   \only<4>{\stepbox{\badge{4}\ Restore B}{\texttt{sp} $\leftarrow$ the saved sp of B. B's registers and PC come back
     from stack B: B continues as if nothing happened. These 4 steps are a \textbf{context switch}.}}
@@ -3956,7 +3961,8 @@ void loop() {
         \texttt{sp} & \texttt{0x2000} & saved sp of B: \texttt{0x2FF4} \\
         \bottomrule
       \end{tabular}\\[0.15cm]
-      \raggedright Each register takes \textbf{4 bytes}. A context = \texttt{PC}, \texttt{t0}, \texttt{t1}.
+      \raggedright Each register takes \textbf{4 bytes}. Here a context = \texttt{PC}, \texttt{t0}, \texttt{t1}
+      {\color{gray}(really: all registers)}.
     \column{0.52\textwidth}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
@@ -4042,6 +4048,7 @@ void loop() {
 \end{frame}
 
 \begin{frame}{Solution: Simulator 6}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \stepbox{Question 1}{\textbf{Blocked}: no time slices. At 5 ms it becomes Ready again.}
@@ -4061,6 +4068,7 @@ void loop() {
 % =====================================================================
 
 \begin{frame}{A real scheduler: FreeRTOS}
+  \vfill
   \defbox{\textbf{FreeRTOS} is a small operating system for microcontrollers: mainly a \textbf{scheduler}
     plus tools that help tasks cooperate.}
   \vspace{0.2cm}
@@ -4116,7 +4124,8 @@ void loop() {
         \item What is its priority?
       \end{enumerate}
       \vspace{0.1cm}
-      \scriptsize\texttt{NULL} means: the task that is running now.
+      \stepbox{New in this code}{\texttt{pcTaskGetName}: the name of a task. \texttt{uxTaskPriorityGet}: its priority.
+        \texttt{NULL} means: the task that is running now. \texttt{Serial.print} sends text to the Serial Monitor.}
   \end{columns}
 \end{frame}
 
@@ -4134,9 +4143,9 @@ Priority: @1@
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Creating a task: \texttt{xTaskCreate}}
+\begin{frame}[fragile]{Creating a task}
   \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+    \column{0.55\textwidth}
 \begin{lstlisting}[style=rtos]
 void blinkTask(void *param) {
   for (;;) {                       // forever
@@ -4152,23 +4161,76 @@ void setup() {
   xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \centering\scriptsize
-      \textbf{The arguments of \texttt{xTaskCreate}}\\[0.1cm]
-      \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{@{}ll@{}}
-        \toprule
-        \texttt{blinkTask} & the task function: an endless loop \\
-        \texttt{"blink"} & a name, for debugging \\
-        \texttt{2048} & stack size, on the ESP32 in \textbf{bytes} \\
-        \texttt{NULL} & a parameter for the task \\
-        \texttt{1} & the priority \\
-        \texttt{NULL} & a handle (not needed here) \\
-        \bottomrule
-      \end{tabular}
+    \column{0.42\textwidth}
+      \stepbox{The whole program}{\texttt{blinkTask} blinks LED 1. \texttt{setup()} starts it as a new FreeRTOS task,
+        next to \texttt{loopTask}.}
+      \stepbox{Three new things}{The task function, \texttt{vTaskDelay} and \texttt{xTaskCreate}. One by one.}
   \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task: the task function}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+void (*\hlcode{blinkTask}*)(void *param) {(*\eol*)
+  for (;;) {                       // forever
+    digitalWrite(LED1, HIGH);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    digitalWrite(LED1, LOW);
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[-0.4cm]{A task is a function}{A normal C function with one parameter, \texttt{param}: any value we want to give the task.\\[3pt] Inside: an \textbf{endless loop}, \texttt{for (;;)}. A task never returns: when it is done, it deletes itself (Task 5).}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task: \texttt{vTaskDelay}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+void blinkTask(void *param) {
+  for (;;) {                       // forever
+    digitalWrite(LED1, HIGH);
+    (*\hlcode{vTaskDelay}*)(pdMS_TO_TICKS(500));(*\eol*)
+    digitalWrite(LED1, LOW);
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0cm]{Wait without using the CPU}{The task becomes \textbf{Blocked} for 500 ms. It gets no time slices, the other tasks run.\\[3pt] \texttt{pdMS\_TO\_TICKS} turns milliseconds into ticks (on the ESP32: 1 tick = 1 ms). Arduino's \texttt{delay()} does exactly this.}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task: \texttt{xTaskCreate}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+void blinkTask(void *param) {
+  for (;;) {                       // forever
+    digitalWrite(LED1, HIGH);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    digitalWrite(LED1, LOW);
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  (*\hlcode{xTaskCreate}*)(blinkTask, "blink", 2048, NULL, 1, NULL);(*\eol*)
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Start a new task}{\texttt{blinkTask}: the task function\\ \texttt{"blink"}: a name, for debugging\\ \texttt{2048}: its own stack, in bytes\\ \texttt{NULL}: the value of \texttt{param}\\ \texttt{1}: the priority\\ \texttt{NULL}: a handle, not needed here}
   \vfill
-  \keymsg{\texttt{vTaskDelay} makes the task \textbf{Blocked}: it uses no processor time while it waits.}
+  \keymsg{From now on the scheduler gives time slices to \texttt{blinkTask} and \texttt{loopTask}.}
 \end{frame}
 
 % CHECK in Wokwi before class: with a busy task the IDLE task gets no time; a "task watchdog" message
@@ -4332,7 +4394,36 @@ mret                       # continue the task
 \end{lstlisting}
   \end{columns}
   \vfill
-  \keymsg{Exactly our 4 steps from Part 2, in real code: \texttt{lw} and \texttt{sw} as in Ripes, and one TCB per task.}
+  \keymsg{Exactly our 4 steps, in code: \texttt{sw} and \texttt{lw} for the registers, and one TCB per task.}
+\end{frame}
+
+\begin{frame}[fragile]{The context switch on the ESP32-C3: the real code}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.6\textwidth}
+\begin{lstlisting}[style=rv6, escapeinside={(*}{*)}]
+_interrupt_handler:          # the tick arrives
+  addi sp, sp, -128
+  sw   ...                   # (*\badge{2}*) all registers of A
+  call rtos_int_enter        #   on stack A
+     lw  a0, pxCurrentTCB
+     sw  sp, 0(a0)           #   A's top = sp
+  jal  _global_interrupt_handler
+  call rtos_int_exit
+     call vTaskSwitchContext # (*\badge{3}*) choose B
+     lw  a0, pxCurrentTCB
+     lw  sp, 0(a0)           # (*\badge{4}*) sp = B's top
+  lw   ...                   #   all registers of B
+  addi sp, sp, 128           #   from stack B
+  mret                       # B continues
+\end{lstlisting}
+    \column{0.37\textwidth}
+      \stepbox{The same entry code}{It is \texttt{\_interrupt\_handler} from Part 1, with the inside of
+        \texttt{rtos\_int\_enter} and \texttt{rtos\_int\_exit} shown below them (indented).}
+      \stepbox{The trick}{The entry code \textbf{always} saves all registers on the stack of the task that was interrupted.
+        So to switch, it is enough to change \texttt{sp} before the epilogue: the epilogue then restores \textbf{B}.}
+  \end{columns}
+  \vfill
+  \keymsg{A context switch is an interrupt that returns to a \textbf{different} task.}
 \end{frame}
 
 % SIMULATOR (topic "Context switch", switch "FreeRTOS names"): the same values as in Simulator 5,
@@ -4463,32 +4554,40 @@ void loop() {
 % =====================================================================
 
 \begin{frame}{What we saw today}
+  \vfill
   \begin{center}
+    \resizebox{\textwidth}{!}{%
     \begin{tikzpicture}[>=Stealth,
-        sbox/.style={very thick, rounded corners=5pt, minimum width=2.9cm, minimum height=1.7cm,
+        sbox/.style={very thick, rounded corners=5pt, minimum width=2.9cm, minimum height=1.9cm,
           align=center, font=\scriptsize, text width=2.7cm, drop shadow}]
       \node[sbox, draw=cISR, fill=cISR!12] (a) at (0,0)
         {\textbf{Interrupts}\\[2pt] the device tells the processor; a timer gives a regular tick};
-      \node[sbox, draw=StorageBlue, fill=StorageBlue!12] (b) at (3.6,0)
+      \node[sbox, draw=DeepBlue, fill=DeepBlue!8] (e) at (3.6,0)
+        {\textbf{Inside the CPU}\\[2pt] \texttt{mepc}, the stack, the entry code saves all registers};
+      \node[sbox, draw=StorageBlue, fill=StorageBlue!12] (b) at (7.2,0)
         {\textbf{Scheduler}\\[2pt] at every tick, tasks take turns; the context switch};
-      \node[sbox, draw=ProgramPurple, fill=ProgramPurple!12] (c) at (7.2,0)
-        {\textbf{FreeRTOS}\\[2pt] TCB, \texttt{vTaskSwitchContext}, \texttt{xTaskCreate}; the same LEDs, simpler code};
-      \node[sbox, draw=AccentOrange, fill=AccentOrange!25] (d) at (10.8,0)
+      \node[sbox, draw=ProgramPurple, fill=ProgramPurple!12] (c) at (10.8,0)
+        {\textbf{FreeRTOS}\\[2pt] \texttt{xTaskCreate}, \texttt{vTaskDelay}, TCB; the same LEDs, simpler code};
+      \node[sbox, draw=AccentOrange, fill=AccentOrange!25] (d) at (14.4,0)
         {\textbf{Race condition}\\[2pt] shared data needs protection: Tuesday};
-      \draw[->, very thick, DeepBlue] (a) -- (b);
+      \draw[->, very thick, DeepBlue] (a) -- (e);
+      \draw[->, very thick, DeepBlue] (e) -- (b);
       \draw[->, very thick, DeepBlue] (b) -- (c);
       \draw[->, very thick, DeepBlue] (c) -- (d);
-    \end{tikzpicture}
+    \end{tikzpicture}}
   \end{center}
   \vfill
   \keymsg{A brief history of concurrency: it all started with a button.}
 \end{frame}
 
 \begin{frame}{Check yourself}
+  \vfill
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
     \item Why does an interrupt not miss a short press, while polling can?
     \item What does the CPU save when an interrupt arrives, and why does the main program not notice the break?
+    \item Why does an ISR written in C not save the registers it uses, and who saves them?
+    \item What does \texttt{timerAlarm(timer, 500000, true, 0)} do, if the timer counts at 1 MHz?
     \item What is a context switch? What is saved, and where?
     \item Why does a task that waits with \texttt{vTaskDelay} not waste CPU time, while a busy loop does?
   \end{enumerate}
