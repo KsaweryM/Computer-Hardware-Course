@@ -21,7 +21,7 @@
 \useinnertheme{rounded}
 \useoutertheme{miniframes}
 
-\definecolor{DeepBlue}{RGB}{20,45,85}
+\definecolor{DeepBlue}{HTML}{283593}% template indigo (colour rules v6)
 \definecolor{AccentOrange}{RGB}{235,90,20}
 \definecolor{LightGray}{RGB}{245,246,250}
 \definecolor{mygreen}{RGB}{0,153,37}
@@ -36,6 +36,37 @@
 \definecolor{MacGreen}{RGB}{39,201,63}
 \definecolor{ProgramPurple}{RGB}{124,58,180}
 \definecolor{StorageBlue}{RGB}{30,120,200}
+
+% ---------- course palette (colour rules v6) ----------
+% actors and categories: fills only
+\definecolor{sIndigo}{HTML}{5C6BC0}
+\definecolor{sPink}{HTML}{EC407A}
+\definecolor{sViolet}{HTML}{7E57C2}
+\definecolor{sAmber}{HTML}{FFB300}   % black text on it
+\definecolor{sTeal}{HTML}{26A69A}
+\definecolor{sBrown}{HTML}{8D6E63}
+% text variants that stay readable on white
+\definecolor{sPinkText}{HTML}{C2185B}
+\definecolor{sAmberText}{HTML}{A06A00}
+\definecolor{sTealText}{HTML}{00796B}
+% actions: frames only (executes, read, write); results: signs only
+\definecolor{aExec}{HTML}{43A047}
+\definecolor{aRead}{HTML}{1E88E5}
+\definecolor{aWrite}{HTML}{E53935}
+% neutral (Blue Grey): hardware, data, waveforms
+\definecolor{nInk}{HTML}{37474F}
+\definecolor{nLine}{HTML}{90A4AE}
+\definecolor{nLight}{HTML}{CFD8DC}
+\definecolor{nFill}{HTML}{ECEFF1}
+\definecolor{nIdle}{HTML}{E0E0E0}
+\tikzset{
+  aexec/.style={draw=aExec, line width=1.6pt},
+  aread/.style={draw=aRead, line width=1.6pt, dash pattern=on 3pt off 2pt},
+  awrite/.style={draw=aWrite, line width=2.4pt},
+}
+\newcommand{\ok}{\textcolor{aExec}{\faCheck}}
+\newcommand{\nok}{\textcolor{aWrite}{\faTimes}}
+
 
 \setbeamercolor{palette primary}{bg=DeepBlue,fg=white}
 \setbeamercolor{palette secondary}{bg=DeepBlue!80!black,fg=white}
@@ -59,11 +90,11 @@
 
 % ---------- helpers used by the von Neumann section ----------
 \tikzset{
-  memcell/.style={draw=DeepBlue!60, minimum width=2.6cm, minimum height=0.45cm,
+  memcell/.style={draw=nLine, minimum width=2.6cm, minimum height=0.45cm,
     inner sep=1pt, font=\ttfamily\scriptsize, align=center},
-  instrcell/.style={memcell, fill=AccentOrange!18},
-  datacell/.style={memcell, fill=StorageBlue!18},
-  addr/.style={font=\ttfamily\scriptsize, text=DeepBlue},
+  instrcell/.style={memcell, fill=sViolet!18},
+  datacell/.style={memcell, fill=sPink!18},
+  addr/.style={font=\ttfamily\scriptsize, text=nInk},
 }
 % numbered orange badge for assumptions
 \newcommand{\num}[1]{\tikz[baseline=(n.base)]\node[circle,fill=AccentOrange,text=white,
@@ -71,10 +102,10 @@
 % mini memory stack with the program counter pointing at cell #2
 % #1 = x offset, #2 = highlighted cell (0-3), #3 = text of cell 3, #4 = panel heading
 \newcommand{\pcstack}[4]{%
-  \node[font=\scriptsize\bfseries, text=DeepBlue] at (#1,0.55) {#4};
+  \node[font=\scriptsize\bfseries, text=nInk] at (#1,0.55) {#4};
   \foreach \i/\t in {0/{LOAD 6},1/{ADD 7},2/{STORE 8},3/{#3}} {
     \ifnum\i=#2
-      \node[instrcell, minimum width=1.7cm, fill=AccentOrange!45, very thick, draw=AccentOrange] at (#1,{-0.45*\i}) {\t};
+      \node[instrcell, minimum width=1.7cm, aexec] at (#1,{-0.45*\i}) {\t};
     \else
       \node[instrcell, minimum width=1.7cm] at (#1,{-0.45*\i}) {\t};
     \fi
@@ -91,8 +122,8 @@
     \centering\small\textbf{#1}\\[0.1cm]
     #2\\[0.1cm]
     \raggedright\footnotesize
-    \textcolor{mygreen}{\textbf{+}}\ #3\\[0.06cm]
-    \textcolor{MacRed}{\textbf{$-$}}\ #4
+    \textcolor{aExec}{\textbf{+}}\ #3\\[0.06cm]
+    \textcolor{aWrite}{\textbf{$-$}}\ #4
   \end{beamercolorbox}}
 
 % progress strip: #1 = number of decisions already made
@@ -101,17 +132,17 @@
   \begin{tikzpicture}
     \foreach \i/\t in {1/Stored program,2/Shared memory,3/Binary,4/Sequential,5/Separate units} {
       \ifnum\i>#1
-        \node[draw=DeepBlue!35, dashed, rounded corners=3pt, text=DeepBlue!55, font=\tiny\bfseries,
+        \node[draw=nLine, dashed, rounded corners=3pt, text=nLine, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \else
-        \node[draw=AccentOrange, fill=AccentOrange, rounded corners=3pt, text=white, font=\tiny\bfseries,
+        \node[draw=DeepBlue, fill=DeepBlue, rounded corners=3pt, text=white, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \fi
     }
   \end{tikzpicture}\par}}
 
 % ----- small diagrams used on the dilemma slides -----
-\tikzset{smallcell/.style={draw=DeepBlue!60, minimum height=0.27cm, inner sep=0.5pt,
+\tikzset{smallcell/.style={draw=nLine, minimum height=0.27cm, inner sep=0.5pt,
   font=\ttfamily\tiny, align=center}}
 
 \newcommand{\diagWired}{\begin{tikzpicture}
@@ -121,17 +152,17 @@
 \end{tikzpicture}}
 
 \newcommand{\diagTape}{\begin{tikzpicture}
-  \draw[draw=DeepBlue!60, fill=LightGray] (0,0) rectangle (2.6,0.55);
+  \draw[draw=nLine, fill=nFill] (0,0) rectangle (2.6,0.55);
   \foreach \x/\y in {0.25/0.15,0.25/0.4,0.55/0.28,0.85/0.15,0.85/0.4,1.15/0.28,1.45/0.15,1.75/0.4,1.75/0.15,2.05/0.28,2.4/0.15,2.4/0.4}
-    {\fill[DeepBlue] (\x,\y) circle (0.045);}
-  \draw[AccentOrange, very thick] (1.0,-0.08) -- (1.0,0.63);
-  \node[font=\tiny, text=AccentOrange, anchor=north] at (1.0,-0.08) {reader};
+    {\fill[nInk] (\x,\y) circle (0.045);}
+  \draw[nInk, very thick] (1.0,-0.08) -- (1.0,0.63);
+  \node[font=\tiny, text=nInk, anchor=north] at (1.0,-0.08) {reader};
 \end{tikzpicture}}
 
 \newcommand{\diagMemStackSmall}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0.3) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,-0.3) {2};
@@ -140,12 +171,12 @@
 \newcommand{\diagTwoMem}{\begin{tikzpicture}
   \node[font=\tiny] at (0,0.55) {program memory};
   \node[font=\tiny] at (2.5,0.55) {data memory};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,-0.3) {HALT};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0.3) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0) {3};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,-0.3) {0};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,-0.3) {HALT};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0.3) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,-0.3) {0};
   \foreach \i in {0,1,2} {
     \node[addr, font=\ttfamily\tiny, anchor=west] at (0.8,{0.3-0.3*\i}) {\i};
     \node[addr, font=\ttfamily\tiny, anchor=west] at (3.3,{0.3-0.3*\i}) {\i};
@@ -154,16 +185,16 @@
 \end{tikzpicture}}
 
 \newcommand{\diagOneMem}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
   \node[smallcell, draw=none, minimum width=1.7cm] at (0,-0.04) {$\vdots$};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.31) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.58) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.31) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.58) {3};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.5) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.23) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.31) {6};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.58) {7};
-  \node[font=\tiny, text=DeepBlue, anchor=west] at (1.4,0) {one numbering};
+  \node[font=\tiny, text=nInk, anchor=west] at (1.4,0) {one numbering};
 \end{tikzpicture}}
 
 \newcommand{\diagDecimal}{\begin{tikzpicture}
@@ -181,47 +212,48 @@
 \end{tikzpicture}}
 
 \newcommand{\diagParallel}{\begin{tikzpicture}
-  \foreach \k in {0,1,2} {\draw[fill=AccentOrange!25, draw=AccentOrange] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
+  \foreach \k in {0,1,2} {\draw[fill=nFill, draw=nLine] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
   \node[font=\tiny, anchor=west] at (2.1,0.2) {all at once};
 \end{tikzpicture}}
 
 \newcommand{\diagDataflow}{\begin{tikzpicture}[>=Stealth]
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
-  \node[circle, draw=DeepBlue, fill=StorageBlue!15, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
-  \draw[->, thick, DeepBlue] (a) -- (c); \draw[->, thick, DeepBlue] (b) -- (c);
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
+  \draw[->, thick, nInk] (a) -- (c); \draw[->, thick, nInk] (b) -- (c);
   \node[font=\tiny, anchor=west] at (1.35,0.05) {when ready};
 \end{tikzpicture}}
 
 \newcommand{\diagSequential}{\begin{tikzpicture}[>=Stealth]
-  \foreach \k in {1,2,3} {\node[draw=DeepBlue, fill=LightGray, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
+  \foreach \k in {1,2,3} {\node[draw=nLine, fill=nFill, text=nInk, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
     (s\k) at ({0.75*\k-0.75},0.05) {\k};}
-  \draw[->, thick, DeepBlue] (s1) -- (s2); \draw[->, thick, DeepBlue] (s2) -- (s3);
+  \draw[->, thick, nInk] (s1) -- (s2); \draw[->, thick, nInk] (s2) -- (s3);
   \node[font=\tiny, anchor=west] at (1.95,0.05) {in order};
 \end{tikzpicture}}
 
 \newcommand{\diagMonolith}{\begin{tikzpicture}
-  \node[draw=DeepBlue, very thick, rounded corners=4pt, fill=LightGray, minimum width=2.6cm, minimum height=0.85cm,
+  \node[draw=nLine, very thick, rounded corners=4pt, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=0.85cm,
     font=\scriptsize, align=center] {one block:\\[-1pt]everything mixed together};
 \end{tikzpicture}}
 
 \newcommand{\diagUnits}{\begin{tikzpicture}
-  \node[draw=StorageBlue, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
-  \node[draw=mygreen, fill=mygreen!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
-  \node[draw=DeepBlue, fill=LightGray, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
   \node[font=\tiny] at (1.425,-0.2) {one job each};
 \end{tikzpicture}}
 
 % ---------- helpers for the CPU section ----------
 \tikzset{
-  reg/.style={draw=orange!80!black, very thick, fill=yellow!25, rounded corners=2pt,
+  reg/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=2pt,
     minimum width=1.95cm, minimum height=0.55cm, inner sep=2pt, font=\ttfamily\scriptsize, align=center},
   cpuunit/.style={very thick, rounded corners=3pt, minimum width=1.2cm, minimum height=0.6cm,
     inner sep=2pt, font=\scriptsize\bfseries, align=center},
-  hot/.style={fill=AccentOrange!45, draw=AccentOrange, very thick},
-  hotdata/.style={fill=StorageBlue!40, draw=StorageBlue, very thick},
-  hotalu/.style={fill=mygreen!18, line width=1.6pt},
+  hot/.style={aexec, label={[text=aExec, inner sep=1pt, font=\tiny]right:$\blacktriangleleft$}},
+  hotdata/.style={aread},
+  hotwrite/.style={awrite},
+  hotalu/.style={aexec},
   fetcharrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   dataarrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   steplabel/.style={font=\tiny\bfseries, fill=white, inner sep=1pt},
@@ -229,7 +261,7 @@
 % memory with the running example
 % #1 highlighted instruction (0-3, -1 = none)  #2 text of cell 8  #3 highlighted data cell (6-8, 0 = none)
 \newcommand{\mempanel}[3]{%
-  \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,1.8) {Memory};
+  \node[font=\scriptsize\bfseries, text=nInk] at (0,1.8) {Memory};
   \foreach \i/\t in {0/{0001 0110\ \ LOAD 6},1/{0011 0111\ \ ADD 7},2/{0010 1000\ \ STORE 8},3/{0111 0000\ \ HALT}} {
     \ifnum\i=#1
       \node[instrcell, minimum width=2.9cm, hot] (m\i) at (0,{1.35-0.45*\i}) {\t};
@@ -241,7 +273,7 @@
   \node[memcell, draw=none, minimum width=2.9cm] at (0,-0.45) {$\vdots$};
   \foreach \i/\t/\y in {6/{0000 0101\ \ (5)}/-0.9,7/{0000 0011\ \ (3)}/-1.35,8/{#2}/-1.8} {
     \ifnum\i=#3
-      \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};
+      \ifnum\i=8 \node[datacell, minimum width=2.9cm, hotwrite] (m\i) at (0,\y) {\t};\else \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};\fi
     \else
       \node[datacell, minimum width=2.9cm] (m\i) at (0,\y) {\t};
     \fi
@@ -251,9 +283,9 @@
 % the CPU, built up step by step
 % #1 level: 0 empty, 1 +PC, 2 +IR, 3 +AC, 4 +ALU, 5 +CU   #2 PC   #3 IR   #4 AC   #5 extra ALU style
 \newcommand{\cpupanel}[5]{%
-  \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=4.65cm,
+  \node[draw=nLine, very thick, rounded corners=6pt, fill=nFill!50, minimum width=4.65cm,
     minimum height=3.85cm, anchor=west] (cpu) at (2.45,-0.2) {};
-  \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
+  \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
   \ifnum#1>0 \node[reg] (pc) at (3.65,0.95) {\textbf{PC}\ \ #2}; \fi
   \ifnum#1>1 \node[reg] (ir) at (3.65,0.0) {\textbf{IR}\\[-1pt]#3}; \fi
   \ifnum#1>2 \node[reg] (ac) at (3.65,-1.05) {\textbf{AC}\ \ #4}; \fi
@@ -322,9 +354,9 @@
 \BeforeBeginEnvironment{lstlisting}{%
   \begin{beamercolorbox}[rounded=true,sep=2mm,wd=\linewidth]{vscodelisting}%
   \begin{tikzpicture}
-    \fill[MacRed] (0,0) circle (3pt);
-    \fill[MacYellow] (0.35,0) circle (3pt);
-    \fill[MacGreen] (0.70,0) circle (3pt);
+    \fill[nLine] (0,0) circle (3pt);
+    \fill[nLine] (0.35,0) circle (3pt);
+    \fill[nLine] (0.70,0) circle (3pt);
   \end{tikzpicture}%
   \vspace{-0.2cm}%
 }
@@ -338,15 +370,15 @@
 % \busdiagram[values]{source}{destination}{extra TikZ}
 %   source (Read, blue) and destination (Write, red): ir, out, in, ac, mbr, pc, mar, mem, none
 %   values: ir=, out=, in=, ac=, mbr=, pc=, mar=, mem= (contents of M[MAR]), step= (0-7, -1 = none)
-\definecolor{ReadBlue}{RGB}{30,150,230}
-\definecolor{WriteRed}{RGB}{220,50,80}
-\definecolor{BusGreen}{RGB}{60,170,110}
+\definecolor{ReadBlue}{HTML}{1E88E5}
+\definecolor{WriteRed}{HTML}{E53935}
+\definecolor{BusGreen}{HTML}{B0BEC5}% the bus: neutral
 \tikzset{
-  dpreg/.style={draw=DeepBlue!80, thick, fill=white, minimum width=1.1cm, minimum height=0.46cm,
+  dpreg/.style={draw=nLine, thick, fill=white, text=nInk, minimum width=1.1cm, minimum height=0.46cm,
     inner sep=1pt, font=\ttfamily\scriptsize},
-  dpname/.style={font=\tiny, text=DeepBlue!80, above=0pt, inner sep=1pt},
-  dpwire/.style={thin, DeepBlue!18},
-  dpmem/.style={draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=3pt,
+  dpname/.style={font=\tiny, text=nInk, above=0pt, inner sep=1pt},
+  dpwire/.style={thin, nLight},
+  dpmem/.style={draw=nLine, very thick, fill=nFill, rounded corners=3pt,
     minimum width=1.3cm, minimum height=0.95cm, font=\scriptsize\bfseries, align=center},
   srcreg/.style={draw=ReadBlue, line width=1.6pt},
   dstreg/.style={draw=WriteRed, line width=1.6pt},
@@ -376,7 +408,7 @@
     \foreach \k in {0,...,7} {
       \pgfmathtruncatemacro{\cur}{\dpv{step}}
       \ifnum\k=\cur
-        \fill[ReadBlue] (-2.0,{1.1-0.15*\k}) circle (0.065);
+        \fill[AccentOrange] (-2.0,{1.1-0.15*\k}) circle (0.065);
       \else
         \fill[DeepBlue!30] (-2.0,{1.1-0.15*\k}) circle (0.035);
       \fi
@@ -430,7 +462,7 @@
         {\draw[line width=1.3pt, WriteRed, -{Stealth}] (-1.1,-0.6) -| ($(#3.south)+(0.3,0)$);}}
     % ----- the value travelling along the bus -----
     \ifstrequal{#2}{none}{}{\ifstrequal{#3}{none}{}{%
-      \draw[line width=3pt, BusGreen] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
+      \draw[line width=3pt, nInk] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
       \draw[line width=1.5pt, white, dash pattern=on 1.5pt off 1.5pt] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);}}
     #4
   \end{tikzpicture}%
@@ -463,10 +495,10 @@
 \newcommand{\steptimeline}[3]{%
   \begin{tikzpicture}
     \foreach \i in {1,...,#1}
-      \node[draw=white, fill=StorageBlue!75, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sAmber, text=black, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(\i-1)},0) {T\the\numexpr\i-1\relax};
     \foreach \i in {1,...,#2}
-      \node[draw=white, fill=AccentOrange, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sTeal, text=white, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(#1+\i-1)},0) {T\the\numexpr#1+\i-1\relax};
     \node[anchor=west, font=\scriptsize] at ({0.62*(#1+#2)-0.25},0) {#3};
   \end{tikzpicture}}
@@ -524,11 +556,14 @@
 \lstdefinestyle{rvnum}{style=rv, numbers=left, firstnumber=1, xleftmargin=14pt}
 
 % ---------- colours of the five pipeline stages (the same all day) ----------
-\colorlet{cIF}{AccentOrange}
-\colorlet{cID}{ProgramPurple}
-\colorlet{cEX}{mygreen}
-\colorlet{cMEM}{StorageBlue}
-\colorlet{cWB}{DeepBlue}
+\colorlet{cIF}{sAmber}
+\colorlet{cID}{sBrown}
+\colorlet{cEX}{sTeal}
+\colorlet{cMEM}{sIndigo}
+\colorlet{cWB}{sPink}
+% text on a stage colour (amber needs black)
+\colorlet{txIF}{black}\colorlet{txID}{white}\colorlet{txEX}{white}\colorlet{txMEM}{white}\colorlet{txWB}{white}
+\colorlet{txcIF}{black}\colorlet{txcID}{white}\colorlet{txcEX}{white}\colorlet{txcMEM}{white}\colorlet{txcWB}{white}
 
 % ---------- pipeline diagrams ----------
 % cell size (cm)
@@ -537,15 +572,15 @@
 \tikzset{
   pcell/.style={minimum width=\pw cm, minimum height=\ph cm, inner sep=0pt, draw=white,
     font=\scriptsize\bfseries, text=white},
-  pst-IF/.style={pcell, fill=cIF},
+  pst-IF/.style={pcell, fill=cIF, text=black},
   pst-ID/.style={pcell, fill=cID},
   pst-EX/.style={pcell, fill=cEX},
   pst-MEM/.style={pcell, fill=cMEM},
   pst-WB/.style={pcell, fill=cWB},
-  pst-B/.style={pcell, fill=gray!25, text=gray!70, font=\tiny},
-  pst-X/.style={pcell, fill=MacRed!20, text=MacRed},
+  pst-B/.style={pcell, fill=nIdle, text=nInk, font=\tiny},
+  pst-X/.style={pcell, fill=nFill, text=nInk, draw=nLine},
   pst-N/.style={pcell, fill=none, draw=none},
-  pst-E/.style={pcell, fill=gray!10},
+  pst-E/.style={pcell, fill=nFill!60},
   plab/.style={anchor=east, font=\ttfamily\footnotesize, inner sep=1pt},
 }
 % one row of a pipeline diagram
@@ -584,7 +619,7 @@
     align=center, font=\small\bfseries, drop shadow},
   gbar/.style={minimum height=0.36cm, inner sep=0pt, draw=white, font=\tiny\bfseries, text=white},
   gempty/.style={minimum height=0.36cm, inner sep=0pt, draw=gray!50, dashed, font=\tiny, text=gray!60},
-  unit/.style={draw=DeepBlue, very thick, fill=white, rounded corners=3pt, align=center,
+  unit/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=3pt, align=center,
     font=\scriptsize\bfseries, inner sep=2pt},
 }
 
@@ -594,18 +629,18 @@
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % stage labels
     \foreach \x/\n/\c in {0.9/IF/cIF, 4.2/ID/cID, 6.6/EX/cEX, 9.0/MEM/cMEM, 10.9/WB/cWB}
-      \node[fill=\c, text=white, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.9cm] at (\x,2.35) {\n};
+      \node[fill=\c, text=tx\c, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.9cm] at (\x,2.35) {\n};
     % units
     \node[unit, minimum width=0.6cm, minimum height=1.0cm] (pc) at (0,0) {PC};
     \node[unit, minimum width=1.5cm, minimum height=1.6cm] (imem) at (1.8,0) {Instruction\\memory};
     \node[unit, minimum width=1.5cm, minimum height=1.8cm] (rf) at (4.2,0) {Register\\file};
-    \draw[DeepBlue, very thick, fill=white] (6.2,0.9) -- (7.0,0.45) -- (7.0,-0.45) -- (6.2,-0.9) -- (6.2,-0.25)
+    \draw[nInk, very thick, fill=white] (6.2,0.9) -- (7.0,0.45) -- (7.0,-0.45) -- (6.2,-0.9) -- (6.2,-0.25)
       -- (6.4,0) -- (6.2,0.25) -- cycle;
     \node[font=\scriptsize\bfseries] (alu) at (6.68,0) {ALU};
     \coordinate (aluin1) at (6.2,0.55); \coordinate (aluin2) at (6.2,-0.55); \coordinate (aluout) at (7.0,0);
     \node[unit, minimum width=1.5cm, minimum height=1.6cm] (dmem) at (9.0,0) {Data\\memory};
     \node[unit, minimum width=0.45cm, minimum height=1.2cm, rounded corners=6pt, font=\tiny] (mux) at (10.9,0) {M\\U\\X};
-    \node[unit, minimum width=1.3cm, minimum height=0.5cm, draw=DeepBlue!60, text=DeepBlue!80] (add4) at (0.9,1.55) {$+4$};
+    \node[unit, minimum width=1.3cm, minimum height=0.5cm, draw=nLine, text=nLine] (add4) at (0.9,1.55) {$+4$};
     \node[unit, minimum width=2.2cm, minimum height=0.5cm, draw=gray, text=gray] (cu) at (4.2,-1.85) {Control unit};
     % wires
     \draw[->, thick] (pc) -- (imem);
@@ -616,8 +651,8 @@
     \draw[->, thick] ([yshift=-0.55cm]dmem.east) -- ([yshift=-0.4cm]mux.west);
     \draw[->, thick] (7.3,0) |- (7.3,-1.1) -| (10.3,-1.1) |- ([yshift=0.4cm]mux.west);
     \draw[->, thick] (mux.east) -- ++(0.3,0) |- (11.2,2.0) -| node[pos=0.25, above, font=\tiny] {write back} (4.2,0.9);
-    \draw[->, thick, DeepBlue!60] (pc.north) |- (add4.west);
-    \draw[->, thick, DeepBlue!60] (add4.east) -- ++(0.35,0) |- (-0.6,1.95) |- (pc.west);
+    \draw[->, thick, nLine] (pc.north) |- (add4.west);
+    \draw[->, thick, nLine] (add4.east) -- ++(0.35,0) |- (-0.6,1.95) |- (pc.west);
     \draw[->, dashed, gray] (cu.north) -- (rf.south);
     \draw[->, dashed, gray] (cu.east) -| (dmem.south);
     \draw[->, dashed, gray] (cu.east) -| (mux.south);
@@ -627,16 +662,16 @@
 % ---------- Ripes window (schematic; replace with a real screenshot if you like) ----------
 \newcommand{\ripeswindow}{%
   \begin{tikzpicture}[font=\tiny]
-    \draw[DeepBlue, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.4);
-    \fill[DeepBlue!10, rounded corners=4pt] (0,5.0) rectangle (9,5.4);
+    \draw[nInk, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.4);
+    \fill[nLight, rounded corners=4pt] (0,5.0) rectangle (9,5.4);
     \fill[MacRed] (0.25,5.2) circle (2.5pt); \fill[MacYellow] (0.5,5.2) circle (2.5pt); \fill[MacGreen] (0.75,5.2) circle (2.5pt);
-    \node[font=\tiny\bfseries, text=DeepBlue] at (4.5,5.2) {Ripes};
+    \node[font=\tiny\bfseries, text=nInk] at (4.5,5.2) {Ripes};
     % toolbar
     \fill[LightGray] (0,4.55) rectangle (9,5.0);
     \foreach \x/\i in {1.0/\faMicrochip, 1.6/\faStepForward, 2.2/\faPlay, 2.8/\faFastForward, 3.4/\faUndo}
-      \node[text=DeepBlue] at (\x,4.77) {\i};
+      \node[text=nInk] at (\x,4.77) {\i};
     % side bar
-    \fill[DeepBlue!85] (0,0) rectangle (0.5,4.55);
+    \fill[nLine] (0,0) rectangle (0.5,4.55);
     \foreach \y/\i in {4.1/\faEdit, 3.5/\faMicrochip, 2.9/\faMemory, 2.3/\faTerminal}
       \node[text=white] at (0.25,\y) {\i};
     % editor
@@ -647,8 +682,8 @@
     \draw[gray!60, fill=LightGray] (3.35,1.4) rectangle (7.3,4.4);
     \foreach \x/\c in {3.8/cIF, 4.5/cID, 5.3/cEX, 6.1/cMEM, 6.8/cWB}
       \draw[\c, very thick, fill=\c!15] (\x-0.25,2.3) rectangle (\x+0.25,3.6);
-    \draw[->, thick, DeepBlue!60] (3.55,2.95) -- (7.05,2.95);
-    \node[font=\tiny, text=DeepBlue] at (5.3,1.85) {datapath};
+    \draw[->, thick, nLine] (3.55,2.95) -- (7.05,2.95);
+    \node[font=\tiny, text=nInk] at (5.3,1.85) {datapath};
     % statistics
     \draw[gray!60, fill=white] (3.35,0.15) rectangle (7.3,1.25);
     \node[anchor=west, font=\tiny] at (3.45,0.95) {Cycles: 13};
@@ -658,7 +693,7 @@
     \draw[gray!60, fill=white] (7.45,0.15) rectangle (8.85,4.4);
     \foreach \k [count=\j from 0] in {x5,x6,x7,x8,x9,x10}
       \node[anchor=west, font=\ttfamily\tiny] at (7.5,{4.1-0.3*\j}) {\k};
-    \node[font=\tiny, text=DeepBlue] at (8.15,2.1) {registers};
+    \node[font=\tiny, text=nInk] at (8.15,2.1) {registers};
     % badges
     \node[circle, fill=AccentOrange, text=white, font=\bfseries\scriptsize, inner sep=1.5pt] at (1.9,1.2) {1};
     \node[circle, fill=AccentOrange, text=white, font=\bfseries\scriptsize, inner sep=1.5pt] at (1.35,4.77) {2};
@@ -676,14 +711,15 @@
 % =====================================================================
 
 % ---------- colours of the memory levels (the same all day) ----------
-\colorlet{cReg}{AccentOrange}
-\colorlet{cCache}{ProgramPurple}
-\colorlet{cRAM}{StorageBlue}
-\colorlet{cDisk}{DeepBlue!65}
-\colorlet{cIO}{mygreen}
-\definecolor{HitGreen}{RGB}{39,160,70}
-\colorlet{MissRed}{MacRed}
-\setbeamercolor{block body answer}{bg=mygreen!10,fg=black}
+% memory levels are hardware: neutral
+\colorlet{cReg}{nInk}
+\colorlet{cCache}{nInk}
+\colorlet{cRAM}{nLine}
+\colorlet{cDisk}{nLine}
+\colorlet{cIO}{nInk}
+\colorlet{HitGreen}{aExec}
+\colorlet{MissRed}{aWrite}
+\setbeamercolor{block body answer}{bg=aExec!8,fg=black}
 
 % ---------- listings ----------
 % RISC-V: the Day 3 keywords plus the new ones used today
@@ -703,16 +739,16 @@
 % ---------- boxes for the memory levels and devices ----------
 \tikzset{
   lbox/.style={very thick, rounded corners=4pt, align=center, font=\scriptsize\bfseries, inner sep=3pt},
-  cpubox/.style={lbox, draw=DeepBlue, fill=DeepBlue, text=white},
-  regbox/.style={lbox, draw=cReg, fill=cReg!15},
-  cachebox/.style={lbox, draw=cCache, fill=cCache!12},
-  rambox/.style={lbox, draw=cRAM, fill=cRAM!12},
-  diskbox/.style={lbox, draw=cDisk, fill=cDisk!15},
+  cpubox/.style={lbox, draw=nInk, fill=nInk, text=white},
+  regbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  cachebox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  rambox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  diskbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
   iobox/.style={lbox, draw=cIO, fill=cIO!12},
-  dmabox/.style={lbox, draw=AccentOrange, fill=AccentOrange!12},
-  osbox/.style={lbox, draw=ProgramPurple, fill=ProgramPurple!10},
-  greybox/.style={lbox, draw=gray, fill=gray!8, text=gray!40!black},
-  arr/.style={-{Stealth}, very thick, DeepBlue},
+  dmabox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  osbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  greybox/.style={lbox, draw=nLight, fill=white, text=nLine},
+  arr/.style={-{Stealth}, very thick, nInk},
   okarr/.style={-{Stealth}, very thick, HitGreen},
   badarr/.style={-{Stealth}, very thick, MissRed},
   smalltxt/.style={font=\tiny, inner sep=1pt},
@@ -736,13 +772,13 @@
 % #1 title, #2 text
 \newcommand{\acard}[2]{%
   \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body answer}
-    \footnotesize\textbf{\textcolor{mygreen!70!black}{\faCheck}\ #1}\\ #2
+    \footnotesize\textbf{\textcolor{aExec}{\faCheck}\ #1}\\ #2
   \end{beamercolorbox}\vspace{0.06cm}}
 % red "problem" box
-\setbeamercolor{block body problem}{bg=MacRed!10,fg=black}
+\setbeamercolor{block body problem}{bg=AccentOrange!10,fg=black}
 \newcommand{\probbox}[2]{%
   \begin{beamercolorbox}[rounded=true,sep=0.09cm,wd=\linewidth]{block body problem}
-    \footnotesize\textbf{\textcolor{MacRed}{\faExclamationTriangle}\ #1}\\ #2
+    \footnotesize\textbf{\textcolor{AccentOrange}{\faExclamationTriangle}\ #1}\\ #2
   \end{beamercolorbox}\vspace{0.06cm}}
 
 % ---------- hits and misses ----------
@@ -751,10 +787,10 @@
 \tikzset{
   hmcell/.style={minimum width=\cw cm, minimum height=\chh cm, inner sep=0pt, draw=white,
     font=\scriptsize\bfseries, text=white},
-  hm-H/.style={hmcell, fill=HitGreen},
-  hm-M/.style={hmcell, fill=MissRed},
-  hm-Q/.style={hmcell, fill=gray!10, draw=gray!40, text=gray!60},
-  hm-A/.style={hmcell, draw=none, text=DeepBlue, font=\scriptsize\ttfamily\bfseries},
+  hm-H/.style={hmcell, fill=white, draw=nLight, text=aExec},
+  hm-M/.style={hmcell, fill=white, draw=nLight, text=aWrite},
+  hm-Q/.style={hmcell, fill=nFill, draw=nLight, text=nLine},
+  hm-A/.style={hmcell, draw=none, text=nInk, font=\scriptsize\ttfamily\bfseries},
 }
 % one row of hits and misses: #1 row (0 = top), #2 comma list of H, M, Q (Q = to fill in)
 \newcommand{\hmrow}[2]{%
@@ -767,13 +803,13 @@
 % label on the left of a row: #1 row, #2 text
 \newcommand{\hmlabel}[2]{\node[anchor=east, font=\scriptsize, inner sep=1pt] at ({-0.5*\cw-0.08}, {-(#1)*\chh}) {#2};}
 % label on the right of a row: #1 row, #2 number of cells, #3 text
-\newcommand{\hmresult}[3]{\node[anchor=west, font=\scriptsize\bfseries, text=DeepBlue, inner sep=1pt]
+\newcommand{\hmresult}[3]{\node[anchor=west, font=\scriptsize\bfseries, text=nInk, inner sep=1pt]
   at ({(#2-0.5)*\cw+0.12}, {-(#1)*\chh}) {#3};}
 
 % ---------- a small cache (or page table) drawn as a table ----------
 \tikzset{
-  ctab/.style={draw=DeepBlue!50, minimum height=0.4cm, inner sep=1pt, font=\ttfamily\scriptsize, fill=white},
-  ctabh/.style={ctab, fill=DeepBlue, text=white, font=\scriptsize\bfseries},
+  ctab/.style={draw=nLine, text=nInk, minimum height=0.4cm, inner sep=1pt, font=\ttfamily\scriptsize, fill=white},
+  ctabh/.style={ctab, fill=nInk, text=white, font=\scriptsize\bfseries},
   ctabhit/.style={fill=HitGreen!25, draw=HitGreen, very thick},
   ctabmiss/.style={fill=MissRed!20, draw=MissRed, very thick},
 }
@@ -793,11 +829,13 @@
 % ---------- timelines (polling, interrupts, DMA, bus use) ----------
 % #1 y, #2 label on the left, #3 comma list of length/colour/text
 \newcommand{\tlbar}[3]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue, align=right] at (-0.1,#1) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk, align=right] at (-0.1,#1) {#2};
   \gdef\tlx{0}%
   \foreach \tlw/\tlc/\tlt in {#3} {%
+    \edef\tlcc{\tlc}\def\tlpoll{cPoll}\def\tlidle{cIdle}\def\tlb{cTaskB}%
+    \def\tltext{white}\ifx\tlcc\tlpoll\def\tltext{nInk}\fi\ifx\tlcc\tlidle\def\tltext{nInk}\fi\ifx\tlcc\tlb\def\tltext{black}\fi
     \node[draw=white, fill=\tlc, minimum width=\tlw cm, minimum height=0.42cm, inner sep=0pt,
-      anchor=west, font=\tiny\bfseries, text=white] at (\tlx,#1) {\tlt};
+      anchor=west, font=\tiny\bfseries, text=\tltext] at (\tlx,#1) {\tlt};
     \pgfmathsetmacro{\tlnext}{\tlx+\tlw}%
     \xdef\tlx{\tlnext}%
   }}
@@ -805,16 +843,16 @@
 % ---------- timing diagrams (buses) ----------
 % a digital signal: #1 y, #2 label, #3 comma list of x/level pairs (level 0 or 1), #4 end x
 \newcommand{\signal}[4]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,{#1+0.2}) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,{#1+0.2}) {#2};
   \gdef\sgx{0}\gdef\sgl{0}%
   \foreach \sx/\sl in {#3} {%
-    \draw[very thick, DeepBlue] (\sgx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sl});
+    \draw[very thick, nInk] (\sgx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sl});
     \xdef\sgx{\sx}\xdef\sgl{\sl}%
   }
-  \draw[very thick, DeepBlue] (\sgx,{#1+0.4*\sgl}) -- (#4,{#1+0.4*\sgl});}
+  \draw[very thick, nInk] (\sgx,{#1+0.4*\sgl}) -- (#4,{#1+0.4*\sgl});}
 % a bus value (address, data): #1 y, #2 label, #3 start x, #4 end x, #5 text, #6 colour
 \newcommand{\busval}[6]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue, align=right] at (-0.15,{#1+0.2}) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk, align=right] at (-0.15,{#1+0.2}) {#2};
   \fill[#6!20] (#3,#1+0.2) -- (#3+0.12,#1+0.4) -- (#4-0.12,#1+0.4) -- (#4,#1+0.2)
     -- (#4-0.12,#1) -- (#3+0.12,#1) -- cycle;
   \draw[very thick, #6] (#3,#1+0.2) -- (#3+0.12,#1+0.4) -- (#4-0.12,#1+0.4) -- (#4,#1+0.2)
@@ -822,14 +860,14 @@
   \node[font=\tiny\bfseries, text=#6!70!black] at ({(#3+#4)/2},{#1+0.2}) {#5};}
 % a clock: #1 y, #2 number of periods, #3 period width
 \newcommand{\clocksig}[3]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,{#1+0.2}) {Bus clock};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,{#1+0.2}) {Bus clock};
   \foreach \c in {1,...,#2} {
-    \draw[very thick, DeepBlue] ({(\c-1)*#3},#1) -- ({(\c-1)*#3},{#1+0.4}) -- ({(\c-0.5)*#3},{#1+0.4})
+    \draw[very thick, nInk] ({(\c-1)*#3},#1) -- ({(\c-1)*#3},{#1+0.4}) -- ({(\c-0.5)*#3},{#1+0.4})
       -- ({(\c-0.5)*#3},#1) -- ({\c*#3},#1);
   }}
 % a vertical time marker: #1 x, #2 top y, #3 bottom y, #4 label
 \newcommand{\tmark}[4]{%
-  \draw[DeepBlue!50, dashed, thick] (#1,#2) -- (#1,#3);
+  \draw[nLine, dashed, thick] (#1,#2) -- (#1,#3);
   \node[font=\scriptsize\bfseries, text=AccentOrange, below] at (#1,#3) {#4};}
 
 % ---------- latency bar on a log scale ----------
@@ -858,11 +896,12 @@
   moredelim=**[is][\color{MacYellow}\bfseries]{@}{@}}
 
 % ---------- colours used all day ----------
-\colorlet{cWork}{mygreen}
-\colorlet{cPoll}{MissRed}
+% who uses the CPU: main program indigo; checking the device = time lost (grey)
+\colorlet{cWork}{sIndigo}
+\colorlet{cPoll}{nIdle}
 \colorlet{cISR}{AccentOrange}
 \colorlet{cCopy}{StorageBlue}
-\colorlet{cIdle}{gray!45}
+\colorlet{cIdle}{nIdle}
 
 % legend for the CPU timelines
 \newcommand{\cpulegend}{%
@@ -880,14 +919,14 @@
 % ---------- Wokwi window (schematic; replace with a screenshot if you like) ----------
 \newcommand{\wokwiwindow}{%
   \begin{tikzpicture}[font=\tiny]
-    \draw[DeepBlue, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.2);
-    \fill[DeepBlue!10, rounded corners=4pt] (0.05,4.85) rectangle (8.95,5.15);
-    \fill[MacRed] (0.25,5.0) circle (2.5pt); \fill[MacYellow] (0.5,5.0) circle (2.5pt); \fill[MacGreen] (0.75,5.0) circle (2.5pt);
-    \node[font=\tiny\bfseries, text=DeepBlue] at (4.5,5.0) {wokwi.com};
+    \draw[nInk, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.2);
+    \fill[nLight, rounded corners=4pt] (0.05,4.85) rectangle (8.95,5.15);
+    \fill[nLine] (0.25,5.0) circle (2.5pt); \fill[nLine] (0.5,5.0) circle (2.5pt); \fill[nLine] (0.75,5.0) circle (2.5pt);
+    \node[font=\tiny\bfseries, text=nInk] at (4.5,5.0) {wokwi.com};
     % code editor
-    \fill[DeepBlue!15] (0.15,4.45) rectangle (4.3,4.75);
-    \node[anchor=west, font=\tiny\bfseries, text=DeepBlue] at (0.2,4.6) {sketch.ino};
-    \node[anchor=west, font=\tiny, text=DeepBlue!60] at (1.2,4.6) {diagram.json};
+    \fill[nLight] (0.15,4.45) rectangle (4.3,4.75);
+    \node[anchor=west, font=\tiny\bfseries, text=nInk] at (0.2,4.6) {sketch.ino};
+    \node[anchor=west, font=\tiny, text=nLine] at (1.2,4.6) {diagram.json};
     \draw[gray!60, fill=VSDarkBg] (0.15,1.35) rectangle (4.3,4.45);
     \foreach \t [count=\j from 0] in {void setup() \{, \ \ pinMode(4\, OUTPUT);, \}, void loop() \{, \ \ digitalWrite(4\, HIGH);, \ \ delay(500);, \ldots}
       \node[anchor=west, text=VSText, font=\ttfamily\tiny] at (0.25,{4.2-0.38*\j}) {\t};
@@ -895,13 +934,13 @@
     \draw[gray!60, fill=LightGray] (4.45,1.35) rectangle (8.85,4.75);
     \fill[MacGreen] (6.65,4.45) circle (0.17);
     \fill[white] (6.59,4.36) -- (6.59,4.54) -- (6.75,4.45) -- cycle;
-    \draw[DeepBlue, thick, fill=DeepBlue!85, rounded corners=1pt] (4.9,1.7) rectangle (5.9,3.7);
+    \draw[nInk, thick, fill=nLine, rounded corners=1pt] (4.9,1.7) rectangle (5.9,3.7);
     \node[font=\tiny\bfseries, text=white, rotate=90] at (5.4,2.7) {ESP32-C3};
     \fill[MacRed] (7.0,3.4) circle (0.15);
-    \draw[DeepBlue, thick] (5.9,3.4) -- (6.85,3.4);
-    \draw[DeepBlue, thick, fill=white] (6.85,2.4) rectangle (7.25,2.8);
-    \fill[DeepBlue] (7.05,2.6) circle (0.1);
-    \draw[DeepBlue, thick] (5.9,2.6) -- (6.85,2.6);
+    \draw[nInk, thick] (5.9,3.4) -- (6.85,3.4);
+    \draw[nInk, thick, fill=white] (6.85,2.4) rectangle (7.25,2.8);
+    \fill[nInk] (7.05,2.6) circle (0.1);
+    \draw[nInk, thick] (5.9,2.6) -- (6.85,2.6);
     % serial monitor
     \draw[gray!60, fill=VSDarkBg] (0.15,0.15) rectangle (8.85,1.2);
     \node[anchor=west, text=VSText, font=\ttfamily\tiny] at (0.25,0.95) {Hello, ESP32!};
@@ -914,16 +953,16 @@
 % ---------- our circuit for today ----------
 \newcommand{\ourcircuit}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[draw=DeepBlue, very thick, fill=DeepBlue!85, text=white, rounded corners=3pt, minimum width=2.0cm,
+    \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=3pt, minimum width=2.0cm,
       minimum height=3.2cm, font=\scriptsize\bfseries, align=center] (esp) at (0,0) {ESP32-C3};
-    \node[lbox, draw=MissRed, fill=MissRed!12, minimum width=1.9cm] (led) at (4.2,1.2) {\faLightbulb\ LED};
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (ba) at (4.2,0.4) {\faDotCircle\ Button A};
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (bb) at (4.2,-0.4) {\faDotCircle\ Button B};
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.9cm] (lcd) at (4.2,-1.25) {\faTv\ LCD 16$\times$2};
-    \draw[very thick, DeepBlue] (esp.east |- led) -- node[above, font=\tiny] {GPIO 4} (led);
-    \draw[very thick, DeepBlue] (esp.east |- ba) -- node[above, font=\tiny] {GPIO 5} (ba);
-    \draw[very thick, DeepBlue] (esp.east |- bb) -- node[above, font=\tiny] {GPIO 6} (bb);
-    \draw[very thick, DeepBlue] (esp.east |- lcd) -- node[above, font=\tiny] {GPIO 8, 9 (I2C)} (lcd);
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.9cm] (led) at (4.2,1.2) {\faLightbulb\ LED};
+    \node[lbox, draw=nInk, fill=LightGray, minimum width=1.9cm] (ba) at (4.2,0.4) {\faDotCircle\ Button A};
+    \node[lbox, draw=nInk, fill=LightGray, minimum width=1.9cm] (bb) at (4.2,-0.4) {\faDotCircle\ Button B};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.9cm] (lcd) at (4.2,-1.25) {\faTv\ LCD 16$\times$2};
+    \draw[very thick, nInk] (esp.east |- led) -- node[above, font=\tiny] {GPIO 4} (led);
+    \draw[very thick, nInk] (esp.east |- ba) -- node[above, font=\tiny] {GPIO 5} (ba);
+    \draw[very thick, nInk] (esp.east |- bb) -- node[above, font=\tiny] {GPIO 6} (bb);
+    \draw[very thick, nInk] (esp.east |- lcd) -- node[above, font=\tiny] {GPIO 8, 9 (I2C)} (lcd);
   \end{tikzpicture}}
 
 % ---------- Wokwi-style parts for the "Build it" slides ----------
@@ -1085,28 +1124,28 @@
 \newcommand{\powerexplain}{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
     % rails
-    \draw[line width=2pt, MacRed] (0,2.0) -- (4.6,2.0);
-    \node[anchor=west, font=\scriptsize\bfseries, text=MacRed, align=left] at (4.7,2.0) {VCC (+)\\[-1pt]{\tiny 3V3 = 3.3\,V, 5V = 5\,V}};
+    \draw[line width=2pt, nInk] (0,2.0) -- (4.6,2.0);
+    \node[anchor=west, font=\scriptsize\bfseries, text=nInk, align=left] at (4.7,2.0) {VCC (+)\\[-1pt]{\tiny 3V3 = 3.3\,V, 5V = 5\,V}};
     \draw[line width=2pt, black] (0,-1.0) -- (4.6,-1.0);
     \node[anchor=west, font=\scriptsize\bfseries, align=left] at (4.7,-1.0) {GND ($-$)\\[-1pt]{\tiny 0\,V}};
     % voltage between the rails
-    \draw[<->, thick, DeepBlue] (-0.4,-1.0) -- node[left, font=\scriptsize\bfseries, align=center] {voltage\\3.3\,V} (-0.4,2.0);
+    \draw[<->, thick, nInk] (-0.4,-1.0) -- node[left, font=\scriptsize\bfseries, align=center] {voltage\\3.3\,V} (-0.4,2.0);
     % a part between the rails: resistor + LED
     \draw[thick] (1.2,2.0) -- (1.2,1.55);
     \draw[thick, fill=ResBody] (1.08,1.55) rectangle (1.32,0.85);
     \draw[thick] (1.2,0.85) -- (1.2,0.6);
-    \draw[thick, fill=MacRed!35] (0.95,0.6) -- (1.45,0.6) -- (1.2,0.15) -- cycle;
+    \draw[thick, fill=nFill] (0.95,0.6) -- (1.45,0.6) -- (1.2,0.15) -- cycle;
     \draw[very thick] (0.95,0.15) -- (1.45,0.15);
-    \foreach \d in {0,0.15} \draw[->, MacRed, thick] (1.5,{0.45-\d}) -- ++(0.28,0.16);
+    \foreach \d in {0,0.15} \draw[->, nInk, thick] (1.5,{0.45-\d}) -- ++(0.28,0.16);
     \draw[thick] (1.2,0.15) -- (1.2,-1.0);
-    \fill[MacRed] (1.2,2.0) circle (0.06);  \fill (1.2,-1.0) circle (0.06);
+    \fill[nInk] (1.2,2.0) circle (0.06);  \fill (1.2,-1.0) circle (0.06);
     \draw[->, line width=1.4pt, AccentOrange] (0.65,1.8) -- node[sloped, above, font=\tiny\bfseries] {current} (0.65,-0.8);
-    \node[font=\tiny\bfseries, mygreen, align=center] at (1.2,-1.4) {\faCheck\ closed loop:\\+ $\to$ part $\to$ GND};
+    \node[font=\tiny\bfseries, aExec, align=center] at (1.2,-1.4) {\faCheck\ closed loop:\\+ $\to$ part $\to$ GND};
     % a short circuit
-    \draw[line width=1.4pt, MacRed] (3.6,2.0) -- (3.6,-1.0);
-    \fill[MacRed] (3.6,2.0) circle (0.06);  \fill (3.6,-1.0) circle (0.06);
-    \node[font=\Large\bfseries, text=MacRed, fill=white, inner sep=1pt] at (3.6,0.5) {\faTimes};
-    \node[font=\tiny\bfseries, MacRed, align=center] at (3.6,-1.4) {\faTimes\ short circuit:\\VCC straight to GND};
+    \draw[line width=1.4pt, aWrite] (3.6,2.0) -- (3.6,-1.0);
+    \fill[nInk] (3.6,2.0) circle (0.06);  \fill (3.6,-1.0) circle (0.06);
+    \node[font=\Large\bfseries, text=aWrite, fill=white, inner sep=1pt] at (3.6,0.5) {\faTimes};
+    \node[font=\tiny\bfseries, aWrite, align=center] at (3.6,-1.4) {\faTimes\ short circuit:\\VCC straight to GND};
   \end{tikzpicture}}
 
 % ---------- how an LED works: the part and its circuit ----------
@@ -1119,11 +1158,11 @@
     \node[anchor=east, align=right] (lc) at (-0.45,-0.35) {\textbf{C} = cathode ($-$)\\the \textbf{straight} leg};
     % the circuit
     \begin{scope}[xshift=4.3cm, yshift=-0.2cm]
-      \node[lbox, draw=DeepBlue, fill=LightGray] (gpio) at (0,1.75) {GPIO 4\\[-1pt]{\tiny HIGH = 3.3\,V}};
+      \node[lbox, draw=nInk, fill=LightGray] (gpio) at (0,1.75) {GPIO 4\\[-1pt]{\tiny HIGH = 3.3\,V}};
       \draw[thick] (gpio.south) -- (0,0.9);
-      \draw[thick, fill=MacRed!35] (-0.28,0.9) -- (0.28,0.9) -- (0,0.42) -- cycle;
+      \draw[thick, fill=nFill] (-0.28,0.9) -- (0.28,0.9) -- (0,0.42) -- cycle;
       \draw[very thick] (-0.28,0.42) -- (0.28,0.42);
-      \foreach \d in {0,0.16} \draw[->, MacRed, thick] (0.34,{0.72-\d}) -- ++(0.3,0.18);
+      \foreach \d in {0,0.16} \draw[->, nInk, thick] (0.34,{0.72-\d}) -- ++(0.3,0.18);
       \node[anchor=east, font=\scriptsize\bfseries] at (-0.32,0.86) {A};
       \node[anchor=east, font=\scriptsize\bfseries] at (-0.32,0.44) {C};
       \draw[thick] (0,0.42) -- (0,0.2);
@@ -1151,7 +1190,7 @@
       \draw[thick] (0.8,0.8) -- (0.8,0.62) -- (1.1,0.22);
       \draw[thick] (0.8,0) -- (0.8,0.18);
     \else
-      \draw[line width=1.6pt, mygreen] (0.8,0.8) -- (0.8,0);
+      \draw[line width=1.6pt, nInk] (0.8,0.8) -- (0.8,0);
     \fi
   \end{tikzpicture}}
 \newcommand{\buttonexplain}{%
@@ -1166,20 +1205,20 @@
 % ---------- I2C: one controller, many devices on 2 wires ----------
 \newcommand{\itwocbus}{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
-    \node[lbox, draw=DeepBlue, fill=DeepBlue!85, text=white, minimum width=1.7cm, minimum height=1.5cm]
+    \node[lbox, draw=nInk, fill=nInk, text=white, minimum width=1.7cm, minimum height=1.5cm]
       (cpu) at (0,0) {ESP32-C3\\[-1pt]{\tiny\mdseries controller}};
-    \draw[line width=1.5pt, StorageBlue] (cpu.east |- 0,0.35) node[above right, font=\tiny] {GPIO 8} -- (7.2,0.35)
+    \draw[line width=1.5pt, nInk] (cpu.east |- 0,0.35) node[above right, font=\tiny] {GPIO 8} -- (7.2,0.35)
       node[right, font=\scriptsize\bfseries] {SDA};
-    \foreach \x/\n/\a/\c in {2.3/LCD/0x27/mygreen, 4.2/sensor/0x68/gray, 6.1/memory/0x50/gray} {
-      \draw[line width=1.2pt, StorageBlue] (\x-0.22,0.35) -- (\x-0.22,-1.2);
-      \fill[StorageBlue] (\x-0.22,0.35) circle (0.06);
+    \foreach \x/\n/\a/\c in {2.3/LCD/0x27/nLine, 4.2/sensor/0x68/nLine, 6.1/memory/0x50/nLine} {
+      \draw[line width=1.2pt, nInk] (\x-0.22,0.35) -- (\x-0.22,-1.2);
+      \fill[nInk] (\x-0.22,0.35) circle (0.06);
       \node[lbox, draw=\c, fill=\c!12, minimum width=1.4cm] at (\x,-1.55) {\n\\[-1pt]\texttt{\a}};
     }
-    \draw[line width=1.5pt, ProgramPurple, preaction={draw, white, line width=4pt}] (cpu.east |- 0,-0.35)
+    \draw[line width=1.5pt, nLine, preaction={draw, white, line width=4pt}] (cpu.east |- 0,-0.35)
       node[below right, font=\tiny] {GPIO 9} -- (7.2,-0.35) node[right, font=\scriptsize\bfseries] {SCL};
     \foreach \x in {2.3,4.2,6.1} {
-      \draw[line width=1.2pt, ProgramPurple] (\x+0.22,-0.35) -- (\x+0.22,-1.2);
-      \fill[ProgramPurple] (\x+0.22,-0.35) circle (0.06);
+      \draw[line width=1.2pt, nLine] (\x+0.22,-0.35) -- (\x+0.22,-1.2);
+      \fill[nLine] (\x+0.22,-0.35) circle (0.06);
     }
   \end{tikzpicture}}
 
@@ -1187,8 +1226,8 @@
 \newcommand{\itwoctiming}[1]{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
     % the steps: highlighted band and a label on top
-    \foreach \n/\a/\b/\t/\c in {1/0.3/1.0/START/AccentOrange, 2/1.0/5.0/{address \texttt{0x27} + write}/StorageBlue,
-        3/5.0/5.5/ACK/mygreen, 4/5.5/9.5/{data byte}/StorageBlue, 5/9.5/10.0/ACK/mygreen, 6/10.0/10.75/STOP/AccentOrange} {
+    \foreach \n/\a/\b/\t/\c in {1/0.3/1.0/START/AccentOrange, 2/1.0/5.0/{address \texttt{0x27} + write}/AccentOrange,
+        3/5.0/5.5/ACK/AccentOrange, 4/5.5/9.5/{data byte}/AccentOrange, 5/9.5/10.0/ACK/AccentOrange, 6/10.0/10.75/STOP/AccentOrange} {
       \ifnum\n=#1
         \fill[\c!18, rounded corners=2pt] (\a,-1.55) rectangle (\b,1.45);
         \node[font=\scriptsize\bfseries, text=\c!80!black] at ({(\a+\b)/2},1.25) {\t};
@@ -1197,17 +1236,17 @@
       \fi
       \draw[gray!40, densely dotted] (\a,-1.55) -- (\a,1.1);
     }
-    \node[anchor=east, font=\scriptsize\bfseries, text=ProgramPurple] at (-0.1,0.6) {SCL};
-    \node[anchor=east, font=\scriptsize\bfseries, text=StorageBlue] at (-0.1,-0.6) {SDA};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.1,0.6) {SCL};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.1,-0.6) {SDA};
     % SCL: high, falls after START, 18 clock ticks, high again before STOP
-    \draw[thick, ProgramPurple] (0,0.9) -- (0.8,0.9) -- (0.8,0.3) -- (1.25,0.3)
+    \draw[thick, nInk] (0,0.9) -- (0.8,0.9) -- (0.8,0.3) -- (1.25,0.3)
       \foreach \k in {0,...,17} { -- ({1.25+0.5*\k},0.9) -- ({1.5+0.5*\k},0.9) -- ({1.5+0.5*\k},0.3) -- ({1.75+0.5*\k},0.3) }
       -- (10.2,0.3) -- (10.2,0.9) -- (10.9,0.9);
     % SDA: falls at START, one bit per tick, rises at STOP
-    \draw[thick, StorageBlue] (0,-0.3) -- (0.5,-0.3) -- (0.5,-0.9) -- (1.0,-0.9);
-    \foreach \x/\p/\v/\c in {1.0/0/0/StorageBlue, 1.5/0/1/StorageBlue, 2.0/1/0/StorageBlue, 2.5/0/0/StorageBlue, 3.0/0/1/StorageBlue, 3.5/1/1/StorageBlue, 4.0/1/1/StorageBlue, 4.5/1/0/StorageBlue, 5.0/0/0/mygreen, 5.5/0/0/StorageBlue, 6.0/0/1/StorageBlue, 6.5/1/0/StorageBlue, 7.0/0/0/StorageBlue, 7.5/0/1/StorageBlue, 8.0/1/0/StorageBlue, 8.5/0/0/StorageBlue, 9.0/0/0/StorageBlue, 9.5/0/0/mygreen}
+    \draw[thick, nInk] (0,-0.3) -- (0.5,-0.3) -- (0.5,-0.9) -- (1.0,-0.9);
+    \foreach \x/\p/\v/\c in {1.0/0/0/nInk, 1.5/0/1/nInk, 2.0/1/0/nInk, 2.5/0/0/nInk, 3.0/0/1/nInk, 3.5/1/1/nInk, 4.0/1/1/nInk, 4.5/1/0/nInk, 5.0/0/0/nInk, 5.5/0/0/nInk, 6.0/0/1/nInk, 6.5/1/0/nInk, 7.0/0/0/nInk, 7.5/0/1/nInk, 8.0/1/0/nInk, 8.5/0/0/nInk, 9.0/0/0/nInk, 9.5/0/0/nInk}
       \draw[thick, \c] (\x,{-0.9+0.6*\p}) -- (\x,{-0.9+0.6*\v}) -- (\x+0.5,{-0.9+0.6*\v});
-    \draw[thick, StorageBlue] (10.0,-0.9) -- (10.45,-0.9) -- (10.45,-0.3) -- (10.9,-0.3);
+    \draw[thick, nInk] (10.0,-0.9) -- (10.45,-0.9) -- (10.45,-0.3) -- (10.9,-0.3);
     \foreach \x/\v in {1.25/0, 1.75/1, 2.25/0, 2.75/0, 3.25/1, 3.75/1, 4.25/1, 4.75/0, 5.25/0, 5.75/0, 6.25/1, 6.75/0, 7.25/0, 7.75/1, 8.25/0, 8.75/0, 9.25/0, 9.75/0} \node[font=\tiny, text=gray!70!black] at (\x,-1.2) {\v};
     \node[font=\tiny, text=gray!70!black] at (4.75,-1.42) {W};
   \end{tikzpicture}}
@@ -1248,25 +1287,25 @@
 \newcommand{\chipbus}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % the chip
-    \draw[DeepBlue, very thick, dashed, rounded corners=6pt, fill=DeepBlue!4] (-1.3,-1.6) rectangle (11.9,2.5);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (-1.2,2.45) {\faMicrochip\ inside the ESP32-C3 chip};
+    \draw[nLine, very thick, dashed, rounded corners=6pt] (-1.3,-1.6) rectangle (11.9,2.5);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (-1.2,2.45) {\faMicrochip\ inside the ESP32-C3 chip};
     \node[cpubox, minimum width=1.8cm, minimum height=0.9cm] (cpu) at (0.4,1.45) {CPU};
     % the internal bus
     \ifnum#1>0 \def\buswidth{1.5pt}\else \def\buswidth{2pt}\fi
-    \foreach \y/\c/\t in {0.75/AccentOrange/address, 0.45/StorageBlue/data, 0.15/ProgramPurple/control} {
+    \foreach \y/\c/\t in {0.75/nInk/address, 0.45/nLine/data, 0.15/nLight/control} {
       \draw[line width=\buswidth, \c] (0.4,\y) -- (10.4,\y);
       \node[anchor=west, font=\tiny\bfseries, text=\c] at (10.45,\y) {\t};
     }
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (5.4,0.78) {internal bus};
-    \draw[very thick, DeepBlue] (cpu.south) -- (0.4,0.15);
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (5.4,0.78) {internal bus};
+    \draw[very thick, nInk] (cpu.south) -- (0.4,0.15);
     % memory and controllers
     \node[rambox, minimum width=2.0cm, minimum height=0.85cm] (mem) at (2.9,-0.75) {Memory\\[-1pt]{\tiny\mdseries RAM, flash}};
     \node[iobox, minimum width=2.0cm, minimum height=0.85cm] (gpio) at (6.0,-0.75) {GPIO controller\\[-1pt]{\tiny\mdseries \texttt{0x6000\,4000}}};
     \node[iobox, minimum width=2.0cm, minimum height=0.85cm] (i2c) at (9.1,-0.75) {I2C controller\\[-1pt]{\tiny\mdseries \texttt{0x6001\,3000}}};
-    \foreach \n in {mem,gpio,i2c} \draw[very thick, DeepBlue] (\n.north) -- (\n.north |- 0,0.75);
+    \foreach \n in {mem,gpio,i2c} \draw[very thick, nInk] (\n.north) -- (\n.north |- 0,0.75);
     % every connection reaches all three groups of lines: address, data and control
     \foreach \x in {0.4,2.9,6.0,9.1}
-      \foreach \y/\c in {0.75/AccentOrange, 0.45/StorageBlue, 0.15/ProgramPurple}
+      \foreach \y/\c in {0.75/nInk, 0.45/nLine, 0.15/nLight}
         \fill[\c] (\x,\y) circle (0.075);
     % pins on the edge of the chip, wires on the board
     \foreach \x/\l/\n in {5.6/4/gpio, 6.4/5/gpio, 8.7/8/i2c, 9.5/9/i2c} {
@@ -1276,49 +1315,49 @@
     }
     \draw[line width=1.2pt, WireGreen] (5.6,-1.69) -- (5.6,-2.25);
     \draw[line width=1.2pt, WireGreen] (6.4,-1.69) -- (6.4,-2.25);
-    \draw[line width=1.2pt, StorageBlue] (8.7,-1.69) -- (8.7,-2.2);
-    \draw[line width=1.2pt, ProgramPurple] (9.5,-1.69) -- (9.5,-2.2);
+    \draw[line width=1.2pt, nInk] (8.7,-1.69) -- (8.7,-2.2);
+    \draw[line width=1.2pt, nLine] (9.5,-1.69) -- (9.5,-2.2);
     \ifnum#1=3
-      \fill[MacRed!30] (5.6,-2.5) circle (0.38);
-      \fill[MacRed] (5.6,-2.5) circle (0.24);
-      \node[font=\tiny\bfseries, text=MacRed, anchor=east] at (5.5,-1.95) {3.3\,V};
+      \fill[nLight] (5.6,-2.5) circle (0.38);
+      \fill[nInk] (5.6,-2.5) circle (0.24);
+      \node[font=\tiny\bfseries, text=nInk, anchor=east] at (5.5,-1.95) {3.3\,V};
     \else
-      \fill[MacRed!35] (5.6,-2.5) circle (0.24);
+      \fill[white] (5.6,-2.5) circle (0.24); \draw[nLine] (5.6,-2.5) circle (0.24);
     \fi
     \node[font=\tiny, anchor=north] at (5.6,-2.78) {LED};
     \fill[black!75, rounded corners=1pt] (6.2,-2.7) rectangle (6.6,-2.3);  \fill[MacGreen] (6.4,-2.5) circle (0.12);
     \node[font=\tiny, anchor=north] at (6.4,-2.78) {button};
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.6cm] (lcd) at (9.1,-2.55) {LCD\\[-1pt]{\tiny\mdseries I2C address \texttt{0x27}}};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.6cm] (lcd) at (9.1,-2.55) {LCD\\[-1pt]{\tiny\mdseries I2C address \texttt{0x27}}};
     \node[font=\tiny, text=gray!40!black, anchor=west, align=left] at (10.05,-1.95) {SDA, SCL:\\2 wires};
     \node[font=\scriptsize\bfseries, text=gray!40!black, anchor=west] at (-1.2,-2.2) {on the board: real wires};
     % the steps of one store: sw to 0x6000 4008
     \ifnum#1>0
-      \node[font=\tiny\ttfamily, fill=white, draw=DeepBlue, rounded corners=1pt, anchor=west] at (1.5,1.45) {sw a4, 8(a5)};
-      \node[font=\tiny\bfseries\ttfamily, fill=AccentOrange!20, draw=AccentOrange, rounded corners=1pt] at (1.8,0.75) {0x6000\,4008};
+      \node[font=\tiny\ttfamily, fill=white, draw=nInk, rounded corners=1pt, anchor=west] at (1.5,1.45) {sw a4, 8(a5)};
+      \node[font=\tiny\bfseries\ttfamily, fill=white, draw=nLine, rounded corners=1pt] at (1.8,0.75) {0x6000\,4008};
     \fi
     \ifnum#1>1
-      \draw[line width=1.6pt, mygreen, rounded corners=3pt] ([shift={(-0.08,-0.08)}]gpio.south west) rectangle ([shift={(0.08,0.08)}]gpio.north east);
-      \node[font=\tiny\bfseries, text=mygreen, anchor=south west] at ([xshift=0.05cm]gpio.north east) {mine!};
+      \draw[line width=1.6pt, AccentOrange, rounded corners=3pt] ([shift={(-0.08,-0.08)}]gpio.south west) rectangle ([shift={(0.08,0.08)}]gpio.north east);
+      \node[font=\tiny\bfseries, text=AccentOrange, anchor=south west] at ([xshift=0.05cm]gpio.north east) {mine!};
       \node[font=\tiny, text=gray, anchor=south west] at ([xshift=0.05cm]mem.north east) {not mine};
       \node[font=\tiny, text=gray, anchor=south west] at ([xshift=0.05cm]i2c.north east) {not mine};
     \fi
     \ifnum#1>2
-      \node[font=\tiny\bfseries\ttfamily, fill=StorageBlue!20, draw=StorageBlue, rounded corners=1pt] at (1.8,0.45) {0x10 = bit 4};
-      \node[font=\tiny\bfseries, fill=ProgramPurple!15, draw=ProgramPurple, rounded corners=1pt] at (1.8,0.15) {write};
+      \node[font=\tiny\bfseries\ttfamily, fill=white, draw=nLine, rounded corners=1pt] at (1.8,0.45) {0x10 = bit 4};
+      \node[font=\tiny\bfseries, fill=white, awrite, rounded corners=1pt] at (1.8,0.15) {write};
     \fi
   \end{tikzpicture}}
 
 % ---------- lcd.print: CPU -> I2C controller (internal bus) -> LCD (2 wires) ----------
 \newcommand{\twobuses}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, dashed, rounded corners=6pt, fill=DeepBlue!4] (-0.3,-0.75) rectangle (5.3,1.2);
-    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (-0.25,1.17) {\faMicrochip\ inside the chip};
+    \draw[nLine, very thick, dashed, rounded corners=6pt] (-0.3,-0.75) rectangle (5.3,1.2);
+    \node[anchor=north west, font=\tiny\bfseries, text=nInk] at (-0.25,1.17) {\faMicrochip\ inside the chip};
     \node[cpubox, minimum width=1.4cm, minimum height=0.8cm] (cpu) at (0.6,0.1) {CPU};
     \node[iobox, minimum width=1.8cm, minimum height=0.8cm] (ctl) at (4.1,0.1) {I2C\\[-1pt]controller};
-    \draw[->, line width=1.8pt, AccentOrange] (cpu.east) -- node[above, font=\tiny\bfseries] {internal bus} node[below, font=\tiny\ttfamily] {sw \ldots\ 0x6001\,3xxx} (ctl.west);
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.4cm, minimum height=0.8cm] (lcd) at (7.3,0.1) {LCD\\[-1pt]{\tiny\mdseries \texttt{0x27}}};
-    \draw[->, line width=1.2pt, StorageBlue] ([yshift=0.12cm]ctl.east) -- ([yshift=0.12cm]lcd.west);
-    \draw[line width=1.2pt, ProgramPurple] ([yshift=-0.12cm]ctl.east) -- ([yshift=-0.12cm]lcd.west);
+    \draw[->, line width=1.8pt, nInk] (cpu.east) -- node[above, font=\tiny\bfseries] {internal bus} node[below, font=\tiny\ttfamily] {sw \ldots\ 0x6001\,3xxx} (ctl.west);
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.4cm, minimum height=0.8cm] (lcd) at (7.3,0.1) {LCD\\[-1pt]{\tiny\mdseries \texttt{0x27}}};
+    \draw[->, line width=1.2pt, nInk] ([yshift=0.12cm]ctl.east) -- ([yshift=0.12cm]lcd.west);
+    \draw[line width=1.2pt, nLine] ([yshift=-0.12cm]ctl.east) -- ([yshift=-0.12cm]lcd.west);
     \node[font=\tiny\bfseries, anchor=south] at (6.05,0.25) {SDA, SCL};
     \node[font=\tiny, anchor=north, align=center] at (6.05,-0.05) {START, \texttt{0x27},\\data, STOP};
     \node[font=\tiny\bfseries, text=gray!40!black] at (6.05,-0.95) {on the board};
@@ -1328,26 +1367,26 @@
 % ---------- memory-mapped I/O: one address space, the device part zoomed in ----------
 \newcommand{\mmiomap}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \foreach \y/\n/\a/\c in {2.3/devices/0x6000\,0000/cIO, 1.2/program (flash)/0x4200\,0000/cRAM, 0.1/data (RAM)/0x3FC8\,0000/cCache} {
+    \foreach \y/\n/\a/\c in {2.3/devices/0x6000\,0000/nLine, 1.2/program (flash)/0x4200\,0000/sViolet, 0.1/data (RAM)/0x3FC8\,0000/sPink} {
       \node[lbox, draw=\c, fill=\c!12, minimum width=2.4cm, minimum height=0.8cm] (\n) at (0,\y) {\n};
       \node[font=\ttfamily\tiny, anchor=east] at (-1.25,\y-0.3) {\a};
     }
-    \node[font=\tiny, text=DeepBlue, anchor=north] at (0,-0.4) {one address space};
+    \node[font=\tiny, text=nInk, anchor=north] at (0,-0.4) {one address space};
     % the device part, zoomed in: one window per controller
     \foreach \y/\n/\a/\h in {3.35/LEDC (PWM)/0x6001\,9000/0, 2.8/I2C/0x6001\,3000/0, 2.25/IO\_MUX/0x6000\,9000/0,
                              1.7/GPIO/0x6000\,4000/1, 1.15/SPI0/0x6000\,3000/0, 0.6/UART0/0x6000\,0000/0} {
       \ifnum\h=1
         \node[lbox, draw=AccentOrange, fill=AccentOrange!15, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
       \else
-        \node[lbox, draw=cIO, fill=cIO!8, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries, very thin] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
+        \node[lbox, draw=nLine, fill=nFill, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries, very thin] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
       \fi
     }
     \draw[gray!60, thin] (1.2,2.7) -- (3.0,3.57);
     \draw[gray!60, thin] (1.2,1.9) -- (3.0,0.38);
     \node[font=\tiny, text=gray] at (4.3,3.75) {\ldots};
     % two stores
-    \draw[->, very thick, AccentOrange] (7.3,1.7) node[right, font=\tiny\bfseries\ttfamily, align=left] {sw to\\0x6000\,4008} -- (5.62,1.7);
-    \draw[->, very thick, cCache] (-3.2,0.1) node[left, font=\tiny\bfseries\ttfamily, align=right] {sw to\\0x3FC8\,0000} -- (-1.22,0.1);
+    \draw[->, very thick, nInk] (7.3,1.7) node[right, font=\tiny\bfseries\ttfamily, align=left] {sw to\\0x6000\,4008} -- (5.62,1.7);
+    \draw[->, very thick, nInk] (-3.2,0.1) node[left, font=\tiny\bfseries\ttfamily, align=right] {sw to\\0x3FC8\,0000} -- (-1.22,0.1);
   \end{tikzpicture}}
 
 % ---------- small arrow "program flow" pieces ----------
@@ -1367,7 +1406,7 @@
 % the address of a simulator topic, shown at the bottom of a slide
 \newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
 % the same, in the title bar (for slides that are already full)
-\newcommand{\simtop}[1]{\begin{tikzpicture}[remember picture,overlay]\node[anchor=east,inner sep=0pt,font=\scriptsize,text=white!80!DeepBlue] at ([xshift=-0.35cm,yshift=-1.32cm]current page.north east) {\faLink\ #1};\end{tikzpicture}}
+\newcommand{\simtop}[1]{\begin{tikzpicture}[remember picture,overlay]\node[anchor=east,inner sep=0pt,font=\scriptsize,text=white!80!nInk] at ([xshift=-0.35cm,yshift=-1.32cm]current page.north east) {\faLink\ #1};\end{tikzpicture}}
 
 \begin{document}
 
@@ -1380,13 +1419,13 @@
     \column{0.5\textwidth}
       \large
       \begin{itemize}
-        \item[\textcolor{AccentOrange}{\faMicrochip}] \textbf{1. Meet the hardware} \\
+        \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{1. Meet the hardware} \\
         \textcolor{gray}{\small ESP32-C3 in Wokwi: LED, buttons, LCD}
       \end{itemize}
     \column{0.5\textwidth}
       \large
       \begin{itemize}
-        \item[\textcolor{AccentOrange}{\faIcon{exchange-alt}}] \textbf{2. Talking to devices} \\
+        \item[\textcolor{DeepBlue}{\faIcon{exchange-alt}}] \textbf{2. Talking to devices} \\
         \textcolor{gray}{\small Device registers and polling}
       \end{itemize}
   \end{columns}
@@ -1404,7 +1443,7 @@
       \toprule
       & \textbf{Waiting for} & \textbf{Time} & \textbf{Cycles} \\
       \midrule
-      \textcolor{cRAM}{\faMemory}  & main memory (last time) & 100 ns & about 300 \\
+      \textcolor{nInk}{\faMemory}  & main memory (last time) & 100 ns & about 300 \\
       \textcolor{cDisk}{\faHdd}     & a block from an SSD     & 50 $\mu$s & about 150\,000 \\
       \textcolor{cIO}{\faKeyboard}  & the next key you press  & 100 ms & about \textbf{300\,000\,000} \\
       \bottomrule
@@ -1552,12 +1591,12 @@ void loop() {
 \begin{frame}{GPIO: pins the program controls}
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
-      \node[draw=DeepBlue, very thick, fill=DeepBlue!85, text=white, rounded corners=3pt, minimum width=2.2cm,
+      \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=3pt, minimum width=2.2cm,
         minimum height=2.2cm, font=\small\bfseries] (esp) at (0,0) {ESP32-C3};
-      \node[lbox, draw=MissRed, fill=MissRed!12, minimum width=2.4cm, minimum height=0.8cm] (led) at (-5.2,0) {\faLightbulb\ LED};
-      \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=2.4cm, minimum height=0.8cm] (btn) at (5.2,0) {\faDotCircle\ Button};
-      \draw[->, line width=2pt, MissRed] (esp) -- node[above, font=\scriptsize\bfseries] {output} node[below, font=\tiny] {program writes 1 or 0} (led);
-      \draw[->, line width=2pt, DeepBlue] (btn) -- node[above, font=\scriptsize\bfseries] {input} node[below, font=\tiny] {program reads 1 or 0} (esp);
+      \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.4cm, minimum height=0.8cm] (led) at (-5.2,0) {\faLightbulb\ LED};
+      \node[lbox, draw=nInk, fill=LightGray, minimum width=2.4cm, minimum height=0.8cm] (btn) at (5.2,0) {\faDotCircle\ Button};
+      \draw[->, line width=2pt, nInk] (esp) -- node[above, font=\scriptsize\bfseries] {output} node[below, font=\tiny] {program writes 1 or 0} (led);
+      \draw[->, line width=2pt, nInk] (btn) -- node[above, font=\scriptsize\bfseries] {input} node[below, font=\tiny] {program reads 1 or 0} (esp);
     \end{tikzpicture}
   \end{center}
   \vspace{0.2cm}
@@ -1577,9 +1616,9 @@ void loop() {
     \column{0.48\textwidth}
       \stepbox{Four legs, two pairs}{\textsf{1.l} and \textsf{1.r} are \textbf{always} connected. So are \textsf{2.l} and \textsf{2.r}.}
       \stepbox{Pressing}{Connects pair \textbf{1} with pair \textbf{2}.}
-      \stepbox{\textcolor{mygreen}{\faCheck}\ Correct}{One wire on a \textbf{1} leg, the other on a \textbf{2} leg.
+      \stepbox{\ok\ Correct}{One wire on a \textbf{1} leg, the other on a \textbf{2} leg.
         We use \textsf{1.l} $\to$ GPIO 5 and \textsf{2.r} $\to$ GND.}
-      \stepbox{\textcolor{MacRed}{\faTimes}\ Wrong}{\textsf{1.l} and \textsf{1.r}: always connected. The pin always reads 0,
+      \stepbox{\nok\ Wrong}{\textsf{1.l} and \textsf{1.r}: always connected. The pin always reads 0,
         as if the button were always pressed.}
   \end{columns}
 \end{frame}
@@ -1657,7 +1696,7 @@ void loop() {
           \draw[mygreen!45] ({0.32+0.285*\c},{0.35+0.62*\r}) rectangle ++(0.26,0.55);
         \node[anchor=west, font=\ttfamily\small, text=black] at (0.33,1.25) {Hello, ESP32!};
         \node[anchor=west, font=\ttfamily\small, text=black] at (0.33,0.62) {Time: 12 s};
-        \node[font=\tiny, text=DeepBlue, anchor=north] at (2.6,-0.05) {2 rows $\times$ 16 characters};
+        \node[font=\tiny, text=nInk, anchor=north] at (2.6,-0.05) {2 rows $\times$ 16 characters};
       \end{tikzpicture}
     \column{0.52\textwidth}
 \begin{lstlisting}[style=ino]
@@ -2063,9 +2102,9 @@ int a = (reg >> BTN_A) & 1;
           \ifnum\k=5
             \node[draw=AccentOrange, very thick, fill=AccentOrange!30, minimum size=0.45cm, font=\ttfamily\scriptsize] at (\xx,0) {\v};
           \else
-            \node[draw=DeepBlue!50, fill=white, minimum size=0.45cm, font=\ttfamily\scriptsize] at (\xx,0) {\v};
+            \node[draw=nLine, fill=white, minimum size=0.45cm, font=\ttfamily\scriptsize] at (\xx,0) {\v};
           \fi
-          \node[font=\tiny, text=DeepBlue] at (\xx,0.4) {\k};
+          \node[font=\tiny, text=nInk] at (\xx,0.4) {\k};
         }
         \node[font=\tiny, anchor=east] at (-0.35,0) {\texttt{GPIO\_IN}};
         \node[font=\tiny\bfseries, text=AccentOrange] at (1.1,-0.45) {A pressed: bit 5 = 0};
@@ -2087,7 +2126,7 @@ int a = (reg >> BTN_A) & 1;
       \centering
       \begin{tikzpicture}
         \tlbar{0}{CPU}{0.6/cPoll/?,0.6/cPoll/?,0.6/cPoll/?,0.6/cPoll/?,0.6/cPoll/?,0.6/cPoll/?,1.2/cWork/handle}
-        \draw[->, thick, DeepBlue] (0,-0.4) -- (5.0,-0.4) node[right, font=\tiny] {time};
+        \draw[->, thick, nInk] (0,-0.4) -- (5.0,-0.4) node[right, font=\tiny] {time};
         \node[font=\scriptsize\bfseries, text=cIO, anchor=south] at (3.9,0.3) {\faDotCircle\ pressed};
         \draw[cIO, very thick, dashed] (3.9,0.3) -- (3.9,-0.3);
       \end{tikzpicture}\\[0.2cm]
@@ -2128,12 +2167,12 @@ void loop() {
   \begin{center}
     \begin{tikzpicture}
       \tlbar{0}{CPU}{2.0/cWork/work,0.3/cPoll/?,2.0/cWork/work,0.3/cPoll/?,2.0/cWork/work,0.3/cPoll/?,2.0/cWork/work,0.3/cPoll/?}
-      \foreach \x/\ok in {0.9/0,2.25/1,3.4/0,5.6/0,7.5/0} {
-        \ifnum\ok=1 \def\cc{HitGreen}\else\def\cc{MissRed}\fi
-        \node[font=\scriptsize, text=\cc] at (\x,0.55) {\faDotCircle};
-        \draw[\cc, thick, dashed] (\x,0.4) -- (\x,0.22);
+      \foreach \x/\good in {0.9/0,2.25/1,3.4/0,5.6/0,7.5/0} {
+        \node[font=\scriptsize, text=nInk] at (\x,0.55) {\faDotCircle};
+        \node[font=\scriptsize, anchor=south, inner sep=1pt] at (\x,0.72) {\ifnum\good=1 \ok\else\nok\fi};
+        \draw[nInk, thick, dashed] (\x,0.4) -- (\x,0.22);
       }
-      \node[font=\tiny, text=DeepBlue, anchor=west] at (9.3,0.55) {presses};
+      \node[font=\tiny, text=nInk, anchor=west] at (9.3,0.55) {presses};
     \end{tikzpicture}\\[0.1cm]
     \cpulegend
   \end{center}

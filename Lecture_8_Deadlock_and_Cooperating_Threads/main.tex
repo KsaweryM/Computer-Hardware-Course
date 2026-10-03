@@ -21,7 +21,7 @@
 \useinnertheme{rounded}
 \useoutertheme{miniframes}
 
-\definecolor{DeepBlue}{RGB}{20,45,85}
+\definecolor{DeepBlue}{HTML}{283593}% template indigo (colour rules v6)
 \definecolor{AccentOrange}{RGB}{235,90,20}
 \definecolor{LightGray}{RGB}{245,246,250}
 \definecolor{mygreen}{RGB}{0,153,37}
@@ -36,6 +36,37 @@
 \definecolor{MacGreen}{RGB}{39,201,63}
 \definecolor{ProgramPurple}{RGB}{124,58,180}
 \definecolor{StorageBlue}{RGB}{30,120,200}
+
+% ---------- course palette (colour rules v6) ----------
+% actors and categories: fills only
+\definecolor{sIndigo}{HTML}{5C6BC0}
+\definecolor{sPink}{HTML}{EC407A}
+\definecolor{sViolet}{HTML}{7E57C2}
+\definecolor{sAmber}{HTML}{FFB300}   % black text on it
+\definecolor{sTeal}{HTML}{26A69A}
+\definecolor{sBrown}{HTML}{8D6E63}
+% text variants that stay readable on white
+\definecolor{sPinkText}{HTML}{C2185B}
+\definecolor{sAmberText}{HTML}{A06A00}
+\definecolor{sTealText}{HTML}{00796B}
+% actions: frames only (executes, read, write); results: signs only
+\definecolor{aExec}{HTML}{43A047}
+\definecolor{aRead}{HTML}{1E88E5}
+\definecolor{aWrite}{HTML}{E53935}
+% neutral (Blue Grey): hardware, data, waveforms
+\definecolor{nInk}{HTML}{37474F}
+\definecolor{nLine}{HTML}{90A4AE}
+\definecolor{nLight}{HTML}{CFD8DC}
+\definecolor{nFill}{HTML}{ECEFF1}
+\definecolor{nIdle}{HTML}{E0E0E0}
+\tikzset{
+  aexec/.style={draw=aExec, line width=1.6pt},
+  aread/.style={draw=aRead, line width=1.6pt, dash pattern=on 3pt off 2pt},
+  awrite/.style={draw=aWrite, line width=2.4pt},
+}
+\newcommand{\ok}{\textcolor{aExec}{\faCheck}}
+\newcommand{\nok}{\textcolor{aWrite}{\faTimes}}
+
 
 \setbeamercolor{palette primary}{bg=DeepBlue,fg=white}
 \setbeamercolor{palette secondary}{bg=DeepBlue!80!black,fg=white}
@@ -59,11 +90,11 @@
 
 % ---------- helpers used by the von Neumann section ----------
 \tikzset{
-  memcell/.style={draw=DeepBlue!60, minimum width=2.6cm, minimum height=0.45cm,
+  memcell/.style={draw=nLine, minimum width=2.6cm, minimum height=0.45cm,
     inner sep=1pt, font=\ttfamily\scriptsize, align=center},
-  instrcell/.style={memcell, fill=AccentOrange!18},
-  datacell/.style={memcell, fill=StorageBlue!18},
-  addr/.style={font=\ttfamily\scriptsize, text=DeepBlue},
+  instrcell/.style={memcell, fill=sViolet!18},
+  datacell/.style={memcell, fill=sPink!18},
+  addr/.style={font=\ttfamily\scriptsize, text=nInk},
 }
 % numbered orange badge for assumptions
 \newcommand{\num}[1]{\tikz[baseline=(n.base)]\node[circle,fill=AccentOrange,text=white,
@@ -71,10 +102,10 @@
 % mini memory stack with the program counter pointing at cell #2
 % #1 = x offset, #2 = highlighted cell (0-3), #3 = text of cell 3, #4 = panel heading
 \newcommand{\pcstack}[4]{%
-  \node[font=\scriptsize\bfseries, text=DeepBlue] at (#1,0.55) {#4};
+  \node[font=\scriptsize\bfseries, text=nInk] at (#1,0.55) {#4};
   \foreach \i/\t in {0/{LOAD 6},1/{ADD 7},2/{STORE 8},3/{#3}} {
     \ifnum\i=#2
-      \node[instrcell, minimum width=1.7cm, fill=AccentOrange!45, very thick, draw=AccentOrange] at (#1,{-0.45*\i}) {\t};
+      \node[instrcell, minimum width=1.7cm, aexec] at (#1,{-0.45*\i}) {\t};
     \else
       \node[instrcell, minimum width=1.7cm] at (#1,{-0.45*\i}) {\t};
     \fi
@@ -91,8 +122,8 @@
     \centering\small\textbf{#1}\\[0.1cm]
     #2\\[0.1cm]
     \raggedright\footnotesize
-    \textcolor{mygreen}{\textbf{+}}\ #3\\[0.06cm]
-    \textcolor{MacRed}{\textbf{$-$}}\ #4
+    \textcolor{aExec}{\textbf{+}}\ #3\\[0.06cm]
+    \textcolor{aWrite}{\textbf{$-$}}\ #4
   \end{beamercolorbox}}
 
 % progress strip: #1 = number of decisions already made
@@ -101,17 +132,17 @@
   \begin{tikzpicture}
     \foreach \i/\t in {1/Stored program,2/Shared memory,3/Binary,4/Sequential,5/Separate units} {
       \ifnum\i>#1
-        \node[draw=DeepBlue!35, dashed, rounded corners=3pt, text=DeepBlue!55, font=\tiny\bfseries,
+        \node[draw=nLine, dashed, rounded corners=3pt, text=nLine, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \else
-        \node[draw=AccentOrange, fill=AccentOrange, rounded corners=3pt, text=white, font=\tiny\bfseries,
+        \node[draw=DeepBlue, fill=DeepBlue, rounded corners=3pt, text=white, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \fi
     }
   \end{tikzpicture}\par}}
 
 % ----- small diagrams used on the dilemma slides -----
-\tikzset{smallcell/.style={draw=DeepBlue!60, minimum height=0.27cm, inner sep=0.5pt,
+\tikzset{smallcell/.style={draw=nLine, minimum height=0.27cm, inner sep=0.5pt,
   font=\ttfamily\tiny, align=center}}
 
 \newcommand{\diagWired}{\begin{tikzpicture}
@@ -121,17 +152,17 @@
 \end{tikzpicture}}
 
 \newcommand{\diagTape}{\begin{tikzpicture}
-  \draw[draw=DeepBlue!60, fill=LightGray] (0,0) rectangle (2.6,0.55);
+  \draw[draw=nLine, fill=nFill] (0,0) rectangle (2.6,0.55);
   \foreach \x/\y in {0.25/0.15,0.25/0.4,0.55/0.28,0.85/0.15,0.85/0.4,1.15/0.28,1.45/0.15,1.75/0.4,1.75/0.15,2.05/0.28,2.4/0.15,2.4/0.4}
-    {\fill[DeepBlue] (\x,\y) circle (0.045);}
-  \draw[AccentOrange, very thick] (1.0,-0.08) -- (1.0,0.63);
-  \node[font=\tiny, text=AccentOrange, anchor=north] at (1.0,-0.08) {reader};
+    {\fill[nInk] (\x,\y) circle (0.045);}
+  \draw[nInk, very thick] (1.0,-0.08) -- (1.0,0.63);
+  \node[font=\tiny, text=nInk, anchor=north] at (1.0,-0.08) {reader};
 \end{tikzpicture}}
 
 \newcommand{\diagMemStackSmall}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0.3) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,-0.3) {2};
@@ -140,12 +171,12 @@
 \newcommand{\diagTwoMem}{\begin{tikzpicture}
   \node[font=\tiny] at (0,0.55) {program memory};
   \node[font=\tiny] at (2.5,0.55) {data memory};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,-0.3) {HALT};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0.3) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0) {3};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,-0.3) {0};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,-0.3) {HALT};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0.3) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,-0.3) {0};
   \foreach \i in {0,1,2} {
     \node[addr, font=\ttfamily\tiny, anchor=west] at (0.8,{0.3-0.3*\i}) {\i};
     \node[addr, font=\ttfamily\tiny, anchor=west] at (3.3,{0.3-0.3*\i}) {\i};
@@ -154,16 +185,16 @@
 \end{tikzpicture}}
 
 \newcommand{\diagOneMem}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
   \node[smallcell, draw=none, minimum width=1.7cm] at (0,-0.04) {$\vdots$};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.31) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.58) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.31) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.58) {3};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.5) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.23) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.31) {6};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.58) {7};
-  \node[font=\tiny, text=DeepBlue, anchor=west] at (1.4,0) {one numbering};
+  \node[font=\tiny, text=nInk, anchor=west] at (1.4,0) {one numbering};
 \end{tikzpicture}}
 
 \newcommand{\diagDecimal}{\begin{tikzpicture}
@@ -181,47 +212,48 @@
 \end{tikzpicture}}
 
 \newcommand{\diagParallel}{\begin{tikzpicture}
-  \foreach \k in {0,1,2} {\draw[fill=AccentOrange!25, draw=AccentOrange] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
+  \foreach \k in {0,1,2} {\draw[fill=nFill, draw=nLine] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
   \node[font=\tiny, anchor=west] at (2.1,0.2) {all at once};
 \end{tikzpicture}}
 
 \newcommand{\diagDataflow}{\begin{tikzpicture}[>=Stealth]
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
-  \node[circle, draw=DeepBlue, fill=StorageBlue!15, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
-  \draw[->, thick, DeepBlue] (a) -- (c); \draw[->, thick, DeepBlue] (b) -- (c);
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
+  \draw[->, thick, nInk] (a) -- (c); \draw[->, thick, nInk] (b) -- (c);
   \node[font=\tiny, anchor=west] at (1.35,0.05) {when ready};
 \end{tikzpicture}}
 
 \newcommand{\diagSequential}{\begin{tikzpicture}[>=Stealth]
-  \foreach \k in {1,2,3} {\node[draw=DeepBlue, fill=LightGray, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
+  \foreach \k in {1,2,3} {\node[draw=nLine, fill=nFill, text=nInk, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
     (s\k) at ({0.75*\k-0.75},0.05) {\k};}
-  \draw[->, thick, DeepBlue] (s1) -- (s2); \draw[->, thick, DeepBlue] (s2) -- (s3);
+  \draw[->, thick, nInk] (s1) -- (s2); \draw[->, thick, nInk] (s2) -- (s3);
   \node[font=\tiny, anchor=west] at (1.95,0.05) {in order};
 \end{tikzpicture}}
 
 \newcommand{\diagMonolith}{\begin{tikzpicture}
-  \node[draw=DeepBlue, very thick, rounded corners=4pt, fill=LightGray, minimum width=2.6cm, minimum height=0.85cm,
+  \node[draw=nLine, very thick, rounded corners=4pt, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=0.85cm,
     font=\scriptsize, align=center] {one block:\\[-1pt]everything mixed together};
 \end{tikzpicture}}
 
 \newcommand{\diagUnits}{\begin{tikzpicture}
-  \node[draw=StorageBlue, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
-  \node[draw=mygreen, fill=mygreen!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
-  \node[draw=DeepBlue, fill=LightGray, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
   \node[font=\tiny] at (1.425,-0.2) {one job each};
 \end{tikzpicture}}
 
 % ---------- helpers for the CPU section ----------
 \tikzset{
-  reg/.style={draw=orange!80!black, very thick, fill=yellow!25, rounded corners=2pt,
+  reg/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=2pt,
     minimum width=1.95cm, minimum height=0.55cm, inner sep=2pt, font=\ttfamily\scriptsize, align=center},
   cpuunit/.style={very thick, rounded corners=3pt, minimum width=1.2cm, minimum height=0.6cm,
     inner sep=2pt, font=\scriptsize\bfseries, align=center},
-  hot/.style={fill=AccentOrange!45, draw=AccentOrange, very thick},
-  hotdata/.style={fill=StorageBlue!40, draw=StorageBlue, very thick},
-  hotalu/.style={fill=mygreen!18, line width=1.6pt},
+  hot/.style={aexec, label={[text=aExec, inner sep=1pt, font=\tiny]right:$\blacktriangleleft$}},
+  hotdata/.style={aread},
+  hotwrite/.style={awrite},
+  hotalu/.style={aexec},
   fetcharrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   dataarrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   steplabel/.style={font=\tiny\bfseries, fill=white, inner sep=1pt},
@@ -229,7 +261,7 @@
 % memory with the running example
 % #1 highlighted instruction (0-3, -1 = none)  #2 text of cell 8  #3 highlighted data cell (6-8, 0 = none)
 \newcommand{\mempanel}[3]{%
-  \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,1.8) {Memory};
+  \node[font=\scriptsize\bfseries, text=nInk] at (0,1.8) {Memory};
   \foreach \i/\t in {0/{0001 0110\ \ LOAD 6},1/{0011 0111\ \ ADD 7},2/{0010 1000\ \ STORE 8},3/{0111 0000\ \ HALT}} {
     \ifnum\i=#1
       \node[instrcell, minimum width=2.9cm, hot] (m\i) at (0,{1.35-0.45*\i}) {\t};
@@ -241,7 +273,7 @@
   \node[memcell, draw=none, minimum width=2.9cm] at (0,-0.45) {$\vdots$};
   \foreach \i/\t/\y in {6/{0000 0101\ \ (5)}/-0.9,7/{0000 0011\ \ (3)}/-1.35,8/{#2}/-1.8} {
     \ifnum\i=#3
-      \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};
+      \ifnum\i=8 \node[datacell, minimum width=2.9cm, hotwrite] (m\i) at (0,\y) {\t};\else \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};\fi
     \else
       \node[datacell, minimum width=2.9cm] (m\i) at (0,\y) {\t};
     \fi
@@ -251,9 +283,9 @@
 % the CPU, built up step by step
 % #1 level: 0 empty, 1 +PC, 2 +IR, 3 +AC, 4 +ALU, 5 +CU   #2 PC   #3 IR   #4 AC   #5 extra ALU style
 \newcommand{\cpupanel}[5]{%
-  \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=4.65cm,
+  \node[draw=nLine, very thick, rounded corners=6pt, fill=nFill!50, minimum width=4.65cm,
     minimum height=3.85cm, anchor=west] (cpu) at (2.45,-0.2) {};
-  \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
+  \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
   \ifnum#1>0 \node[reg] (pc) at (3.65,0.95) {\textbf{PC}\ \ #2}; \fi
   \ifnum#1>1 \node[reg] (ir) at (3.65,0.0) {\textbf{IR}\\[-1pt]#3}; \fi
   \ifnum#1>2 \node[reg] (ac) at (3.65,-1.05) {\textbf{AC}\ \ #4}; \fi
@@ -322,9 +354,9 @@
 \BeforeBeginEnvironment{lstlisting}{%
   \begin{beamercolorbox}[rounded=true,sep=2mm,wd=\linewidth]{vscodelisting}%
   \begin{tikzpicture}
-    \fill[MacRed] (0,0) circle (3pt);
-    \fill[MacYellow] (0.35,0) circle (3pt);
-    \fill[MacGreen] (0.70,0) circle (3pt);
+    \fill[nLine] (0,0) circle (3pt);
+    \fill[nLine] (0.35,0) circle (3pt);
+    \fill[nLine] (0.70,0) circle (3pt);
   \end{tikzpicture}%
   \vspace{-0.2cm}%
 }
@@ -338,15 +370,15 @@
 % \busdiagram[values]{source}{destination}{extra TikZ}
 %   source (Read, blue) and destination (Write, red): ir, out, in, ac, mbr, pc, mar, mem, none
 %   values: ir=, out=, in=, ac=, mbr=, pc=, mar=, mem= (contents of M[MAR]), step= (0-7, -1 = none)
-\definecolor{ReadBlue}{RGB}{30,150,230}
-\definecolor{WriteRed}{RGB}{220,50,80}
-\definecolor{BusGreen}{RGB}{60,170,110}
+\definecolor{ReadBlue}{HTML}{1E88E5}
+\definecolor{WriteRed}{HTML}{E53935}
+\definecolor{BusGreen}{HTML}{B0BEC5}% the bus: neutral
 \tikzset{
-  dpreg/.style={draw=DeepBlue!80, thick, fill=white, minimum width=1.1cm, minimum height=0.46cm,
+  dpreg/.style={draw=nLine, thick, fill=white, text=nInk, minimum width=1.1cm, minimum height=0.46cm,
     inner sep=1pt, font=\ttfamily\scriptsize},
-  dpname/.style={font=\tiny, text=DeepBlue!80, above=0pt, inner sep=1pt},
-  dpwire/.style={thin, DeepBlue!18},
-  dpmem/.style={draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=3pt,
+  dpname/.style={font=\tiny, text=nInk, above=0pt, inner sep=1pt},
+  dpwire/.style={thin, nLight},
+  dpmem/.style={draw=nLine, very thick, fill=nFill, rounded corners=3pt,
     minimum width=1.3cm, minimum height=0.95cm, font=\scriptsize\bfseries, align=center},
   srcreg/.style={draw=ReadBlue, line width=1.6pt},
   dstreg/.style={draw=WriteRed, line width=1.6pt},
@@ -376,7 +408,7 @@
     \foreach \k in {0,...,7} {
       \pgfmathtruncatemacro{\cur}{\dpv{step}}
       \ifnum\k=\cur
-        \fill[ReadBlue] (-2.0,{1.1-0.15*\k}) circle (0.065);
+        \fill[AccentOrange] (-2.0,{1.1-0.15*\k}) circle (0.065);
       \else
         \fill[DeepBlue!30] (-2.0,{1.1-0.15*\k}) circle (0.035);
       \fi
@@ -430,7 +462,7 @@
         {\draw[line width=1.3pt, WriteRed, -{Stealth}] (-1.1,-0.6) -| ($(#3.south)+(0.3,0)$);}}
     % ----- the value travelling along the bus -----
     \ifstrequal{#2}{none}{}{\ifstrequal{#3}{none}{}{%
-      \draw[line width=3pt, BusGreen] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
+      \draw[line width=3pt, nInk] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
       \draw[line width=1.5pt, white, dash pattern=on 1.5pt off 1.5pt] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);}}
     #4
   \end{tikzpicture}%
@@ -463,10 +495,10 @@
 \newcommand{\steptimeline}[3]{%
   \begin{tikzpicture}
     \foreach \i in {1,...,#1}
-      \node[draw=white, fill=StorageBlue!75, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sAmber, text=black, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(\i-1)},0) {T\the\numexpr\i-1\relax};
     \foreach \i in {1,...,#2}
-      \node[draw=white, fill=AccentOrange, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sTeal, text=white, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(#1+\i-1)},0) {T\the\numexpr#1+\i-1\relax};
     \node[anchor=west, font=\scriptsize] at ({0.62*(#1+#2)-0.25},0) {#3};
   \end{tikzpicture}}
@@ -524,11 +556,14 @@
 \lstdefinestyle{rvnum}{style=rv, numbers=left, firstnumber=1, xleftmargin=14pt}
 
 % ---------- colours of the five pipeline stages (the same all day) ----------
-\colorlet{cIF}{AccentOrange}
-\colorlet{cID}{ProgramPurple}
-\colorlet{cEX}{mygreen}
-\colorlet{cMEM}{StorageBlue}
-\colorlet{cWB}{DeepBlue}
+\colorlet{cIF}{sAmber}
+\colorlet{cID}{sBrown}
+\colorlet{cEX}{sTeal}
+\colorlet{cMEM}{sIndigo}
+\colorlet{cWB}{sPink}
+% text on a stage colour (amber needs black)
+\colorlet{txIF}{black}\colorlet{txID}{white}\colorlet{txEX}{white}\colorlet{txMEM}{white}\colorlet{txWB}{white}
+\colorlet{txcIF}{black}\colorlet{txcID}{white}\colorlet{txcEX}{white}\colorlet{txcMEM}{white}\colorlet{txcWB}{white}
 
 % ---------- pipeline diagrams ----------
 % cell size (cm)
@@ -537,15 +572,15 @@
 \tikzset{
   pcell/.style={minimum width=\pw cm, minimum height=\ph cm, inner sep=0pt, draw=white,
     font=\scriptsize\bfseries, text=white},
-  pst-IF/.style={pcell, fill=cIF},
+  pst-IF/.style={pcell, fill=cIF, text=black},
   pst-ID/.style={pcell, fill=cID},
   pst-EX/.style={pcell, fill=cEX},
   pst-MEM/.style={pcell, fill=cMEM},
   pst-WB/.style={pcell, fill=cWB},
-  pst-B/.style={pcell, fill=gray!25, text=gray!70, font=\tiny},
-  pst-X/.style={pcell, fill=MacRed!20, text=MacRed},
+  pst-B/.style={pcell, fill=nIdle, text=nInk, font=\tiny},
+  pst-X/.style={pcell, fill=nFill, text=nInk, draw=nLine},
   pst-N/.style={pcell, fill=none, draw=none},
-  pst-E/.style={pcell, fill=gray!10},
+  pst-E/.style={pcell, fill=nFill!60},
   plab/.style={anchor=east, font=\ttfamily\footnotesize, inner sep=1pt},
 }
 % one row of a pipeline diagram
@@ -584,7 +619,7 @@
     align=center, font=\small\bfseries, drop shadow},
   gbar/.style={minimum height=0.36cm, inner sep=0pt, draw=white, font=\tiny\bfseries, text=white},
   gempty/.style={minimum height=0.36cm, inner sep=0pt, draw=gray!50, dashed, font=\tiny, text=gray!60},
-  unit/.style={draw=DeepBlue, very thick, fill=white, rounded corners=3pt, align=center,
+  unit/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=3pt, align=center,
     font=\scriptsize\bfseries, inner sep=2pt},
 }
 
@@ -594,18 +629,18 @@
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % stage labels
     \foreach \x/\n/\c in {0.9/IF/cIF, 4.2/ID/cID, 6.6/EX/cEX, 9.0/MEM/cMEM, 10.9/WB/cWB}
-      \node[fill=\c, text=white, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.9cm] at (\x,2.35) {\n};
+      \node[fill=\c, text=tx\c, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.9cm] at (\x,2.35) {\n};
     % units
     \node[unit, minimum width=0.6cm, minimum height=1.0cm] (pc) at (0,0) {PC};
     \node[unit, minimum width=1.5cm, minimum height=1.6cm] (imem) at (1.8,0) {Instruction\\memory};
     \node[unit, minimum width=1.5cm, minimum height=1.8cm] (rf) at (4.2,0) {Register\\file};
-    \draw[DeepBlue, very thick, fill=white] (6.2,0.9) -- (7.0,0.45) -- (7.0,-0.45) -- (6.2,-0.9) -- (6.2,-0.25)
+    \draw[nInk, very thick, fill=white] (6.2,0.9) -- (7.0,0.45) -- (7.0,-0.45) -- (6.2,-0.9) -- (6.2,-0.25)
       -- (6.4,0) -- (6.2,0.25) -- cycle;
     \node[font=\scriptsize\bfseries] (alu) at (6.68,0) {ALU};
     \coordinate (aluin1) at (6.2,0.55); \coordinate (aluin2) at (6.2,-0.55); \coordinate (aluout) at (7.0,0);
     \node[unit, minimum width=1.5cm, minimum height=1.6cm] (dmem) at (9.0,0) {Data\\memory};
     \node[unit, minimum width=0.45cm, minimum height=1.2cm, rounded corners=6pt, font=\tiny] (mux) at (10.9,0) {M\\U\\X};
-    \node[unit, minimum width=1.3cm, minimum height=0.5cm, draw=DeepBlue!60, text=DeepBlue!80] (add4) at (0.9,1.55) {$+4$};
+    \node[unit, minimum width=1.3cm, minimum height=0.5cm, draw=nLine, text=nLine] (add4) at (0.9,1.55) {$+4$};
     \node[unit, minimum width=2.2cm, minimum height=0.5cm, draw=gray, text=gray] (cu) at (4.2,-1.85) {Control unit};
     % wires
     \draw[->, thick] (pc) -- (imem);
@@ -627,16 +662,16 @@
 % ---------- Ripes window (schematic; replace with a real screenshot if you like) ----------
 \newcommand{\ripeswindow}{%
   \begin{tikzpicture}[font=\tiny]
-    \draw[DeepBlue, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.4);
-    \fill[DeepBlue!10, rounded corners=4pt] (0,5.0) rectangle (9,5.4);
+    \draw[nInk, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.4);
+    \fill[nLight, rounded corners=4pt] (0,5.0) rectangle (9,5.4);
     \fill[MacRed] (0.25,5.2) circle (2.5pt); \fill[MacYellow] (0.5,5.2) circle (2.5pt); \fill[MacGreen] (0.75,5.2) circle (2.5pt);
-    \node[font=\tiny\bfseries, text=DeepBlue] at (4.5,5.2) {Ripes};
+    \node[font=\tiny\bfseries, text=nInk] at (4.5,5.2) {Ripes};
     % toolbar
     \fill[LightGray] (0,4.55) rectangle (9,5.0);
     \foreach \x/\i in {1.0/\faMicrochip, 1.6/\faStepForward, 2.2/\faPlay, 2.8/\faFastForward, 3.4/\faUndo}
-      \node[text=DeepBlue] at (\x,4.77) {\i};
+      \node[text=nInk] at (\x,4.77) {\i};
     % side bar
-    \fill[DeepBlue!85] (0,0) rectangle (0.5,4.55);
+    \fill[nLine] (0,0) rectangle (0.5,4.55);
     \foreach \y/\i in {4.1/\faEdit, 3.5/\faMicrochip, 2.9/\faMemory, 2.3/\faTerminal}
       \node[text=white] at (0.25,\y) {\i};
     % editor
@@ -644,11 +679,11 @@
     \foreach \y/\t in {4.1/lw x5{,} X, 3.8/lw x6{,} Y, 3.5/add x7{,} x5{,} x6, 3.2/addi x7{,} x7{,} -2, 2.9/sw x7{,} Z{,} x28}
       \node[anchor=west, text=VSText, font=\ttfamily\tiny] at (0.75,\y) {\t};
     % processor view
-    \draw[gray!60, fill=LightGray] (3.35,1.4) rectangle (7.3,4.4);
+    \draw[gray!60, fill=nFill] (3.35,1.4) rectangle (7.3,4.4);
     \foreach \x/\c in {3.8/cIF, 4.5/cID, 5.3/cEX, 6.1/cMEM, 6.8/cWB}
       \draw[\c, very thick, fill=\c!15] (\x-0.25,2.3) rectangle (\x+0.25,3.6);
     \draw[->, thick, DeepBlue!60] (3.55,2.95) -- (7.05,2.95);
-    \node[font=\tiny, text=DeepBlue] at (5.3,1.85) {datapath};
+    \node[font=\tiny, text=nInk] at (5.3,1.85) {datapath};
     % statistics
     \draw[gray!60, fill=white] (3.35,0.15) rectangle (7.3,1.25);
     \node[anchor=west, font=\tiny] at (3.45,0.95) {Cycles: 13};
@@ -658,7 +693,7 @@
     \draw[gray!60, fill=white] (7.45,0.15) rectangle (8.85,4.4);
     \foreach \k [count=\j from 0] in {x5,x6,x7,x8,x9,x10}
       \node[anchor=west, font=\ttfamily\tiny] at (7.5,{4.1-0.3*\j}) {\k};
-    \node[font=\tiny, text=DeepBlue] at (8.15,2.1) {registers};
+    \node[font=\tiny, text=nInk] at (8.15,2.1) {registers};
     % badges
     \node[circle, fill=AccentOrange, text=white, font=\bfseries\scriptsize, inner sep=1.5pt] at (1.9,1.2) {1};
     \node[circle, fill=AccentOrange, text=white, font=\bfseries\scriptsize, inner sep=1.5pt] at (1.35,4.77) {2};
@@ -676,14 +711,15 @@
 % =====================================================================
 
 % ---------- colours of the memory levels (the same all day) ----------
-\colorlet{cReg}{AccentOrange}
-\colorlet{cCache}{ProgramPurple}
-\colorlet{cRAM}{StorageBlue}
-\colorlet{cDisk}{DeepBlue!65}
-\colorlet{cIO}{mygreen}
-\definecolor{HitGreen}{RGB}{39,160,70}
-\colorlet{MissRed}{MacRed}
-\setbeamercolor{block body answer}{bg=mygreen!10,fg=black}
+% memory levels are hardware: neutral
+\colorlet{cReg}{nInk}
+\colorlet{cCache}{nInk}
+\colorlet{cRAM}{nLine}
+\colorlet{cDisk}{nLine}
+\colorlet{cIO}{nInk}
+\colorlet{HitGreen}{aExec}
+\colorlet{MissRed}{aWrite}
+\setbeamercolor{block body answer}{bg=aExec!8,fg=black}
 
 % ---------- listings ----------
 % RISC-V: the Day 3 keywords plus the new ones used today
@@ -703,16 +739,16 @@
 % ---------- boxes for the memory levels and devices ----------
 \tikzset{
   lbox/.style={very thick, rounded corners=4pt, align=center, font=\scriptsize\bfseries, inner sep=3pt},
-  cpubox/.style={lbox, draw=DeepBlue, fill=DeepBlue, text=white},
-  regbox/.style={lbox, draw=cReg, fill=cReg!15},
-  cachebox/.style={lbox, draw=cCache, fill=cCache!12},
-  rambox/.style={lbox, draw=cRAM, fill=cRAM!12},
-  diskbox/.style={lbox, draw=cDisk, fill=cDisk!15},
+  cpubox/.style={lbox, draw=nInk, fill=nInk, text=white},
+  regbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  cachebox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  rambox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  diskbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
   iobox/.style={lbox, draw=cIO, fill=cIO!12},
-  dmabox/.style={lbox, draw=AccentOrange, fill=AccentOrange!12},
-  osbox/.style={lbox, draw=ProgramPurple, fill=ProgramPurple!10},
-  greybox/.style={lbox, draw=gray, fill=gray!8, text=gray!40!black},
-  arr/.style={-{Stealth}, very thick, DeepBlue},
+  dmabox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  osbox/.style={lbox, draw=nLine, fill=nFill, text=nInk},
+  greybox/.style={lbox, draw=nLight, fill=white, text=nLine},
+  arr/.style={-{Stealth}, very thick, nInk},
   okarr/.style={-{Stealth}, very thick, HitGreen},
   badarr/.style={-{Stealth}, very thick, MissRed},
   smalltxt/.style={font=\tiny, inner sep=1pt},
@@ -736,13 +772,13 @@
 % #1 title, #2 text
 \newcommand{\acard}[2]{%
   \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body answer}
-    \footnotesize\textbf{\textcolor{mygreen!70!black}{\faCheck}\ #1}\\ #2
+    \footnotesize\textbf{\textcolor{aExec}{\faCheck}\ #1}\\ #2
   \end{beamercolorbox}\vspace{0.06cm}}
 % red "problem" box
-\setbeamercolor{block body problem}{bg=MacRed!10,fg=black}
+\setbeamercolor{block body problem}{bg=AccentOrange!10,fg=black}
 \newcommand{\probbox}[2]{%
   \begin{beamercolorbox}[rounded=true,sep=0.09cm,wd=\linewidth]{block body problem}
-    \footnotesize\textbf{\textcolor{MacRed}{\faExclamationTriangle}\ #1}\\ #2
+    \footnotesize\textbf{\textcolor{AccentOrange}{\faExclamationTriangle}\ #1}\\ #2
   \end{beamercolorbox}\vspace{0.06cm}}
 
 % ---------- hits and misses ----------
@@ -751,10 +787,10 @@
 \tikzset{
   hmcell/.style={minimum width=\cw cm, minimum height=\chh cm, inner sep=0pt, draw=white,
     font=\scriptsize\bfseries, text=white},
-  hm-H/.style={hmcell, fill=HitGreen},
-  hm-M/.style={hmcell, fill=MissRed},
-  hm-Q/.style={hmcell, fill=gray!10, draw=gray!40, text=gray!60},
-  hm-A/.style={hmcell, draw=none, text=DeepBlue, font=\scriptsize\ttfamily\bfseries},
+  hm-H/.style={hmcell, fill=white, draw=nLight, text=aExec},
+  hm-M/.style={hmcell, fill=white, draw=nLight, text=aWrite},
+  hm-Q/.style={hmcell, fill=nFill, draw=nLight, text=nLine},
+  hm-A/.style={hmcell, draw=none, text=nInk, font=\scriptsize\ttfamily\bfseries},
 }
 % one row of hits and misses: #1 row (0 = top), #2 comma list of H, M, Q (Q = to fill in)
 \newcommand{\hmrow}[2]{%
@@ -767,13 +803,13 @@
 % label on the left of a row: #1 row, #2 text
 \newcommand{\hmlabel}[2]{\node[anchor=east, font=\scriptsize, inner sep=1pt] at ({-0.5*\cw-0.08}, {-(#1)*\chh}) {#2};}
 % label on the right of a row: #1 row, #2 number of cells, #3 text
-\newcommand{\hmresult}[3]{\node[anchor=west, font=\scriptsize\bfseries, text=DeepBlue, inner sep=1pt]
+\newcommand{\hmresult}[3]{\node[anchor=west, font=\scriptsize\bfseries, text=nInk, inner sep=1pt]
   at ({(#2-0.5)*\cw+0.12}, {-(#1)*\chh}) {#3};}
 
 % ---------- a small cache (or page table) drawn as a table ----------
 \tikzset{
-  ctab/.style={draw=DeepBlue!50, minimum height=0.4cm, inner sep=1pt, font=\ttfamily\scriptsize, fill=white},
-  ctabh/.style={ctab, fill=DeepBlue, text=white, font=\scriptsize\bfseries},
+  ctab/.style={draw=nLine, text=nInk, minimum height=0.4cm, inner sep=1pt, font=\ttfamily\scriptsize, fill=white},
+  ctabh/.style={ctab, fill=nInk, text=white, font=\scriptsize\bfseries},
   ctabhit/.style={fill=HitGreen!25, draw=HitGreen, very thick},
   ctabmiss/.style={fill=MissRed!20, draw=MissRed, very thick},
 }
@@ -793,11 +829,15 @@
 % ---------- timelines (polling, interrupts, DMA, bus use) ----------
 % #1 y, #2 label on the left, #3 comma list of length/colour/text
 \newcommand{\tlbar}[3]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue, align=right] at (-0.1,#1) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk, align=right] at (-0.1,#1) {#2};
   \gdef\tlx{0}%
   \foreach \tlw/\tlc/\tlt in {#3} {%
+    \edef\tlcc{\tlc}\def\tlpoll{cPoll}\def\tlidle{cIdle}\def\tlb{cTaskB}%
+    \def\tltext{nInk}\def\tlwa{cTaskA}\def\tlwc{cTaskC}\def\tlwh{cTaskH}\def\tlwm{cWork}\def\tlwi{cISR}%
+    \ifx\tlcc\tlwa\def\tltext{white}\fi\ifx\tlcc\tlwc\def\tltext{white}\fi\ifx\tlcc\tlwh\def\tltext{white}\fi
+    \ifx\tlcc\tlwm\def\tltext{white}\fi\ifx\tlcc\tlwi\def\tltext{white}\fi\ifx\tlcc\tlb\def\tltext{black}\fi
     \node[draw=white, fill=\tlc, minimum width=\tlw cm, minimum height=0.42cm, inner sep=0pt,
-      anchor=west, font=\tiny\bfseries, text=white] at (\tlx,#1) {\tlt};
+      anchor=west, font=\tiny\bfseries, text=\tltext] at (\tlx,#1) {\tlt};
     \pgfmathsetmacro{\tlnext}{\tlx+\tlw}%
     \xdef\tlx{\tlnext}%
   }}
@@ -805,16 +845,16 @@
 % ---------- timing diagrams (buses) ----------
 % a digital signal: #1 y, #2 label, #3 comma list of x/level pairs (level 0 or 1), #4 end x
 \newcommand{\signal}[4]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,{#1+0.2}) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,{#1+0.2}) {#2};
   \gdef\sgx{0}\gdef\sgl{0}%
   \foreach \sx/\sl in {#3} {%
-    \draw[very thick, DeepBlue] (\sgx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sl});
+    \draw[very thick, nInk] (\sgx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sgl}) -- (\sx,{#1+0.4*\sl});
     \xdef\sgx{\sx}\xdef\sgl{\sl}%
   }
-  \draw[very thick, DeepBlue] (\sgx,{#1+0.4*\sgl}) -- (#4,{#1+0.4*\sgl});}
+  \draw[very thick, nInk] (\sgx,{#1+0.4*\sgl}) -- (#4,{#1+0.4*\sgl});}
 % a bus value (address, data): #1 y, #2 label, #3 start x, #4 end x, #5 text, #6 colour
 \newcommand{\busval}[6]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue, align=right] at (-0.15,{#1+0.2}) {#2};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk, align=right] at (-0.15,{#1+0.2}) {#2};
   \fill[#6!20] (#3,#1+0.2) -- (#3+0.12,#1+0.4) -- (#4-0.12,#1+0.4) -- (#4,#1+0.2)
     -- (#4-0.12,#1) -- (#3+0.12,#1) -- cycle;
   \draw[very thick, #6] (#3,#1+0.2) -- (#3+0.12,#1+0.4) -- (#4-0.12,#1+0.4) -- (#4,#1+0.2)
@@ -822,14 +862,14 @@
   \node[font=\tiny\bfseries, text=#6!70!black] at ({(#3+#4)/2},{#1+0.2}) {#5};}
 % a clock: #1 y, #2 number of periods, #3 period width
 \newcommand{\clocksig}[3]{%
-  \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,{#1+0.2}) {Bus clock};
+  \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,{#1+0.2}) {Bus clock};
   \foreach \c in {1,...,#2} {
-    \draw[very thick, DeepBlue] ({(\c-1)*#3},#1) -- ({(\c-1)*#3},{#1+0.4}) -- ({(\c-0.5)*#3},{#1+0.4})
+    \draw[very thick, nInk] ({(\c-1)*#3},#1) -- ({(\c-1)*#3},{#1+0.4}) -- ({(\c-0.5)*#3},{#1+0.4})
       -- ({(\c-0.5)*#3},#1) -- ({\c*#3},#1);
   }}
 % a vertical time marker: #1 x, #2 top y, #3 bottom y, #4 label
 \newcommand{\tmark}[4]{%
-  \draw[DeepBlue!50, dashed, thick] (#1,#2) -- (#1,#3);
+  \draw[nLine, dashed, thick] (#1,#2) -- (#1,#3);
   \node[font=\scriptsize\bfseries, text=AccentOrange, below] at (#1,#3) {#4};}
 
 % ---------- latency bar on a log scale ----------
@@ -858,11 +898,12 @@
   moredelim=**[is][\color{MacYellow}\bfseries]{@}{@}}
 
 % ---------- colours used all day ----------
-\colorlet{cWork}{mygreen}
-\colorlet{cPoll}{MissRed}
-\colorlet{cISR}{AccentOrange}
-\colorlet{cCopy}{StorageBlue}
-\colorlet{cIdle}{gray!45}
+% who uses the CPU: main program indigo; checking the device = time lost (grey)
+\colorlet{cWork}{sIndigo}
+\colorlet{cPoll}{nIdle}
+\colorlet{cISR}{sPink}
+\colorlet{cCopy}{nLine}
+\colorlet{cIdle}{nIdle}
 
 % legend for the CPU timelines
 \newcommand{\cpulegend}{%
@@ -880,28 +921,28 @@
 % ---------- Wokwi window (schematic; replace with a screenshot if you like) ----------
 \newcommand{\wokwiwindow}{%
   \begin{tikzpicture}[font=\tiny]
-    \draw[DeepBlue, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.2);
-    \fill[DeepBlue!10, rounded corners=4pt] (0.05,4.85) rectangle (8.95,5.15);
-    \fill[MacRed] (0.25,5.0) circle (2.5pt); \fill[MacYellow] (0.5,5.0) circle (2.5pt); \fill[MacGreen] (0.75,5.0) circle (2.5pt);
-    \node[font=\tiny\bfseries, text=DeepBlue] at (4.5,5.0) {wokwi.com};
+    \draw[nInk, very thick, fill=white, rounded corners=4pt] (0,0) rectangle (9,5.2);
+    \fill[nLight, rounded corners=4pt] (0.05,4.85) rectangle (8.95,5.15);
+    \fill[nLine] (0.25,5.0) circle (2.5pt); \fill[nLine] (0.5,5.0) circle (2.5pt); \fill[nLine] (0.75,5.0) circle (2.5pt);
+    \node[font=\tiny\bfseries, text=nInk] at (4.5,5.0) {wokwi.com};
     % code editor
-    \fill[DeepBlue!15] (0.15,4.45) rectangle (4.3,4.75);
-    \node[anchor=west, font=\tiny\bfseries, text=DeepBlue] at (0.2,4.6) {sketch.ino};
-    \node[anchor=west, font=\tiny, text=DeepBlue!60] at (1.2,4.6) {diagram.json};
+    \fill[nLight] (0.15,4.45) rectangle (4.3,4.75);
+    \node[anchor=west, font=\tiny\bfseries, text=nInk] at (0.2,4.6) {sketch.ino};
+    \node[anchor=west, font=\tiny, text=nLine] at (1.2,4.6) {diagram.json};
     \draw[gray!60, fill=VSDarkBg] (0.15,1.35) rectangle (4.3,4.45);
     \foreach \t [count=\j from 0] in {void setup() \{, \ \ pinMode(4\, OUTPUT);, \}, void loop() \{, \ \ digitalWrite(4\, HIGH);, \ \ delay(500);, \ldots}
       \node[anchor=west, text=VSText, font=\ttfamily\tiny] at (0.25,{4.2-0.38*\j}) {\t};
     % diagram
-    \draw[gray!60, fill=LightGray] (4.45,1.35) rectangle (8.85,4.75);
+    \draw[gray!60, fill=nFill] (4.45,1.35) rectangle (8.85,4.75);
     \fill[MacGreen] (6.65,4.45) circle (0.17);
     \fill[white] (6.59,4.36) -- (6.59,4.54) -- (6.75,4.45) -- cycle;
-    \draw[DeepBlue, thick, fill=DeepBlue!85, rounded corners=1pt] (4.9,1.7) rectangle (5.9,3.7);
+    \draw[nInk, thick, fill=nInk, rounded corners=1pt] (4.9,1.7) rectangle (5.9,3.7);
     \node[font=\tiny\bfseries, text=white, rotate=90] at (5.4,2.7) {ESP32-C3};
     \fill[MacRed] (7.0,3.4) circle (0.15);
-    \draw[DeepBlue, thick] (5.9,3.4) -- (6.85,3.4);
-    \draw[DeepBlue, thick, fill=white] (6.85,2.4) rectangle (7.25,2.8);
-    \fill[DeepBlue] (7.05,2.6) circle (0.1);
-    \draw[DeepBlue, thick] (5.9,2.6) -- (6.85,2.6);
+    \draw[nInk, thick] (5.9,3.4) -- (6.85,3.4);
+    \draw[nInk, thick, fill=white] (6.85,2.4) rectangle (7.25,2.8);
+    \fill[nInk] (7.05,2.6) circle (0.1);
+    \draw[nInk, thick] (5.9,2.6) -- (6.85,2.6);
     % serial monitor
     \draw[gray!60, fill=VSDarkBg] (0.15,0.15) rectangle (8.85,1.2);
     \node[anchor=west, text=VSText, font=\ttfamily\tiny] at (0.25,0.95) {Hello, ESP32!};
@@ -914,16 +955,16 @@
 % ---------- our circuit for today ----------
 \newcommand{\ourcircuit}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[draw=DeepBlue, very thick, fill=DeepBlue!85, text=white, rounded corners=3pt, minimum width=2.0cm,
+    \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=3pt, minimum width=2.0cm,
       minimum height=3.2cm, font=\scriptsize\bfseries, align=center] (esp) at (0,0) {ESP32-C3};
-    \node[lbox, draw=MissRed, fill=MissRed!12, minimum width=1.9cm] (led) at (4.2,1.2) {\faLightbulb\ LED};
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (ba) at (4.2,0.4) {\faDotCircle\ Button A};
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (bb) at (4.2,-0.4) {\faDotCircle\ Button B};
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.9cm] (lcd) at (4.2,-1.25) {\faTv\ LCD 16$\times$2};
-    \draw[very thick, DeepBlue] (esp.east |- led) -- node[above, font=\tiny] {GPIO 4} (led);
-    \draw[very thick, DeepBlue] (esp.east |- ba) -- node[above, font=\tiny] {GPIO 5} (ba);
-    \draw[very thick, DeepBlue] (esp.east |- bb) -- node[above, font=\tiny] {GPIO 6} (bb);
-    \draw[very thick, DeepBlue] (esp.east |- lcd) -- node[above, font=\tiny] {GPIO 8, 9 (I2C)} (lcd);
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.9cm] (led) at (4.2,1.2) {\faLightbulb\ LED};
+    \node[lbox, draw=nInk, fill=nFill, minimum width=1.9cm] (ba) at (4.2,0.4) {\faDotCircle\ Button A};
+    \node[lbox, draw=nInk, fill=nFill, minimum width=1.9cm] (bb) at (4.2,-0.4) {\faDotCircle\ Button B};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.9cm] (lcd) at (4.2,-1.25) {\faTv\ LCD 16$\times$2};
+    \draw[very thick, nInk] (esp.east |- led) -- node[above, font=\tiny] {GPIO 4} (led);
+    \draw[very thick, nInk] (esp.east |- ba) -- node[above, font=\tiny] {GPIO 5} (ba);
+    \draw[very thick, nInk] (esp.east |- bb) -- node[above, font=\tiny] {GPIO 6} (bb);
+    \draw[very thick, nInk] (esp.east |- lcd) -- node[above, font=\tiny] {GPIO 8, 9 (I2C)} (lcd);
   \end{tikzpicture}}
 
 % ---------- Wokwi-style parts for the "Build it" slides ----------
@@ -1085,8 +1126,8 @@
 \newcommand{\powerexplain}{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
     % rails
-    \draw[line width=2pt, MacRed] (0,2.0) -- (4.6,2.0);
-    \node[anchor=west, font=\scriptsize\bfseries, text=MacRed, align=left] at (4.7,2.0) {VCC (+)\\[-1pt]{\tiny 3V3 = 3.3\,V, 5V = 5\,V}};
+    \draw[line width=2pt, nInk] (0,2.0) -- (4.6,2.0);
+    \node[anchor=west, font=\scriptsize\bfseries, text=nInk, align=left] at (4.7,2.0) {VCC (+)\\[-1pt]{\tiny 3V3 = 3.3\,V, 5V = 5\,V}};
     \draw[line width=2pt, black] (0,-1.0) -- (4.6,-1.0);
     \node[anchor=west, font=\scriptsize\bfseries, align=left] at (4.7,-1.0) {GND ($-$)\\[-1pt]{\tiny 0\,V}};
     % voltage between the rails
@@ -1095,18 +1136,18 @@
     \draw[thick] (1.2,2.0) -- (1.2,1.55);
     \draw[thick, fill=ResBody] (1.08,1.55) rectangle (1.32,0.85);
     \draw[thick] (1.2,0.85) -- (1.2,0.6);
-    \draw[thick, fill=MacRed!35] (0.95,0.6) -- (1.45,0.6) -- (1.2,0.15) -- cycle;
+    \draw[thick, fill=nFill] (0.95,0.6) -- (1.45,0.6) -- (1.2,0.15) -- cycle;
     \draw[very thick] (0.95,0.15) -- (1.45,0.15);
-    \foreach \d in {0,0.15} \draw[->, MacRed, thick] (1.5,{0.45-\d}) -- ++(0.28,0.16);
+    \foreach \d in {0,0.15} \draw[->, nInk, thick] (1.5,{0.45-\d}) -- ++(0.28,0.16);
     \draw[thick] (1.2,0.15) -- (1.2,-1.0);
-    \fill[MacRed] (1.2,2.0) circle (0.06);  \fill (1.2,-1.0) circle (0.06);
+    \fill[nInk] (1.2,2.0) circle (0.06);  \fill (1.2,-1.0) circle (0.06);
     \draw[->, line width=1.4pt, AccentOrange] (0.65,1.8) -- node[sloped, above, font=\tiny\bfseries] {current} (0.65,-0.8);
-    \node[font=\tiny\bfseries, mygreen, align=center] at (1.2,-1.4) {\faCheck\ closed loop:\\+ $\to$ part $\to$ GND};
+    \node[font=\tiny\bfseries, aExec, align=center] at (1.2,-1.4) {\faCheck\ closed loop:\\+ $\to$ part $\to$ GND};
     % a short circuit
-    \draw[line width=1.4pt, MacRed] (3.6,2.0) -- (3.6,-1.0);
-    \fill[MacRed] (3.6,2.0) circle (0.06);  \fill (3.6,-1.0) circle (0.06);
-    \node[font=\Large\bfseries, text=MacRed, fill=white, inner sep=1pt] at (3.6,0.5) {\faTimes};
-    \node[font=\tiny\bfseries, MacRed, align=center] at (3.6,-1.4) {\faTimes\ short circuit:\\VCC straight to GND};
+    \draw[line width=1.4pt, aWrite] (3.6,2.0) -- (3.6,-1.0);
+    \fill[nInk] (3.6,2.0) circle (0.06);  \fill (3.6,-1.0) circle (0.06);
+    \node[font=\Large\bfseries, text=aWrite, fill=white, inner sep=1pt] at (3.6,0.5) {\faTimes};
+    \node[font=\tiny\bfseries, aWrite, align=center] at (3.6,-1.4) {\faTimes\ short circuit:\\VCC straight to GND};
   \end{tikzpicture}}
 
 % ---------- how an LED works: the part and its circuit ----------
@@ -1119,11 +1160,11 @@
     \node[anchor=east, align=right] (lc) at (-0.45,-0.35) {\textbf{C} = cathode ($-$)\\the \textbf{straight} leg};
     % the circuit
     \begin{scope}[xshift=4.3cm, yshift=-0.2cm]
-      \node[lbox, draw=DeepBlue, fill=LightGray] (gpio) at (0,1.75) {GPIO 4\\[-1pt]{\tiny HIGH = 3.3\,V}};
+      \node[lbox, draw=nInk, fill=nFill] (gpio) at (0,1.75) {GPIO 4\\[-1pt]{\tiny HIGH = 3.3\,V}};
       \draw[thick] (gpio.south) -- (0,0.9);
-      \draw[thick, fill=MacRed!35] (-0.28,0.9) -- (0.28,0.9) -- (0,0.42) -- cycle;
+      \draw[thick, fill=nFill] (-0.28,0.9) -- (0.28,0.9) -- (0,0.42) -- cycle;
       \draw[very thick] (-0.28,0.42) -- (0.28,0.42);
-      \foreach \d in {0,0.16} \draw[->, MacRed, thick] (0.34,{0.72-\d}) -- ++(0.3,0.18);
+      \foreach \d in {0,0.16} \draw[->, nInk, thick] (0.34,{0.72-\d}) -- ++(0.3,0.18);
       \node[anchor=east, font=\scriptsize\bfseries] at (-0.32,0.86) {A};
       \node[anchor=east, font=\scriptsize\bfseries] at (-0.32,0.44) {C};
       \draw[thick] (0,0.42) -- (0,0.2);
@@ -1151,7 +1192,7 @@
       \draw[thick] (0.8,0.8) -- (0.8,0.62) -- (1.1,0.22);
       \draw[thick] (0.8,0) -- (0.8,0.18);
     \else
-      \draw[line width=1.6pt, mygreen] (0.8,0.8) -- (0.8,0);
+      \draw[line width=1.6pt, nInk] (0.8,0.8) -- (0.8,0);
     \fi
   \end{tikzpicture}}
 \newcommand{\buttonexplain}{%
@@ -1166,20 +1207,20 @@
 % ---------- I2C: one controller, many devices on 2 wires ----------
 \newcommand{\itwocbus}{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
-    \node[lbox, draw=DeepBlue, fill=DeepBlue!85, text=white, minimum width=1.7cm, minimum height=1.5cm]
+    \node[lbox, draw=nInk, fill=nInk, text=white, minimum width=1.7cm, minimum height=1.5cm]
       (cpu) at (0,0) {ESP32-C3\\[-1pt]{\tiny\mdseries controller}};
-    \draw[line width=1.5pt, StorageBlue] (cpu.east |- 0,0.35) node[above right, font=\tiny] {GPIO 8} -- (7.2,0.35)
+    \draw[line width=1.5pt, nInk] (cpu.east |- 0,0.35) node[above right, font=\tiny] {GPIO 8} -- (7.2,0.35)
       node[right, font=\scriptsize\bfseries] {SDA};
-    \foreach \x/\n/\a/\c in {2.3/LCD/0x27/mygreen, 4.2/sensor/0x68/gray, 6.1/memory/0x50/gray} {
-      \draw[line width=1.2pt, StorageBlue] (\x-0.22,0.35) -- (\x-0.22,-1.2);
-      \fill[StorageBlue] (\x-0.22,0.35) circle (0.06);
+    \foreach \x/\n/\a/\c in {2.3/LCD/0x27/nLine, 4.2/sensor/0x68/nLine, 6.1/memory/0x50/nLine} {
+      \draw[line width=1.2pt, nInk] (\x-0.22,0.35) -- (\x-0.22,-1.2);
+      \fill[nInk] (\x-0.22,0.35) circle (0.06);
       \node[lbox, draw=\c, fill=\c!12, minimum width=1.4cm] at (\x,-1.55) {\n\\[-1pt]\texttt{\a}};
     }
-    \draw[line width=1.5pt, ProgramPurple, preaction={draw, white, line width=4pt}] (cpu.east |- 0,-0.35)
+    \draw[line width=1.5pt, nLine, preaction={draw, white, line width=4pt}] (cpu.east |- 0,-0.35)
       node[below right, font=\tiny] {GPIO 9} -- (7.2,-0.35) node[right, font=\scriptsize\bfseries] {SCL};
     \foreach \x in {2.3,4.2,6.1} {
-      \draw[line width=1.2pt, ProgramPurple] (\x+0.22,-0.35) -- (\x+0.22,-1.2);
-      \fill[ProgramPurple] (\x+0.22,-0.35) circle (0.06);
+      \draw[line width=1.2pt, nLine] (\x+0.22,-0.35) -- (\x+0.22,-1.2);
+      \fill[nLine] (\x+0.22,-0.35) circle (0.06);
     }
   \end{tikzpicture}}
 
@@ -1187,8 +1228,8 @@
 \newcommand{\itwoctiming}[1]{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
     % the steps: highlighted band and a label on top
-    \foreach \n/\a/\b/\t/\c in {1/0.3/1.0/START/AccentOrange, 2/1.0/5.0/{address \texttt{0x27} + write}/StorageBlue,
-        3/5.0/5.5/ACK/mygreen, 4/5.5/9.5/{data byte}/StorageBlue, 5/9.5/10.0/ACK/mygreen, 6/10.0/10.75/STOP/AccentOrange} {
+    \foreach \n/\a/\b/\t/\c in {1/0.3/1.0/START/AccentOrange, 2/1.0/5.0/{address \texttt{0x27} + write}/AccentOrange,
+        3/5.0/5.5/ACK/AccentOrange, 4/5.5/9.5/{data byte}/AccentOrange, 5/9.5/10.0/ACK/AccentOrange, 6/10.0/10.75/STOP/AccentOrange} {
       \ifnum\n=#1
         \fill[\c!18, rounded corners=2pt] (\a,-1.55) rectangle (\b,1.45);
         \node[font=\scriptsize\bfseries, text=\c!80!black] at ({(\a+\b)/2},1.25) {\t};
@@ -1197,17 +1238,17 @@
       \fi
       \draw[gray!40, densely dotted] (\a,-1.55) -- (\a,1.1);
     }
-    \node[anchor=east, font=\scriptsize\bfseries, text=ProgramPurple] at (-0.1,0.6) {SCL};
-    \node[anchor=east, font=\scriptsize\bfseries, text=StorageBlue] at (-0.1,-0.6) {SDA};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.1,0.6) {SCL};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.1,-0.6) {SDA};
     % SCL: high, falls after START, 18 clock ticks, high again before STOP
-    \draw[thick, ProgramPurple] (0,0.9) -- (0.8,0.9) -- (0.8,0.3) -- (1.25,0.3)
+    \draw[thick, nInk] (0,0.9) -- (0.8,0.9) -- (0.8,0.3) -- (1.25,0.3)
       \foreach \k in {0,...,17} { -- ({1.25+0.5*\k},0.9) -- ({1.5+0.5*\k},0.9) -- ({1.5+0.5*\k},0.3) -- ({1.75+0.5*\k},0.3) }
       -- (10.2,0.3) -- (10.2,0.9) -- (10.9,0.9);
     % SDA: falls at START, one bit per tick, rises at STOP
-    \draw[thick, StorageBlue] (0,-0.3) -- (0.5,-0.3) -- (0.5,-0.9) -- (1.0,-0.9);
-    \foreach \x/\p/\v/\c in {1.0/0/0/StorageBlue, 1.5/0/1/StorageBlue, 2.0/1/0/StorageBlue, 2.5/0/0/StorageBlue, 3.0/0/1/StorageBlue, 3.5/1/1/StorageBlue, 4.0/1/1/StorageBlue, 4.5/1/0/StorageBlue, 5.0/0/0/mygreen, 5.5/0/0/StorageBlue, 6.0/0/1/StorageBlue, 6.5/1/0/StorageBlue, 7.0/0/0/StorageBlue, 7.5/0/1/StorageBlue, 8.0/1/0/StorageBlue, 8.5/0/0/StorageBlue, 9.0/0/0/StorageBlue, 9.5/0/0/mygreen}
+    \draw[thick, nInk] (0,-0.3) -- (0.5,-0.3) -- (0.5,-0.9) -- (1.0,-0.9);
+    \foreach \x/\p/\v/\c in {1.0/0/0/nInk, 1.5/0/1/nInk, 2.0/1/0/nInk, 2.5/0/0/nInk, 3.0/0/1/nInk, 3.5/1/1/nInk, 4.0/1/1/nInk, 4.5/1/0/nInk, 5.0/0/0/nInk, 5.5/0/0/nInk, 6.0/0/1/nInk, 6.5/1/0/nInk, 7.0/0/0/nInk, 7.5/0/1/nInk, 8.0/1/0/nInk, 8.5/0/0/nInk, 9.0/0/0/nInk, 9.5/0/0/nInk}
       \draw[thick, \c] (\x,{-0.9+0.6*\p}) -- (\x,{-0.9+0.6*\v}) -- (\x+0.5,{-0.9+0.6*\v});
-    \draw[thick, StorageBlue] (10.0,-0.9) -- (10.45,-0.9) -- (10.45,-0.3) -- (10.9,-0.3);
+    \draw[thick, nInk] (10.0,-0.9) -- (10.45,-0.9) -- (10.45,-0.3) -- (10.9,-0.3);
     \foreach \x/\v in {1.25/0, 1.75/1, 2.25/0, 2.75/0, 3.25/1, 3.75/1, 4.25/1, 4.75/0, 5.25/0, 5.75/0, 6.25/1, 6.75/0, 7.25/0, 7.75/1, 8.25/0, 8.75/0, 9.25/0, 9.75/0} \node[font=\tiny, text=gray!70!black] at (\x,-1.2) {\v};
     \node[font=\tiny, text=gray!70!black] at (4.75,-1.42) {W};
   \end{tikzpicture}}
@@ -1248,25 +1289,25 @@
 \newcommand{\chipbus}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % the chip
-    \draw[DeepBlue, very thick, dashed, rounded corners=6pt, fill=DeepBlue!4] (-1.3,-1.6) rectangle (11.9,2.5);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (-1.2,2.45) {\faMicrochip\ inside the ESP32-C3 chip};
+    \draw[nLine, very thick, dashed, rounded corners=6pt] (-1.3,-1.6) rectangle (11.9,2.5);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (-1.2,2.45) {\faMicrochip\ inside the ESP32-C3 chip};
     \node[cpubox, minimum width=1.8cm, minimum height=0.9cm] (cpu) at (0.4,1.45) {CPU};
     % the internal bus
     \ifnum#1>0 \def\buswidth{1.5pt}\else \def\buswidth{2pt}\fi
-    \foreach \y/\c/\t in {0.75/AccentOrange/address, 0.45/StorageBlue/data, 0.15/ProgramPurple/control} {
+    \foreach \y/\c/\t in {0.75/nInk/address, 0.45/nLine/data, 0.15/nLight/control} {
       \draw[line width=\buswidth, \c] (0.4,\y) -- (10.4,\y);
       \node[anchor=west, font=\tiny\bfseries, text=\c] at (10.45,\y) {\t};
     }
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (5.4,0.78) {internal bus};
-    \draw[very thick, DeepBlue] (cpu.south) -- (0.4,0.15);
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (5.4,0.78) {internal bus};
+    \draw[very thick, nInk] (cpu.south) -- (0.4,0.15);
     % memory and controllers
     \node[rambox, minimum width=2.0cm, minimum height=0.85cm] (mem) at (2.9,-0.75) {Memory\\[-1pt]{\tiny\mdseries RAM, flash}};
     \node[iobox, minimum width=2.0cm, minimum height=0.85cm] (gpio) at (6.0,-0.75) {GPIO controller\\[-1pt]{\tiny\mdseries \texttt{0x6000\,4000}}};
     \node[iobox, minimum width=2.0cm, minimum height=0.85cm] (i2c) at (9.1,-0.75) {I2C controller\\[-1pt]{\tiny\mdseries \texttt{0x6001\,3000}}};
-    \foreach \n in {mem,gpio,i2c} \draw[very thick, DeepBlue] (\n.north) -- (\n.north |- 0,0.75);
+    \foreach \n in {mem,gpio,i2c} \draw[very thick, nInk] (\n.north) -- (\n.north |- 0,0.75);
     % every connection reaches all three groups of lines: address, data and control
     \foreach \x in {0.4,2.9,6.0,9.1}
-      \foreach \y/\c in {0.75/AccentOrange, 0.45/StorageBlue, 0.15/ProgramPurple}
+      \foreach \y/\c in {0.75/nInk, 0.45/nLine, 0.15/nLight}
         \fill[\c] (\x,\y) circle (0.075);
     % pins on the edge of the chip, wires on the board
     \foreach \x/\l/\n in {5.6/4/gpio, 6.4/5/gpio, 8.7/8/i2c, 9.5/9/i2c} {
@@ -1276,49 +1317,49 @@
     }
     \draw[line width=1.2pt, WireGreen] (5.6,-1.69) -- (5.6,-2.25);
     \draw[line width=1.2pt, WireGreen] (6.4,-1.69) -- (6.4,-2.25);
-    \draw[line width=1.2pt, StorageBlue] (8.7,-1.69) -- (8.7,-2.2);
-    \draw[line width=1.2pt, ProgramPurple] (9.5,-1.69) -- (9.5,-2.2);
+    \draw[line width=1.2pt, nInk] (8.7,-1.69) -- (8.7,-2.2);
+    \draw[line width=1.2pt, nLine] (9.5,-1.69) -- (9.5,-2.2);
     \ifnum#1=3
-      \fill[MacRed!30] (5.6,-2.5) circle (0.38);
-      \fill[MacRed] (5.6,-2.5) circle (0.24);
-      \node[font=\tiny\bfseries, text=MacRed, anchor=east] at (5.5,-1.95) {3.3\,V};
+      \fill[nLight] (5.6,-2.5) circle (0.38);
+      \fill[nInk] (5.6,-2.5) circle (0.24);
+      \node[font=\tiny\bfseries, text=nInk, anchor=east] at (5.5,-1.95) {3.3\,V};
     \else
-      \fill[MacRed!35] (5.6,-2.5) circle (0.24);
+      \fill[white] (5.6,-2.5) circle (0.24); \draw[nLine] (5.6,-2.5) circle (0.24);
     \fi
     \node[font=\tiny, anchor=north] at (5.6,-2.78) {LED};
     \fill[black!75, rounded corners=1pt] (6.2,-2.7) rectangle (6.6,-2.3);  \fill[MacGreen] (6.4,-2.5) circle (0.12);
     \node[font=\tiny, anchor=north] at (6.4,-2.78) {button};
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.6cm] (lcd) at (9.1,-2.55) {LCD\\[-1pt]{\tiny\mdseries I2C address \texttt{0x27}}};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.6cm] (lcd) at (9.1,-2.55) {LCD\\[-1pt]{\tiny\mdseries I2C address \texttt{0x27}}};
     \node[font=\tiny, text=gray!40!black, anchor=west, align=left] at (10.05,-1.95) {SDA, SCL:\\2 wires};
     \node[font=\scriptsize\bfseries, text=gray!40!black, anchor=west] at (-1.2,-2.2) {on the board: real wires};
     % the steps of one store: sw to 0x6000 4008
     \ifnum#1>0
-      \node[font=\tiny\ttfamily, fill=white, draw=DeepBlue, rounded corners=1pt, anchor=west] at (1.5,1.45) {sw a4, 8(a5)};
-      \node[font=\tiny\bfseries\ttfamily, fill=AccentOrange!20, draw=AccentOrange, rounded corners=1pt] at (1.8,0.75) {0x6000\,4008};
+      \node[font=\tiny\ttfamily, fill=white, draw=nInk, rounded corners=1pt, anchor=west] at (1.5,1.45) {sw a4, 8(a5)};
+      \node[font=\tiny\bfseries\ttfamily, fill=white, draw=nLine, rounded corners=1pt] at (1.8,0.75) {0x6000\,4008};
     \fi
     \ifnum#1>1
-      \draw[line width=1.6pt, mygreen, rounded corners=3pt] ([shift={(-0.08,-0.08)}]gpio.south west) rectangle ([shift={(0.08,0.08)}]gpio.north east);
-      \node[font=\tiny\bfseries, text=mygreen, anchor=south west] at ([xshift=0.05cm]gpio.north east) {mine!};
+      \draw[line width=1.6pt, AccentOrange, rounded corners=3pt] ([shift={(-0.08,-0.08)}]gpio.south west) rectangle ([shift={(0.08,0.08)}]gpio.north east);
+      \node[font=\tiny\bfseries, text=AccentOrange, anchor=south west] at ([xshift=0.05cm]gpio.north east) {mine!};
       \node[font=\tiny, text=gray, anchor=south west] at ([xshift=0.05cm]mem.north east) {not mine};
       \node[font=\tiny, text=gray, anchor=south west] at ([xshift=0.05cm]i2c.north east) {not mine};
     \fi
     \ifnum#1>2
-      \node[font=\tiny\bfseries\ttfamily, fill=StorageBlue!20, draw=StorageBlue, rounded corners=1pt] at (1.8,0.45) {0x10 = bit 4};
-      \node[font=\tiny\bfseries, fill=ProgramPurple!15, draw=ProgramPurple, rounded corners=1pt] at (1.8,0.15) {write};
+      \node[font=\tiny\bfseries\ttfamily, fill=white, draw=nLine, rounded corners=1pt] at (1.8,0.45) {0x10 = bit 4};
+      \node[font=\tiny\bfseries, fill=white, awrite, rounded corners=1pt] at (1.8,0.15) {write};
     \fi
   \end{tikzpicture}}
 
 % ---------- lcd.print: CPU -> I2C controller (internal bus) -> LCD (2 wires) ----------
 \newcommand{\twobuses}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, dashed, rounded corners=6pt, fill=DeepBlue!4] (-0.3,-0.75) rectangle (5.3,1.2);
-    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (-0.25,1.17) {\faMicrochip\ inside the chip};
+    \draw[nLine, very thick, dashed, rounded corners=6pt] (-0.3,-0.75) rectangle (5.3,1.2);
+    \node[anchor=north west, font=\tiny\bfseries, text=nInk] at (-0.25,1.17) {\faMicrochip\ inside the chip};
     \node[cpubox, minimum width=1.4cm, minimum height=0.8cm] (cpu) at (0.6,0.1) {CPU};
     \node[iobox, minimum width=1.8cm, minimum height=0.8cm] (ctl) at (4.1,0.1) {I2C\\[-1pt]controller};
-    \draw[->, line width=1.8pt, AccentOrange] (cpu.east) -- node[above, font=\tiny\bfseries] {internal bus} node[below, font=\tiny\ttfamily] {sw \ldots\ 0x6001\,3xxx} (ctl.west);
-    \node[lbox, draw=mygreen, fill=mygreen!12, minimum width=1.4cm, minimum height=0.8cm] (lcd) at (7.3,0.1) {LCD\\[-1pt]{\tiny\mdseries \texttt{0x27}}};
-    \draw[->, line width=1.2pt, StorageBlue] ([yshift=0.12cm]ctl.east) -- ([yshift=0.12cm]lcd.west);
-    \draw[line width=1.2pt, ProgramPurple] ([yshift=-0.12cm]ctl.east) -- ([yshift=-0.12cm]lcd.west);
+    \draw[->, line width=1.8pt, nInk] (cpu.east) -- node[above, font=\tiny\bfseries] {internal bus} node[below, font=\tiny\ttfamily] {sw \ldots\ 0x6001\,3xxx} (ctl.west);
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.4cm, minimum height=0.8cm] (lcd) at (7.3,0.1) {LCD\\[-1pt]{\tiny\mdseries \texttt{0x27}}};
+    \draw[->, line width=1.2pt, nInk] ([yshift=0.12cm]ctl.east) -- ([yshift=0.12cm]lcd.west);
+    \draw[line width=1.2pt, nLine] ([yshift=-0.12cm]ctl.east) -- ([yshift=-0.12cm]lcd.west);
     \node[font=\tiny\bfseries, anchor=south] at (6.05,0.25) {SDA, SCL};
     \node[font=\tiny, anchor=north, align=center] at (6.05,-0.05) {START, \texttt{0x27},\\data, STOP};
     \node[font=\tiny\bfseries, text=gray!40!black] at (6.05,-0.95) {on the board};
@@ -1328,26 +1369,26 @@
 % ---------- memory-mapped I/O: one address space, the device part zoomed in ----------
 \newcommand{\mmiomap}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \foreach \y/\n/\a/\c in {2.3/devices/0x6000\,0000/cIO, 1.2/program (flash)/0x4200\,0000/cRAM, 0.1/data (RAM)/0x3FC8\,0000/cCache} {
+    \foreach \y/\n/\a/\c in {2.3/devices/0x6000\,0000/nLine, 1.2/program (flash)/0x4200\,0000/sViolet, 0.1/data (RAM)/0x3FC8\,0000/sPink} {
       \node[lbox, draw=\c, fill=\c!12, minimum width=2.4cm, minimum height=0.8cm] (\n) at (0,\y) {\n};
       \node[font=\ttfamily\tiny, anchor=east] at (-1.25,\y-0.3) {\a};
     }
-    \node[font=\tiny, text=DeepBlue, anchor=north] at (0,-0.4) {one address space};
+    \node[font=\tiny, text=nInk, anchor=north] at (0,-0.4) {one address space};
     % the device part, zoomed in: one window per controller
     \foreach \y/\n/\a/\h in {3.35/LEDC (PWM)/0x6001\,9000/0, 2.8/I2C/0x6001\,3000/0, 2.25/IO\_MUX/0x6000\,9000/0,
                              1.7/GPIO/0x6000\,4000/1, 1.15/SPI0/0x6000\,3000/0, 0.6/UART0/0x6000\,0000/0} {
       \ifnum\h=1
         \node[lbox, draw=AccentOrange, fill=AccentOrange!15, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
       \else
-        \node[lbox, draw=cIO, fill=cIO!8, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries, very thin] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
+        \node[lbox, draw=nLine, fill=nFill, minimum width=2.6cm, minimum height=0.44cm, font=\tiny\bfseries, very thin] at (4.3,\y) {\n\ \ \texttt{\mdseries\a}};
       \fi
     }
     \draw[gray!60, thin] (1.2,2.7) -- (3.0,3.57);
     \draw[gray!60, thin] (1.2,1.9) -- (3.0,0.38);
     \node[font=\tiny, text=gray] at (4.3,3.75) {\ldots};
     % two stores
-    \draw[->, very thick, AccentOrange] (7.3,1.7) node[right, font=\tiny\bfseries\ttfamily, align=left] {sw to\\0x6000\,4008} -- (5.62,1.7);
-    \draw[->, very thick, cCache] (-3.2,0.1) node[left, font=\tiny\bfseries\ttfamily, align=right] {sw to\\0x3FC8\,0000} -- (-1.22,0.1);
+    \draw[->, very thick, nInk] (7.3,1.7) node[right, font=\tiny\bfseries\ttfamily, align=left] {sw to\\0x6000\,4008} -- (5.62,1.7);
+    \draw[->, very thick, nInk] (-3.2,0.1) node[left, font=\tiny\bfseries\ttfamily, align=right] {sw to\\0x3FC8\,0000} -- (-1.22,0.1);
   \end{tikzpicture}}
 
 % ---------- small arrow "program flow" pieces ----------
@@ -1379,7 +1420,7 @@
 \expandafter\def\csname simhash@Race step by step\endcsname{cc-race}
 \expandafter\def\csname simhash@Mutex\endcsname{cc-mutex}
 \expandafter\def\csname simhash@Deadlock\endcsname{cc-dead}
-\expandafter\def\csname simhash@Producer--consumer\endcsname{cc-pc}
+\expandafter\def\csname simhash@Producer-consumer\endcsname{cc-pc}
 \newcommand{\simhash}[1]{\csname simhash@#1\endcsname}
 \newcommand{\simtab}[1]{\href{\simbase\#\simhash{#1}}{\textcolor{DeepBlue}{\textbf{#1}}}}
 % the address of a topic, shown at the bottom of a simulator task
@@ -1387,12 +1428,12 @@
 \newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
 
 % ---------- colours used all day ----------
-\colorlet{cTaskA}{StorageBlue}
-\colorlet{cTaskB}{ProgramPurple}
-\colorlet{cTaskC}{mygreen}
-\colorlet{cTaskH}{MacRed}
-\colorlet{cSched}{AccentOrange}
-\colorlet{cLed}{MacRed}
+\colorlet{cTaskA}{sViolet}
+\colorlet{cTaskB}{sAmber}
+\colorlet{cTaskC}{sTeal}
+\colorlet{cTaskH}{sBrown}
+\colorlet{cSched}{sPink}   % the scheduler runs in the tick interrupt
+\colorlet{cLed}{nInk}      % a LED that is on
 
 % ---------- listings ----------
 % C++ in Wokwi with the FreeRTOS functions
@@ -1409,7 +1450,7 @@
 % ---------- an interrupt on a timeline ----------
 \newcommand{\irqtimeline}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,0) {main program};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,0) {main program};
     \node[anchor=east, font=\scriptsize\bfseries, text=cISR] at (-0.15,-1.0) {ISR};
     \fill[cWork] (0,-0.21) rectangle (3.6,0.21);
     \fill[cWork] (4.8,-0.21) rectangle (9.2,0.21);
@@ -1437,7 +1478,7 @@
       hotinstr/.style={instr, fill=AccentOrange!35, draw=AccentOrange, very thick}]
     \useasboundingbox (-1.75,-1.1) rectangle (7.65,2.65);
     % the main program
-    \node[font=\scriptsize\bfseries, text=DeepBlue] at (1.6,2.4) {main program};
+    \node[font=\scriptsize\bfseries, text=nInk] at (1.6,2.4) {main program};
     \foreach \a/\t [count=\k from 0] in {0x0100/{li\ \ \ t0, 0}, 0x0104/{addi t0, t0, 1},
         0x0108/{sw\ \ \ t0, 0(a0)}, 0x010C/{j\ \ \ \ 0x0104}} {
       \node[addr, font=\ttfamily\tiny, anchor=east] at (0.45,{1.95-0.45*\k}) {\a};
@@ -1481,14 +1522,14 @@
 % ---------- the button with an interrupt (figure 1 of the course plan) ----------
 \newcommand{\figbuttonisr}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!5] (0,-0.3) rectangle (4.8,2.75);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.1,2.7) {\faMicrochip\ ESP32-C3};
+    \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (0,-0.3) rectangle (4.8,2.75);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.1,2.7) {\faMicrochip\ ESP32-C3};
     \node[lbox, draw=cISR, fill=cISR!15, minimum width=4.1cm, minimum height=0.85cm] (isr) at (2.4,1.6)
       {interrupt handler (ISR)\\[-1pt]{\ttfamily\mdseries presses++}};
     \node[lbox, draw=cWork, fill=cWork!12, minimum width=4.1cm, minimum height=0.85cm] (main) at (2.4,0.3)
       {main program\\[-1pt]{\mdseries does not check the button}};
     \draw[->, thick, dashed, DeepBlue] (isr.south) -- node[right, font=\tiny] {\texttt{presses}} (main.north);
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=2.0cm] (btn) at (-2.3,1.6)
+    \node[lbox, draw=nInk, fill=nFill, minimum width=2.0cm] (btn) at (-2.3,1.6)
       {\faDotCircle\ Button A\\[-1pt]{\tiny\mdseries GPIO 5}};
     \draw[->, very thick, cISR] (btn.east) -- node[above, font=\tiny\bfseries] {interrupt} (isr.west);
     \node[draw=mygreen!60!black, fill=mygreen!55!black, rounded corners=2pt, minimum width=2.5cm,
@@ -1501,14 +1542,14 @@
 % ---------- a timer interrupt every 500 ms ----------
 \newcommand{\timertimeline}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,0) {CPU};
+    \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,0) {CPU};
     \fill[cWork] (0,-0.21) rectangle (10.4,0.21);
     \node[font=\tiny\bfseries, text=white] at (1.2,0) {main program};
     \foreach \k in {1,...,4} {
       \fill[cISR] ({2.4*\k-0.07},-0.21) rectangle ({2.4*\k+0.07},0.21);
       \draw[cISR, thick, dashed] ({2.4*\k},0.25) -- ({2.4*\k},0.7);
       \node[font=\tiny\bfseries, text=cISR] at ({2.4*\k},0.9) {timer interrupt};
-      \node[font=\tiny, text=DeepBlue] at ({2.4*\k},-0.45) {\the\numexpr 500*\k\relax\,ms};
+      \node[font=\tiny, text=nInk] at ({2.4*\k},-0.45) {\the\numexpr 500*\k\relax\,ms};
     }
     \draw[->, thick, DeepBlue] (0,-0.75) -- (10.6,-0.75) node[right, font=\tiny] {time};
   \end{tikzpicture}}
@@ -1520,7 +1561,7 @@
     \node[anchor=east, font=\scriptsize\bfseries, text=cISR] at (-0.15,0.55) {tick};
     \foreach \k in {1,...,#1} {
       \draw[cISR, very thick] ({0.42*\k},0.35) -- ({0.42*\k},0.75);
-      \node[font=\tiny, text=DeepBlue] at ({0.42*\k},0.95) {\k};
+      \node[font=\tiny, text=nInk] at ({0.42*\k},0.95) {\k};
     }
     \foreach \p/\r/\n in {3/1/LED 1, 5/2/LED 2, 7/3/LED 3} {
       \pgfmathsetmacro{\yy}{-0.6*\r+0.3}
@@ -1539,7 +1580,7 @@
         \ifnum\rr=0 \draw[cISR, very thick] ({0.42*\k},\yy-0.24) -- ({0.42*\k},\yy+0.24); \fi
       }
     }
-    \draw[decorate, decoration={brace, amplitude=3pt, mirror}, thick, DeepBlue] (0.42,-1.8) -- (0.84,-1.8)
+    \draw[decorate, decoration={brace, amplitude=3pt, mirror}, thick, nInk] (0.42,-1.8) -- (0.84,-1.8)
       node[midway, below=3pt, font=\tiny] {100 ms};
     \node[anchor=west, font=\tiny] at (2.0,-1.95) {\textcolor{cLed!75}{\rule{0.25cm}{0.2cm}}\ LED on
       \quad\textcolor{gray!25}{\rule{0.25cm}{0.2cm}}\ LED off
@@ -1596,8 +1637,8 @@
 % ---------- three LEDs, a button and the LCD (figure 2 of the course plan) ----------
 \newcommand{\figthreeleds}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!5] (0,-0.35) rectangle (4.0,3.75);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.1,3.7) {\faMicrochip\ ESP32-C3};
+    \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (0,-0.35) rectangle (4.0,3.75);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.1,3.7) {\faMicrochip\ ESP32-C3};
     \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.5cm, minimum height=0.8cm] (tisr) at (2.0,2.6)
       {Timer ISR\\[-1pt]{\mdseries every 100 ms: 3 LEDs}};
     \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.5cm, minimum height=0.8cm] (bisr) at (2.0,1.5)
@@ -1609,7 +1650,7 @@
       \fill[cLed] (5.55,\y) circle (0.15);
       \node[anchor=west, font=\scriptsize] at (5.8,\y) {LED \n\ (GPIO \g)};
     }
-    \node[lbox, draw=DeepBlue, fill=LightGray, minimum width=1.9cm] (btn) at (-1.9,1.5)
+    \node[lbox, draw=nInk, fill=nFill, minimum width=1.9cm] (btn) at (-1.9,1.5)
       {\faDotCircle\ Button A\\[-1pt]{\mdseries GPIO 5}};
     \draw[->, very thick, cISR] (btn.east) -- (bisr.west);
     \node[draw=mygreen!60!black, fill=mygreen!55!black, rounded corners=2pt, minimum width=2.6cm,
@@ -1630,23 +1671,23 @@
         font=\tiny\bfseries, text=white] at (0.9,0) {wait for LED 2};
       \node[draw=white, fill=cIdle, minimum width=2.1cm, minimum height=0.42cm, inner sep=0pt, anchor=west,
         font=\tiny\bfseries, text=white] at (2.4,0) {wait for LED 3};
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (2.25,0.3) {\texttt{delay}: 300 + 500 + 700 ms, one after another};
-      \draw[<->, thick, MacRed] (0,-0.45) -- node[below, font=\tiny\bfseries] {LED 1 changes again only after 1.5 s} (4.5,-0.45);
+      \node[font=\tiny\bfseries, text=nInk, anchor=south] at (2.25,0.3) {\texttt{delay}: 300 + 500 + 700 ms, one after another};
+      \draw[<->, thick, AccentOrange] (0,-0.45) -- node[below, font=\tiny\bfseries] {LED 1 changes again only after 1.5 s} (4.5,-0.45);
     \else
       \fill[cWork] (0,-0.21) rectangle (4.5,0.21);
       \foreach \a in {0.5,1.6,2.6,3.5} {
         \fill[cIdle] (\a,-0.21) rectangle (\a+0.6,0.21);
         \node[font=\tiny\bfseries, text=white] at (\a+0.3,0) {LCD};
       }
-      \foreach \x in {0.9,1.8,2.7,3.6} \draw[DeepBlue, dashed, thick] (\x,0.25) -- (\x,0.6);
-      \node[font=\tiny, text=DeepBlue, anchor=south] at (2.25,0.6) {when LED 1 should change};
+      \foreach \x in {0.9,1.8,2.7,3.6} \draw[nInk, dashed, thick] (\x,0.25) -- (\x,0.6);
+      \node[font=\tiny, text=nInk, anchor=south] at (2.25,0.6) {when LED 1 should change};
     \fi
     \ifnum#1=2
       \foreach \x/\y in {0.9/1.1, 1.8/2.2, 2.7/3.2, 3.6/4.1} {
-        \draw[MacRed, very thick] (\y,-0.28) -- (\y,-0.55);
-        \draw[->, MacRed, thick] (\x,-0.42) -- (\y-0.03,-0.42);
+        \draw[AccentOrange, very thick] (\y,-0.28) -- (\y,-0.55);
+        \draw[->, nInk, thick] (\x,-0.42) -- (\y-0.03,-0.42);
       }
-      \node[font=\tiny\bfseries, text=MacRed, anchor=north] at (2.25,-0.6) {LED 1 changes late: after each LCD write};
+      \node[font=\tiny\bfseries, text=AccentOrange, anchor=north] at (2.25,-0.6) {LED 1 changes late: after each LCD write};
     \fi
     \ifnum#1=3
       \foreach \x in {0.9,1.8,2.7,3.6} {
@@ -1675,9 +1716,9 @@
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     \tlbar{0}{CPU core}{0.7/cTaskA/A,0.7/cTaskB/B,0.7/cTaskC/C,0.7/cTaskA/A,0.7/cTaskB/B,0.7/cTaskC/C,
       0.7/cTaskA/A,0.7/cTaskB/B,0.7/cTaskC/C,0.7/cTaskA/A,0.7/cTaskB/B,0.7/cTaskC/C}
-    \draw[decorate, decoration={brace, amplitude=3pt}, thick, DeepBlue] (0,0.28) -- (0.7,0.28)
+    \draw[decorate, decoration={brace, amplitude=3pt}, thick, nInk] (0,0.28) -- (0.7,0.28)
       node[midway, above=3pt, font=\tiny] {1 ms};
-    \node[anchor=west, font=\scriptsize\bfseries, text=DeepBlue] at (0,-0.65) {How it looks to us:};
+    \node[anchor=west, font=\scriptsize\bfseries, text=nInk] at (0,-0.65) {How it looks to us:};
     \tlbar{-1.15}{task A}{8.4/cTaskA/blinks the LEDs}
     \tlbar{-1.65}{task B}{8.4/cTaskB/counts on the LCD}
     \tlbar{-2.15}{task C}{8.4/cTaskC/reads the buttons}
@@ -1697,14 +1738,14 @@
     \draw[->, thick, DeepBlue!50] (sch.east) -- (a.west);
     \draw[->, line width=2pt, DeepBlue] (sch.east) -- (b.west);
     \draw[->, thick, DeepBlue!50] (sch.east) -- (c.west);
-    \node[anchor=west, font=\tiny\bfseries, text=cTaskB] at (7.85,0) {runs now};
+    \node[anchor=west, font=\tiny\bfseries, text=sAmberText] at (7.85,0) {runs now};
   \end{tikzpicture}}
 
 % ---------- each task has its own stack ----------
 \newcommand{\stackmem}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[font=\scriptsize\bfseries, text=StorageBlue] at (1.2,4.55) {Memory (RAM)};
-    \draw[DeepBlue!60, fill=gray!8] (0,0) rectangle (2.4,4.3);
+    \node[font=\scriptsize\bfseries, text=nInk] at (1.2,4.55) {Memory (RAM)};
+    \draw[nLine, fill=gray!8] (0,0) rectangle (2.4,4.3);
     \node[font=\tiny, text=gray!40!black] at (1.2,4.05) {global variables};
     \foreach \n/\c/\yb/\h in {A/cTaskA/2.7/0.7, B/cTaskB/1.45/0.45, C/cTaskC/0.2/0.6} {
       \draw[\c, thick, fill=white] (0.2,\yb) rectangle (2.2,\yb+1.05);
@@ -1725,14 +1766,14 @@
 % #1 = step (1 tick, 2 save A, 3 choose B, 4 restore B)
 \newcommand{\ctxswitch}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      cell/.style={draw=DeepBlue!50, minimum width=1.8cm, minimum height=0.42cm, inner sep=0pt, font=\ttfamily\tiny},
-      src/.style={draw=ReadBlue, line width=1.6pt},
-      dst/.style={draw=WriteRed, line width=1.6pt},
-      tcell/.style={draw=DeepBlue!50, fill=white, minimum height=0.45cm, inner sep=0pt}]
+      cell/.style={draw=nLine, minimum width=1.8cm, minimum height=0.42cm, inner sep=0pt, font=\ttfamily\tiny},
+      src/.style={aread},
+      dst/.style={awrite},
+      tcell/.style={draw=nLine, fill=white, minimum height=0.45cm, inner sep=0pt}]
     \useasboundingbox (-0.2,-0.7) rectangle (12.5,4.75);
     % ----- the CPU -----
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6] (0,0) rectangle (3.0,3.6);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.08,3.55) {CPU};
+    \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (0,0) rectangle (3.0,3.6);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.08,3.55) {CPU};
     \ifcase#1 \or \def\running{task A}\or \def\running{scheduler}\or \def\running{scheduler}\or \def\running{task B}\fi
     \node[anchor=north east, font=\tiny] at (2.95,3.55) {running: \textbf{\running}};
     \ifnum#1<4 \colorlet{ctxc}{cTaskA}\def\who{A}\else \colorlet{ctxc}{cTaskB}\def\who{B}\fi
@@ -1760,7 +1801,7 @@
     \ifnum#1>1
       \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=cTaskA!30] at (4.9,\y) {A's \r};
     \else
-      \foreach \y in {1.29,1.71,2.13} \node[cell, draw=DeepBlue!25, dashed] at (4.9,\y) {};
+      \foreach \y in {1.29,1.71,2.13} \node[cell, draw=nLight, dashed] at (4.9,\y) {};
     \fi
     \ifnum#1=2 \draw[dst, rounded corners=2pt] (3.98,1.06) rectangle (5.82,2.36); \fi
     \foreach \r/\y in {t1/1.29, t0/1.71, PC/2.13} \node[cell, fill=cTaskB!30] at (7.6,\y) {B's \r};
@@ -1771,21 +1812,21 @@
     \draw[->, thick, cTaskA] (6.15,\topA) -- (5.88,\topA);
     \node[anchor=west, font=\tiny, text=cTaskA] at (6.12,\topA) {top};
     \draw[->, thick, cTaskB] (8.85,\topB) -- (8.58,\topB);
-    \node[anchor=west, font=\tiny, text=cTaskB] at (8.82,\topB) {top};
+    \node[anchor=west, font=\tiny, text=sAmberText] at (8.82,\topB) {top};
     % ----- the table of saved stack pointers -----
-    \node[draw=DeepBlue, fill=DeepBlue, text=white, font=\tiny\bfseries, minimum width=2.6cm, minimum height=0.42cm]
+    \node[draw=nInk, fill=nInk, text=white, font=\tiny\bfseries, minimum width=2.6cm, minimum height=0.42cm]
       at (10.7,3.0) {saved sp};
     \ifnum#1>1 \def\valA{top of A}\else \def\valA{--}\fi
     \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskA] at (9.85,2.55) {task A};
     \node[tcell, minimum width=1.7cm, font=\ttfamily\tiny] (va) at (11.15,2.55) {\valA};
-    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskB] at (9.85,2.1) {task B};
+    \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=sAmberText] at (9.85,2.1) {task B};
     \node[tcell, minimum width=1.7cm, font=\ttfamily\tiny] (vb) at (11.15,2.1) {top of B};
     \ifnum#1=2 \draw[dst] (va.south west) rectangle (va.north east); \fi
     \ifnum#1=3 \draw[cSched, line width=1.6pt] (9.4,1.875) rectangle (12.0,2.325); \fi
     \ifnum#1=4 \draw[src] (vb.south west) rectangle (vb.north east); \fi
     % ----- legend -----
-    \node[font=\tiny, anchor=west] at (4.1,4.4) {\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read from here
-      \quad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here
+    \node[font=\tiny, anchor=west] at (4.1,4.4) {\tikz[baseline=-0.6ex]\draw[aread] (0,-0.07) rectangle (0.32,0.11);\ read from here
+      \quad\tikz[baseline=-0.6ex]\draw[awrite] (0,-0.07) rectangle (0.32,0.11);\ written here
       \quad\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ task A
       \quad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ task B};
     % ----- what happens in this step -----
@@ -1810,8 +1851,8 @@
     \fi
   \end{tikzpicture}}
 \newcommand{\ctxlegend}{%
-  {\tiny\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read from here
-  \qquad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written here
+  {\tiny\tikz[baseline=-0.6ex]\draw[aread] (0,-0.07) rectangle (0.32,0.11);\ read from here
+  \qquad\tikz[baseline=-0.6ex]\draw[awrite] (0,-0.07) rectangle (0.32,0.11);\ written here
   \qquad\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ task A
   \qquad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ task B}}
 
@@ -1819,9 +1860,9 @@
 \newcommand{\taskstates}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
       st/.style={circle, very thick, minimum size=1.6cm, font=\small\bfseries, align=center}]
-    \node[st, draw=mygreen, fill=mygreen!15] (run) at (0,2.3) {Running};
-    \node[st, draw=StorageBlue, fill=StorageBlue!12] (rdy) at (-3.0,0) {Ready};
-    \node[st, draw=gray, fill=gray!12] (blk) at (3.0,0) {Blocked};
+    \node[st, aexec, fill=white] (run) at (0,2.3) {Running};
+    \node[st, draw=nLine, fill=white] (rdy) at (-3.0,0) {Ready};
+    \node[st, draw=nLine, dashed, fill=nFill] (blk) at (3.0,0) {Blocked};
     \draw[->, very thick, DeepBlue] (rdy) to[bend left=30] node[above left, font=\tiny, align=center] {the scheduler\\picks it} (run);
     \draw[->, very thick, DeepBlue] (run) to[bend left=10] node[below right, font=\tiny, align=center, pos=0.55] {time slice\\is over} (rdy);
     \draw[->, very thick, DeepBlue] (run) to[bend left=30] node[above right, font=\tiny, align=center] {waits: a delay,\\a button, \ldots} (blk);
@@ -1831,17 +1872,17 @@
 % ---------- round robin and priorities ----------
 \newcommand{\rrqueue}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize, tk/.style={lbox, minimum width=0.9cm, minimum height=0.6cm}]
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=east] at (-0.6,1.5) {priority 2};
+    \node[font=\tiny\bfseries, text=nInk, anchor=east] at (-0.6,1.5) {priority 2};
     \node[tk, draw=cTaskH, fill=cTaskH!15] (h) at (0,1.5) {H};
     \node[anchor=west, font=\tiny\bfseries, text=cTaskH] at (0.6,1.5) {when H is Ready, it runs first};
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=east] at (-0.6,0) {priority 1};
+    \node[font=\tiny\bfseries, text=nInk, anchor=east] at (-0.6,0) {priority 1};
     \node[tk, draw=cTaskA, fill=cTaskA!15] (a) at (0,0) {A};
     \node[tk, draw=cTaskB, fill=cTaskB!15] (b) at (1.3,0) {B};
     \node[tk, draw=cTaskC, fill=cTaskC!15] (c) at (2.6,0) {C};
     \draw[->, thick, DeepBlue] (a) -- (b);
     \draw[->, thick, DeepBlue] (b) -- (c);
     \draw[->, thick, DeepBlue, rounded corners=4pt] (c.south) -- ++(0,-0.35) -| (a.south);
-    \node[font=\tiny, text=DeepBlue, anchor=north] at (1.3,-0.72) {take turns: one time slice each};
+    \node[font=\tiny, text=nInk, anchor=north] at (1.3,-0.72) {take turns: one time slice each};
   \end{tikzpicture}}
 
 % ---------- FreeRTOS on our ESP32-C3 ----------
@@ -1861,8 +1902,8 @@
 \newcommand{\readylists}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize, tk/.style={lbox, minimum width=0.9cm, minimum height=0.45cm}]
     \foreach \p/\y in {2/1.0, 1/0.3, 0/-0.4} {
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=east] at (-0.15,\y) {Ready, priority \p};
-      \draw[DeepBlue!40, rounded corners=2pt] (0,\y-0.3) rectangle (3.8,\y+0.3);
+      \node[font=\tiny\bfseries, text=nInk, anchor=east] at (-0.15,\y) {Ready, priority \p};
+      \draw[nLight, rounded corners=2pt] (0,\y-0.3) rectangle (3.8,\y+0.3);
     }
     \node[font=\tiny, text=gray] at (1.9,1.0) {empty};
     \node[tk, draw=cTaskA, fill=cTaskA!15] (a) at (0.6,0.3) {A};
@@ -1879,16 +1920,16 @@
 \newcommand{\racetimeline}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     \node[anchor=east, font=\scriptsize\bfseries, text=cTaskA] at (-0.15,0.5) {Task A};
-    \node[anchor=east, font=\scriptsize\bfseries, text=cTaskB] at (-0.15,0) {Task B};
+    \node[anchor=east, font=\scriptsize\bfseries, text=sAmberText] at (-0.15,0) {Task B};
     \foreach \k in {0,...,6} {
       \fill[cTaskA] ({1.2*\k},0.29) rectangle ({1.2*\k+0.6},0.71);
       \fill[cTaskB] ({1.2*\k+0.6},-0.21) rectangle ({1.2*\k+1.2},0.21);
     }
     \node[font=\tiny\bfseries, text=white] at (0.3,0.5) {\texttt{++}};
-    \node[font=\tiny\bfseries, text=white] at (0.9,0) {\texttt{++}};
-    \draw[MacRed, very thick, dashed] (3.0,-0.4) -- (3.0,1.1);
-    \node[font=\large, text=MacRed] at (3.0,1.35) {\faBolt};
-    \node[font=\tiny\bfseries, text=MacRed, anchor=west] at (3.25,1.35) {a switch at a bad moment: some updates are lost};
+    \node[font=\tiny\bfseries, text=black] at (0.9,0) {\texttt{++}};
+    \draw[AccentOrange, very thick, dashed] (3.0,-0.4) -- (3.0,1.1);
+    \node[font=\large, text=AccentOrange] at (3.0,1.35) {\faBolt};
+    \node[font=\tiny\bfseries, text=AccentOrange, anchor=west] at (3.25,1.35) {a switch at a bad moment: some updates are lost};
     \draw[->, thick, DeepBlue] (0,-0.55) -- (8.6,-0.55) node[right, font=\tiny] {time};
     \node[font=\tiny, anchor=north] at (4.2,-0.65) {one time slice = 1 ms: thousands of \texttt{counter++} each};
   \end{tikzpicture}}
@@ -1904,7 +1945,7 @@
     \node[lbox, draw=cTaskB, fill=cTaskB!12, minimum width=1.6cm] (b) at (-4.2,-0.45) {Task B};
     \draw[->, very thick, cTaskA] (a.east) -- (cs.west |- a.east) node[pos=0.5, above, font=\tiny] {inside};
     \draw[->, very thick, cTaskB] (b.east) -- (-2.45,-0.45);
-    \node[font=\tiny, text=cTaskB, anchor=north] at (-2.75,-0.6) {\faHourglassHalf\ waits};
+    \node[font=\tiny, text=sAmberText, anchor=north] at (-2.75,-0.6) {\faHourglassHalf\ waits};
   \end{tikzpicture}}
 
 
@@ -1918,9 +1959,9 @@
 
 % ---------- colours used all day ----------
 % threads use the task colours of Day 6: cTaskA, cTaskB, cTaskC, cTaskH
-\colorlet{cLock}{AccentOrange}
-\colorlet{cWait}{gray!45}
-\colorlet{cShared}{StorageBlue}
+\colorlet{cLock}{nFill}    % lock / unlock: neutral, with the word inside
+\colorlet{cWait}{nIdle}
+\colorlet{cShared}{nLine}  % the shared counter, the accounts: data
 
 % ---------- listings ----------
 % C++ on the laptop (@...@ = part to change, shown in yellow)
@@ -1940,13 +1981,13 @@
 \newcommand{\concpar}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % one core
-    \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=west] at (-0.8,1.15) {\faMicrochip\ ESP32-C3: 1 core};
+    \node[font=\scriptsize\bfseries, text=nInk, anchor=west] at (-0.8,1.15) {\faMicrochip\ ESP32-C3: 1 core};
     \tlbar{-0.15}{core}{0.5/cTaskA/A,0.5/cTaskB/B,0.5/cTaskC/C,0.5/cTaskH/D,0.5/cTaskA/A,0.5/cTaskB/B,0.5/cTaskC/C,0.5/cTaskH/D}
     \draw[->, thick, DeepBlue] (0,-1.3) -- (4.2,-1.3) node[right, font=\tiny] {time};
     \node[font=\scriptsize\bfseries, text=AccentOrange] at (2.0,-1.75) {concurrency: taking turns};
     % four cores
     \begin{scope}[xshift=7.0cm]
-      \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=west] at (-1.0,1.15) {\faLaptop\ laptop: 4 cores};
+      \node[font=\scriptsize\bfseries, text=nInk, anchor=west] at (-1.0,1.15) {\faLaptop\ laptop: 4 cores};
       \tlbar{0.6}{core 1}{4.0/cTaskA/A}
       \tlbar{0.1}{core 2}{4.0/cTaskB/B}
       \tlbar{-0.4}{core 3}{4.0/cTaskC/C}
@@ -1959,8 +2000,8 @@
 % ---------- a processor with 4 cores (as in Lecture 4) ----------
 \newcommand{\multicore}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!5] (-1.0,-0.6) rectangle (6.4,2.65);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (-0.95,2.6) {processor};
+    \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (-1.0,-0.6) rectangle (6.4,2.65);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (-0.95,2.6) {processor};
     \foreach \i in {1,...,4} {
       \pgfmathsetmacro{\xx}{1.8*(\i-1)}
       \node[cpubox, minimum width=1.5cm, minimum height=0.55cm] at (\xx,1.7) {core \i};
@@ -1976,9 +2017,9 @@
 \newcommand{\procthreads}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % process 1
-    \draw[DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!5] (0,0) rectangle (7.2,3.6);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=DeepBlue] at (0.1,3.55) {process 1: our program};
-    \node[lbox, draw=cShared, fill=cShared!12, minimum width=6.6cm, minimum height=0.75cm] (sh) at (3.6,2.55)
+    \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (0,0) rectangle (7.2,3.6);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.1,3.55) {process 1: our program};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=6.6cm, minimum height=0.75cm] (sh) at (3.6,2.55)
       {shared memory\\[-1pt]{\mdseries code, global variables (\texttt{counter}), heap}};
     \foreach \i/\c/\x in {1/cTaskA/1.2, 2/cTaskB/3.6, 3/cTaskC/6.0} {
       \node[lbox, draw=\c, fill=\c!12, minimum width=2.1cm, minimum height=1.05cm] (t\i) at (\x,0.75)
@@ -1986,30 +2027,30 @@
       \draw[<->, very thick, \c] (t\i.north) -- (t\i.north |- sh.south);
     }
     % process 2
-    \draw[gray, very thick, rounded corners=6pt, fill=gray!6] (7.8,0) rectangle (10.4,3.6);
+    \draw[nLight, very thick, rounded corners=6pt, fill=white] (7.8,0) rectangle (10.4,3.6);
     \node[anchor=north west, font=\scriptsize\bfseries, text=gray!40!black] at (7.9,3.55) {process 2};
     \node[greybox, minimum width=2.1cm, minimum height=0.75cm] (sh2) at (9.1,2.55) {its own\\[-1pt]memory};
     \node[greybox, minimum width=2.1cm, minimum height=1.05cm] (u1) at (9.1,0.75) {thread 1};
     \draw[<->, very thick, gray] (u1.north) -- (sh2.south);
-    \node[font=\Large, text=MacRed] at (7.5,2.55) {\faTimes};
+    \node[font=\Large, text=aWrite] at (7.5,2.55) {\faTimes};
   \end{tikzpicture}}
 
 % ---------- start a thread, then join it ----------
 \newcommand{\forkjoin}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[anchor=east, font=\scriptsize\bfseries, text=cTaskA] at (-0.1,0.8) {main};
-    \node[anchor=east, font=\scriptsize\bfseries, text=cTaskB] at (-0.1,0) {\texttt{t}};
-    \fill[cTaskA] (0,0.59) rectangle (3.2,1.01);
-    \fill[cWait] (3.2,0.59) rectangle (4.6,1.01);
-    \node[font=\tiny\bfseries, text=white] at (3.9,0.8) {waits};
-    \fill[cTaskA] (4.6,0.59) rectangle (5.3,1.01);
+    \node[anchor=east, font=\scriptsize\bfseries, text=cWork] at (-0.1,0.8) {main};
+    \node[anchor=east, font=\scriptsize\bfseries, text=sAmberText] at (-0.1,0) {\texttt{t}};
+    \fill[cWork] (0,0.59) rectangle (3.2,1.01);
+    \draw[cWork, dashed, line width=0.9pt, fill=cWork!30] (3.2,0.59) rectangle (4.6,1.01);
+    \node[font=\tiny\bfseries, text=nInk] at (3.9,0.8) {waits};
+    \fill[cWork] (4.6,0.59) rectangle (5.3,1.01);
     \fill[cTaskB] (1.1,-0.21) rectangle (4.6,0.21);
-    \node[font=\tiny\bfseries, text=white] at (2.85,0) {\texttt{hello(1)}};
+    \node[font=\tiny\bfseries, text=black] at (2.85,0) {\texttt{hello(1)}};
     \draw[->, very thick, DeepBlue] (1.1,0.57) -- (1.1,0.23);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (1.1,1.05) {start};
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (3.2,1.05) {\texttt{join()}};
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (1.1,1.05) {start};
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (3.2,1.05) {\texttt{join()}};
     \draw[->, very thick, DeepBlue] (4.6,0.23) -- (4.6,0.57);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=north] at (4.6,-0.25) {\texttt{t} ends};
+    \node[font=\tiny\bfseries, text=nInk, anchor=north] at (4.6,-0.25) {\texttt{t} ends};
     \draw[->, thick, DeepBlue] (0,-0.75) -- (5.4,-0.75) node[right, font=\tiny, inner sep=1pt] {time};
   \end{tikzpicture}}
 
@@ -2017,9 +2058,9 @@
 \newcommand{\mutexflow}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     \tlbar{0.55}{thread A}{0.75/cLock/lock,1.5/cTaskA/counter++,0.75/cLock/unlock,3.2/cTaskA!45/}
-    \tlbar{0}{thread B}{1.0/cTaskB!45/,2.0/cWait/{Blocked: waits},0.75/cLock/lock,1.5/cTaskB/counter++,0.75/cLock/unlock}
-    \draw[DeepBlue, thick, dashed] (3.0,1.0) -- (3.0,-0.3);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (3.0,1.0) {A gives the mutex back};
+    \tlbar{0}{thread B}{1.0/cTaskB!45/,2.0/cTaskB!30/{Blocked: waits},0.75/cLock/lock,1.5/cTaskB/counter++,0.75/cLock/unlock}
+    \draw[nInk, thick, dashed] (3.0,1.0) -- (3.0,-0.3);
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (3.0,1.0) {A gives the mutex back};
     \draw[->, thick, DeepBlue] (0,-0.5) -- (6.4,-0.5) node[right, font=\tiny] {time};
   \end{tikzpicture}}
 
@@ -2027,38 +2068,38 @@
 % #1 = 1 one lock, 2 a lock per account
 \newcommand{\granularity}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      acc/.style={draw=cShared, fill=cShared!12, thick, rounded corners=2pt, minimum width=0.5cm,
+      acc/.style={draw=nLine, fill=nFill, text=nInk, thick, rounded corners=2pt, minimum width=0.5cm,
         minimum height=0.45cm, inner sep=0pt, font=\tiny\bfseries}]
     \useasboundingbox (-1.8,-0.75) rectangle (3.6,2.0);
     \ifnum#1=1
-      \draw[cLock, very thick, rounded corners=5pt, fill=cLock!6] (-0.15,0.0) rectangle (3.35,1.5);
-      \node[font=\large, text=cLock, fill=white, inner sep=1pt] at (3.35,1.5) {\faLock};
+      \draw[nInk, very thick, rounded corners=5pt] (-0.15,0.0) rectangle (3.35,1.5);
+      \node[font=\large, text=nInk, fill=white, inner sep=1pt] at (3.35,1.5) {\faLock};
     \fi
     \foreach \i in {0,...,9} {
       \pgfmathsetmacro{\xx}{0.35+0.62*mod(\i,5)}
       \pgfmathsetmacro{\yy}{\i<5 ? 1.05 : 0.45}
       \node[acc] (a\i) at (\xx,\yy) {\i};
-      \ifnum#1=2 \node[font=\tiny, text=cLock] at (\xx+0.24,\yy+0.27) {\faLock}; \fi
+      \ifnum#1=2 \node[font=\tiny, text=nInk] at (\xx+0.24,\yy+0.27) {\faLock}; \fi
     }
     \node[lbox, draw=cTaskA, fill=cTaskA!12, minimum width=0.9cm] (t1) at (-1.25,1.05) {T1};
     \node[lbox, draw=cTaskB, fill=cTaskB!12, minimum width=0.9cm] (t2) at (-1.25,0.45) {T2};
     \ifnum#1=1
       \draw[->, very thick, cTaskA] (t1.east) -- (-0.18,1.05);
-      \node[font=\tiny, text=cTaskB, anchor=west] at (-0.72,0.45) {\faHourglassHalf};
-      \node[font=\tiny\bfseries, text=MacRed] at (1.6,-0.45) {one transfer at a time};
+      \node[font=\tiny, text=sAmberText, anchor=west] at (-0.72,0.45) {\faHourglassHalf};
+      \node[font=\tiny\bfseries, text=AccentOrange] at (1.6,-0.45) {one transfer at a time};
     \else
       \draw[->, very thick, cTaskA] (t1.east) to[out=0, in=90] (a1.north);
       \draw[->, very thick, cTaskA] (t1.east) to[out=20, in=90] (a3.north);
       \draw[->, very thick, cTaskB] (t2.east) to[out=-10, in=-90] (a5.south);
       \draw[->, very thick, cTaskB] (t2.east) to[out=-20, in=-90] (a8.south);
-      \node[font=\tiny\bfseries, text=mygreen!70!black] at (1.6,-0.45) {different accounts: at the same time};
+      \node[font=\tiny\bfseries, text=AccentOrange] at (1.6,-0.45) {different accounts: at the same time};
     \fi
   \end{tikzpicture}}
 
 % ---------- the bank: 10 accounts and random transfers ----------
 \newcommand{\bankpic}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      acc/.style={draw=cShared, fill=cShared!10, thick, rounded corners=3pt, minimum width=1.25cm,
+      acc/.style={draw=nLine, fill=nFill, text=nInk, thick, rounded corners=3pt, minimum width=1.25cm,
         minimum height=0.8cm, align=center, inner sep=1pt, font=\scriptsize}]
     \foreach \i in {0,...,9} {
       \pgfmathsetmacro{\xx}{1.55*mod(\i,5)}
@@ -2069,7 +2110,7 @@
     \draw[->, very thick, cTaskB] (a7.north) -- node[right, font=\tiny\bfseries] {20} (a2.south);
     \draw[->, very thick, cTaskC] (a3.south) -- node[right, font=\tiny\bfseries] {75} (a8.north);
     \draw[->, very thick, cTaskH] (a9.north) -- node[right, font=\tiny\bfseries] {10} (a4.south);
-    \node[lbox, draw=AccentOrange, fill=AccentOrange!12, minimum width=2.1cm, minimum height=1.1cm] at (9.0,0.8)
+    \node[lbox, draw=nInk, fill=nFill, text=nInk, minimum width=2.1cm, minimum height=1.1cm] at (9.0,0.8)
       {sum of all\\[3pt]{\large 10\,000}};
     \node[font=\tiny, anchor=north] at (3.1,-0.55) {\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ thread 0
       \quad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ thread 1
@@ -2080,30 +2121,30 @@
 % ---------- deadlock: two threads, two accounts ----------
 \newcommand{\deadlockpic}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      acc/.style={draw=cShared, fill=cShared!10, very thick, rounded corners=3pt, minimum width=1.6cm,
+      acc/.style={draw=nLine, fill=nFill, text=nInk, very thick, rounded corners=3pt, minimum width=1.6cm,
         minimum height=0.7cm, align=center, font=\scriptsize\bfseries}]
     \node[lbox, draw=cTaskA, fill=cTaskA!12, minimum width=1.6cm, minimum height=0.8cm] (t1) at (0,0) {thread 1};
     \node[lbox, draw=cTaskB, fill=cTaskB!12, minimum width=1.6cm, minimum height=0.8cm] (t2) at (5.2,0) {thread 2};
     \node[acc] (a3) at (2.6,1.25) {\faLock\ account 3};
     \node[acc] (a7) at (2.6,-1.25) {\faLock\ account 7};
-    \draw[->, very thick, cTaskA] (a3.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (t1.north);
-    \draw[->, very thick, MacRed, dashed] (t1.south) to[out=-90, in=180] node[below left=-1pt, font=\tiny\bfseries] {waits for} (a7.west);
-    \draw[->, very thick, cTaskB] (a7.east) to[out=0, in=-90] node[below right=-1pt, font=\tiny\bfseries] {held by} (t2.south);
-    \draw[->, very thick, MacRed, dashed] (t2.north) to[out=90, in=0] node[above right=-1pt, font=\tiny\bfseries] {waits for} (a3.east);
+    \draw[->, very thick, nInk] (a3.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (t1.north);
+    \draw[->, very thick, nLine, dashed] (t1.south) to[out=-90, in=180] node[below left=-1pt, font=\tiny\bfseries] {waits for} (a7.west);
+    \draw[->, very thick, nInk] (a7.east) to[out=0, in=-90] node[below right=-1pt, font=\tiny\bfseries] {held by} (t2.south);
+    \draw[->, very thick, nLine, dashed] (t2.north) to[out=90, in=0] node[above right=-1pt, font=\tiny\bfseries] {waits for} (a3.east);
   \end{tikzpicture}}
 
 % ---------- only one thread at a time may update the counter ----------
 \newcommand{\lockthreads}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[draw=AccentOrange, very thick, rounded corners=4pt, fill=AccentOrange!10, minimum width=3.8cm,
+    \node[draw=nInk, very thick, rounded corners=4pt, fill=nFill, minimum width=3.8cm,
       minimum height=1.3cm, align=center] (cs) at (0,0)
-      {{\Large\textcolor{AccentOrange}{\faLock}}\\[3pt]\texttt{counter++;}};
-    \node[font=\tiny\bfseries, text=AccentOrange, anchor=north] at ([yshift=-2pt]cs.south) {critical section: one thread at a time};
+      {{\Large\textcolor{nInk}{\faLock}}\\[3pt]\texttt{counter++;}};
+    \node[font=\tiny\bfseries, text=nInk, anchor=north] at ([yshift=-2pt]cs.south) {critical section: one thread at a time};
     \node[lbox, draw=cTaskA, fill=cTaskA!12, minimum width=1.6cm] (a) at (-4.2,0.45) {thread A};
     \node[lbox, draw=cTaskB, fill=cTaskB!12, minimum width=1.6cm] (b) at (-4.2,-0.45) {thread B};
     \draw[->, very thick, cTaskA] (a.east) -- (cs.west |- a.east) node[pos=0.5, above, font=\tiny] {inside};
     \draw[->, very thick, cTaskB] (b.east) -- (-2.45,-0.45);
-    \node[font=\tiny, text=cTaskB, anchor=north] at (-2.75,-0.6) {\faHourglassHalf\ waits};
+    \node[font=\tiny, text=sAmberText, anchor=north] at (-2.75,-0.6) {\faHourglassHalf\ waits};
   \end{tikzpicture}}
 
 % =====================================================================
@@ -2119,8 +2160,8 @@
 % ---------- colours used all day ----------
 \colorlet{cProd}{cTaskA}
 \colorlet{cCons}{cTaskB}
-\colorlet{cDead}{MacRed}
-\colorlet{cEat}{mygreen}
+\colorlet{cDead}{nLine}   % "waits for": dashed grey
+\colorlet{cEat}{aExec}    % the philosopher who can eat now
 
 % ---------- listings ----------
 % C++ with the names used today
@@ -2131,28 +2172,56 @@
     push,pop,front,empty,size,sleep_for,min,max},
   emphstyle=\color{VSPurple}}
 
+% a highlighted piece of code inside a listing: (*\hlcode{...}*)
+\newcommand{\hlcode}[1]{{\setlength{\fboxsep}{1pt}\colorbox{AccentOrange}{\textcolor{white}{\bfseries #1}}}}
+% the end of the highlighted line, inside a listing: (*\eol*)
+\newcommand{\eol}{\tikz[remember picture, overlay]\coordinate (eol) at (0,0.08);}
+% one note with an arrow to the line that ends with \eol; #1 = vertical shift, #2 = title, #3 = text
+\newcommand{\codenote}[3][0pt]{%
+  \begin{tikzpicture}[remember picture, overlay, >=Stealth]
+    \node[draw=AccentOrange, very thick, fill=AccentOrange!6, rounded corners=4pt, text width=0.33\paperwidth,
+      align=left, inner sep=6pt, font=\footnotesize, anchor=west] (cal)
+      at ([yshift=#1]eol -| {$(current page.west)!0.6!(current page.east)$}) {\textbf{\textcolor{AccentOrange}{#2}}\\[3pt]#3};
+    \draw[->, very thick, AccentOrange] (eol -| cal.west) -- ([xshift=4pt]eol);
+  \end{tikzpicture}}
+
+% ---------- counter++ as read, add, write ----------
+\newcommand{\rwpic}{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=1.2cm] (mem) at (0,0)
+      {memory\\[2pt]{\ttfamily\mdseries counter = 5}};
+    \node[lbox, draw=nInk, fill=nFill, minimum width=2.6cm, minimum height=1.2cm] (reg) at (7,0)
+      {register\\[2pt]{\ttfamily\mdseries t1}};
+    \draw[->, very thick, aRead, dash pattern=on 4pt off 2pt] ([yshift=0.3cm]mem.east) -- node[above, font=\scriptsize] {1. \texttt{lw}: read, \texttt{t1} = 5}
+      ([yshift=0.3cm]reg.west);
+    \draw[->, very thick, DeepBlue] ([xshift=-0.6cm]reg.north) to[out=90, in=90, looseness=1.8]
+      node[above, font=\scriptsize] {2. \texttt{addi}: add, \texttt{t1} = 6} ([xshift=0.6cm]reg.north);
+    \draw[->, line width=2.4pt, aWrite] ([yshift=-0.3cm]reg.west) -- node[below, font=\scriptsize] {3. \texttt{sw}: write, \texttt{counter} = 6}
+      ([yshift=-0.3cm]mem.east);
+  \end{tikzpicture}}
+
 % ---------- a wait-for graph with two threads and two locks ----------
 % #1 = 1 a circle (deadlock), 2 the same order (no circle)
 \newcommand{\waitgraph}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
       th/.style={lbox, minimum width=1.7cm, minimum height=0.75cm},
-      lk/.style={draw=cShared, fill=cShared!10, very thick, rounded corners=3pt, minimum width=1.2cm,
+      lk/.style={draw=nLine, fill=nFill, text=nInk, very thick, rounded corners=3pt, minimum width=1.2cm,
         minimum height=0.65cm, font=\scriptsize\bfseries}]
     \node[th, draw=cTaskA, fill=cTaskA!12] (a) at (0,0) {thread A};
     \node[th, draw=cTaskB, fill=cTaskB!12] (b) at (5.0,0) {thread B};
     \node[lk] (x) at (2.5,1.15) {\faLock\ X};
     \node[lk] (y) at (2.5,-1.15) {\faLock\ Y};
     \ifnum#1=1
-      \draw[->, very thick, cTaskA] (x.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (a.north);
+      \draw[->, very thick, nInk] (x.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (a.north);
       \draw[->, very thick, cDead, dashed] (a.south) to[out=-90, in=180] node[below left=-1pt, font=\tiny\bfseries] {waits for} (y.west);
-      \draw[->, very thick, cTaskB] (y.east) to[out=0, in=-90] node[below right=-1pt, font=\tiny\bfseries] {held by} (b.south);
+      \draw[->, very thick, nInk] (y.east) to[out=0, in=-90] node[below right=-1pt, font=\tiny\bfseries] {held by} (b.south);
       \draw[->, very thick, cDead, dashed] (b.north) to[out=90, in=0] node[above right=-1pt, font=\tiny\bfseries] {waits for} (x.east);
-      \node[font=\scriptsize\bfseries, text=cDead] at (2.5,0) {a circle};
+      \node[font=\scriptsize\bfseries, text=AccentOrange] at (2.5,0) {a circle};
     \else
-      \draw[->, very thick, cTaskA] (x.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (a.north);
-      \draw[->, very thick, cTaskA] (y.west) to[out=180, in=-90] node[below left=-1pt, font=\tiny\bfseries] {held by} (a.south);
-      \draw[->, very thick, gray, dashed] (b.north) to[out=90, in=0] node[above right=-1pt, font=\tiny\bfseries] {waits for} (x.east);
-      \node[font=\scriptsize\bfseries, text=mygreen!70!black, align=center] at (2.5,0) {no circle};
+      \draw[->, very thick, nInk] (x.west) to[out=180, in=90] node[above left=-1pt, font=\tiny\bfseries] {held by} (a.north);
+      \draw[->, very thick, nInk] (y.west) to[out=180, in=-90] node[below left=-1pt, font=\tiny\bfseries] {held by} (a.south);
+      \draw[->, very thick, nLine, dashed] (b.north) to[out=90, in=0] node[above right=-1pt, font=\tiny\bfseries] {waits for} (x.east);
+      \node[font=\scriptsize\bfseries, text=aExec, align=center] at (2.5,0) {\faCheck\ no circle};
     \fi
   \end{tikzpicture}}
 
@@ -2165,33 +2234,33 @@
       ph/.style={circle, very thick, minimum size=0.82cm, inner sep=0pt, font=\scriptsize\bfseries},
       fk/.style={font=\small}]
     \useasboundingbox (-2.75,-2.6) rectangle (2.75,2.6);
-    \fill[gray!8] (0,0) circle (1.45);
-    \draw[gray!50, thick] (0,0) circle (1.45);
-    \node[font=\Large, text=AccentOrange!70] at (0,0) {\faUtensils};
+    \fill[nFill] (0,0) circle (1.45);
+    \draw[nLine, thick] (0,0) circle (1.45);
+    \node[font=\Large, text=nLine] at (0,0) {\faUtensils};
     \foreach \i/\c in {0/cTaskA, 1/cTaskB, 2/cTaskC, 3/cTaskH, 4/AccentOrange} {
       \pgfmathsetmacro{\ang}{90-72*\i}
       \pgfmathsetmacro{\fang}{90-72*\i+36}
-      \node[ph, draw=\c, fill=\c!15] (p\i) at (\ang:2.05) {P\i};
+      \node[ph, draw=nInk, fill=white, text=nInk] (p\i) at (\ang:2.05) {P\i};
       \coordinate (f\i) at (\fang:1.05);
       \coordinate (fl\i) at (\fang:1.45);
     }
     % the forks
     \foreach \i in {0,...,4} {
       \pgfmathsetmacro{\fang}{90-72*\i+36}
-      \node[draw=gray!60!black, fill=gray!45, rounded corners=1pt, minimum width=0.1cm, minimum height=0.5cm,
+      \node[draw=nInk, fill=nLine, rounded corners=1pt, minimum width=0.1cm, minimum height=0.5cm,
         inner sep=0pt, rotate=\fang-90] (fork\i) at (f\i) {};
-      \node[font=\tiny\bfseries, text=DeepBlue] at (\fang:0.62) {F\i};
+      \node[font=\tiny\bfseries, text=nInk] at (\fang:0.62) {F\i};
     }
     \ifnum#1=1
       \foreach \i/\c in {0/cTaskA, 1/cTaskB, 2/cTaskC, 3/cTaskH, 4/AccentOrange} {
         \pgfmathtruncatemacro{\n}{mod(\i+1,5)}
-        \draw[very thick, \c] (p\i) -- (fork\i);
+        \draw[very thick, nInk] (p\i) -- (fork\i);
         \draw[->, very thick, cDead, dashed, shorten >=2pt] (p\i) to[bend right=12] (fork\n);
       }
     \fi
     \ifnum#1=2
       % P0..P3 hold fork i, P4 wants fork 0 first and holds nothing, P3 can take fork 4 and eat
-      \foreach \i/\c in {0/cTaskA, 1/cTaskB, 2/cTaskC, 3/cTaskH} \draw[very thick, \c] (p\i) -- (fork\i);
+      \foreach \i/\c in {0/cTaskA, 1/cTaskB, 2/cTaskC, 3/cTaskH} \draw[very thick, nInk] (p\i) -- (fork\i);
       \draw[->, very thick, AccentOrange, dashed, shorten >=2pt] (p4) to[bend left=12] (fork0);
       \draw[very thick, cEat] (p3) -- (fork4);
       \node[font=\tiny\bfseries, text=cEat, anchor=north] at ([yshift=-1pt]p3.south) {eats};
@@ -2206,11 +2275,11 @@
     \def\T{8.0}
     \tlbar{1.2}{busy waiting}{6.0/cPoll/{checks, checks, checks ... 100\% of a core},2.0/cWork/works}
     \tlbar{0.6}{sleep and check}{0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.88/cIdle/sleeps,0.12/cPoll/,0.5/cIdle/,1.5/cWork/works}
-    \tlbar{0}{condition variable}{6.0/cIdle/{Blocked: 0\% CPU},2.0/cWork/works}
-    \draw[DeepBlue, very thick, dashed] (6.0,1.55) -- (6.0,-0.35);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (6.0,1.55) {data ready};
-    \draw[<->, thick, MacRed] (6.0,0.33) -- (6.62,0.33);
-    \node[font=\tiny\bfseries, text=MacRed, anchor=west] at (6.62,0.33) {late};
+    \tlbar{0}{condition variable}{6.0/cWork!30/{Blocked: 0\% CPU},2.0/cWork/works}
+    \draw[nInk, very thick, dashed] (6.0,1.55) -- (6.0,-0.35);
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (6.0,1.55) {data ready};
+    \draw[<->, thick, AccentOrange] (6.0,0.33) -- (6.62,0.33);
+    \node[font=\tiny\bfseries, text=AccentOrange, anchor=west] at (6.62,0.33) {late};
     \draw[->, thick, DeepBlue] (0,-0.5) -- (8.2,-0.5) node[right, font=\tiny] {time};
   \end{tikzpicture}}
 
@@ -2224,13 +2293,13 @@
     \foreach \k in {1,...,#1} {
       \pgfmathsetmacro{\xx}{1.8+0.6*\k}
       \ifnum\k>#2
-        \node[draw=DeepBlue!60, fill=white, minimum width=0.6cm, minimum height=0.6cm, inner sep=0pt] at (\xx,0) {};
+        \node[draw=nLine, fill=white, minimum width=0.6cm, minimum height=0.6cm, inner sep=0pt] at (\xx,0) {};
       \else
-        \node[draw=DeepBlue!60, fill=cShared!25, minimum width=0.6cm, minimum height=0.6cm, inner sep=0pt,
+        \node[draw=nLine, fill=nFill, text=nInk, minimum width=0.6cm, minimum height=0.6cm, inner sep=0pt,
           font=\tiny\bfseries] at (\xx,0) {\k};
       \fi
     }
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at ({2.1+0.3*#1},0.35) {buffer: #1 places};
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at ({2.1+0.3*#1},0.35) {buffer: #1 places};
     \node[lbox, draw=cCons, fill=cCons!12, minimum width=1.9cm, minimum height=0.9cm] (c) at ({4.2+0.6*#1},0)
       {\faUser\ consumer\\[-1pt]{\mdseries\texttt{pop}}};
     \draw[->, very thick, cProd] (p.east) -- (2.08,0);
@@ -2242,10 +2311,10 @@
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     \node[lbox, draw=cProd, fill=cProd!12, minimum width=2.0cm, minimum height=0.9cm] (p) at (0,0) {producer};
     \node[lbox, draw=cCons, fill=cCons!12, minimum width=2.0cm, minimum height=0.9cm] (c) at (7.0,0) {consumer};
-    \node[draw=cLock, very thick, rounded corners=4pt, fill=cLock!8, minimum width=2.4cm, minimum height=0.9cm,
+    \node[draw=nInk, very thick, rounded corners=4pt, fill=nFill, minimum width=2.4cm, minimum height=0.9cm,
       align=center, font=\scriptsize\bfseries] (b) at (3.5,0) {\faLock\ buffer\\[-1pt]{\mdseries one mutex}};
-    \node[lbox, draw=gray, fill=gray!10, minimum width=1.6cm] (nf) at (1.6,1.55) {\texttt{notFull}};
-    \node[lbox, draw=gray, fill=gray!10, minimum width=1.6cm] (ne) at (5.4,1.55) {\texttt{notEmpty}};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.6cm] (nf) at (1.6,1.55) {\texttt{notFull}};
+    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=1.6cm] (ne) at (5.4,1.55) {\texttt{notEmpty}};
     \draw[->, very thick, cProd] (p.east) -- (b.west);
     \draw[->, very thick, cCons] (b.east) -- (c.west);
     \draw[->, thick, dashed, cProd] (p.north) |- node[pos=0.25, left, font=\tiny] {waits on} (nf.west);
@@ -2257,30 +2326,30 @@
 % ---------- a semaphore: a parking with 3 places ----------
 \newcommand{\parkingpic}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \draw[DeepBlue, very thick, rounded corners=4pt, fill=gray!6] (0,0) rectangle (4.2,1.5);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=north west] at (0.05,1.48) {3 places};
+    \draw[nLine, very thick, rounded corners=4pt, fill=nFill] (0,0) rectangle (4.2,1.5);
+    \node[font=\tiny\bfseries, text=nInk, anchor=north west] at (0.05,1.48) {3 places};
     \foreach \k/\c in {0/cTaskA, 1/cTaskB, 2/cTaskC} {
-      \draw[gray!60, dashed] ({0.3+1.3*\k},0.15) rectangle ({1.3+1.3*\k},1.05);
+      \draw[nLine, dashed] ({0.3+1.3*\k},0.15) rectangle ({1.3+1.3*\k},1.05);
       \node[font=\Large, text=\c] at ({0.8+1.3*\k},0.6) {\faCar};
     }
-    \draw[MacRed, line width=2pt] (-0.15,0.15) -- (-0.15,1.35);
+    \draw[nInk, line width=2pt] (-0.15,0.15) -- (-0.15,1.35);
     \node[font=\Large, text=cTaskH] at (-1.0,0.6) {\faCar};
     \node[font=\tiny\bfseries, text=cTaskH, anchor=north] at (-1.0,0.2) {waits};
-    \node[lbox, draw=AccentOrange, fill=AccentOrange!12, minimum width=1.6cm] at (6.0,0.75)
+    \node[lbox, draw=nInk, fill=nFill, text=nInk, minimum width=1.6cm] at (6.0,0.75)
       {free places\\[1pt]{\large 0}};
   \end{tikzpicture}}
 
 % ---------- a thread pool ----------
 \newcommand{\poolpic}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      tk/.style={draw=DeepBlue!60, fill=AccentOrange!18, minimum width=0.5cm, minimum height=0.55cm, inner sep=0pt,
+      tk/.style={draw=nLine, fill=nFill, text=nInk, minimum width=0.5cm, minimum height=0.55cm, inner sep=0pt,
         font=\tiny\bfseries}]
-    \node[lbox, draw=DeepBlue, fill=DeepBlue!8, minimum width=1.6cm, minimum height=0.9cm] (m) at (0,0)
+    \node[lbox, draw=cWork, fill=cWork!15, minimum width=1.6cm, minimum height=0.9cm] (m) at (0,0)
       {\texttt{main}\\[-1pt]{\mdseries\texttt{submit}}};
     \foreach \k in {1,...,6} \node[tk] at ({1.45+0.55*\k},0) {t\k};
-    \draw[DeepBlue, thick] (1.7,-0.4) -- (5.1,-0.4);
-    \draw[DeepBlue, thick] (1.7,0.4) -- (5.1,0.4);
-    \node[font=\tiny\bfseries, text=DeepBlue, anchor=south] at (3.4,0.42) {queue of tasks};
+    \draw[nInk, thick] (1.7,-0.4) -- (5.1,-0.4);
+    \draw[nInk, thick] (1.7,0.4) -- (5.1,0.4);
+    \node[font=\tiny\bfseries, text=nInk, anchor=south] at (3.4,0.42) {queue of tasks};
     \draw[->, very thick, DeepBlue] (m.east) -- (1.68,0);
     \foreach \w/\c/\y in {1/cTaskA/1.35, 2/cTaskB/0.45, 3/cTaskC/-0.45, 4/cTaskH/-1.35} {
       \node[lbox, draw=\c, fill=\c!12, minimum width=1.6cm] (w\w) at (7.2,\y) {\faCog\ worker \w};
@@ -2292,23 +2361,24 @@
 \newcommand{\threedays}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
       ev/.style={font=\tiny\bfseries, align=center, text width=1.25cm}]
-    \fill[cISR!20] (-0.2,-0.35) rectangle (3.6,0.35);
-    \fill[StorageBlue!15] (3.6,-0.35) rectangle (8.0,0.35);
-    \fill[mygreen!15] (8.0,-0.35) rectangle (12.6,0.35);
-    \node[font=\scriptsize\bfseries, text=cISR] at (1.7,0) {Monday};
-    \node[font=\scriptsize\bfseries, text=StorageBlue] at (5.8,0) {Tuesday};
-    \node[font=\scriptsize\bfseries, text=mygreen!70!black] at (10.3,0) {Wednesday};
-    \foreach \x/\t [count=\k] in {0.3/button, 1.3/interrupt, 2.3/{timer tick}, 3.2/{scheduler, tasks},
-        4.3/{threads, cores}, 5.3/race, 6.4/{mutex, atomic}, 7.5/{bank}, 8.5/deadlock, 9.6/{lock order},
-        10.7/{wait and notify}, 11.9/{thread pool}} {
+    \fill[nFill] (-0.2,-0.35) rectangle (4.8,0.35);
+    \fill[nLight] (4.8,-0.35) rectangle (10.8,0.35);
+    \fill[nFill] (10.8,-0.35) rectangle (15.8,0.35);
+    \node[font=\scriptsize\bfseries, text=nInk] at (2.3,0) {Monday};
+    \node[font=\scriptsize\bfseries, text=nInk] at (7.8,0) {Tuesday};
+    \node[font=\scriptsize\bfseries, text=nInk] at (13.3,0) {Wednesday};
+    \foreach \x/\t [count=\k] in {0.3/button, 1.3/interrupt, 2.3/{inside the CPU: \texttt{mepc}, stack}, 3.3/{timer tick},
+        4.3/{scheduler, tasks}, 5.3/{threads, cores}, 6.3/{race: \texttt{lw}, \texttt{addi}, \texttt{sw}}, 7.3/mutex,
+        8.3/atomic, 9.3/bank, 10.3/{FreeRTOS mutex}, 11.3/deadlock, 12.3/{lock order}, 13.3/{wait and notify},
+        14.3/semaphore, 15.3/{thread pool}} {
       \pgfmathtruncatemacro{\up}{mod(\k,2)}
       \ifnum\up=1
-        \fill[DeepBlue] (\x,0.35) circle (1.6pt);
-        \draw[DeepBlue!50] (\x,0.35) -- (\x,0.65);
+        \fill[nInk] (\x,0.35) circle (1.6pt);
+        \draw[nLine] (\x,0.35) -- (\x,0.65);
         \node[ev, anchor=south] at (\x,0.65) {\t};
       \else
-        \fill[DeepBlue] (\x,-0.35) circle (1.6pt);
-        \draw[DeepBlue!50] (\x,-0.35) -- (\x,-0.65);
+        \fill[nInk] (\x,-0.35) circle (1.6pt);
+        \draw[nLine] (\x,-0.35) -- (\x,-0.65);
         \node[ev, anchor=north] at (\x,-0.65) {\t};
       \fi
     }
@@ -2329,38 +2399,84 @@
 \end{frame}
 
 \begin{frame}{Agenda For Today}
-  \Large
-  \begin{itemize}
-    \item[\textcolor{AccentOrange}{\faLock}] \textbf{1. Deadlock} \\
-    \textcolor{gray}{\small Why the bank stopped, and five hungry philosophers}
-    \vspace{0.2cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+      \large
+      \begin{itemize}
+        \item[\textcolor{DeepBlue}{\faLock}] \textbf{1. Deadlock} \\
+        \textcolor{gray}{\small Why the bank stopped, and five hungry philosophers}
+        \vspace{0.3cm}
 
-    \item[\textcolor{AccentOrange}{\faCheck}] \textbf{2. Fixing it} \\
-    \textcolor{gray}{\small A fixed lock order, \texttt{std::scoped\_lock}}
-    \vspace{0.2cm}
+        \item[\textcolor{DeepBlue}{\faCheck}] \textbf{2. Fixing it} \\
+        \textcolor{gray}{\small A fixed lock order, \texttt{std::scoped\_lock}}
+        \vspace{0.3cm}
 
-    \item[\textcolor{AccentOrange}{\faHourglassHalf}] \textbf{3. Waiting for a condition} \\
-    \textcolor{gray}{\small Condition variables and semaphores}
-    \vspace{0.2cm}
+        \item[\textcolor{DeepBlue}{\faHourglassHalf}] \textbf{3. Waiting} \\
+        \textcolor{gray}{\small Condition variables: no busy waiting}
+      \end{itemize}
+    \column{0.5\textwidth}
+      \large
+      \begin{itemize}
+        \item[\textcolor{DeepBlue}{\faIcon{exchange-alt}}] \textbf{4. Producer and consumer} \\
+        \textcolor{gray}{\small Two threads and a buffer}
+        \vspace{0.3cm}
 
-    \item[\textcolor{AccentOrange}{\faCogs}] \textbf{4. Cooperating threads} \\
-    \textcolor{gray}{\small Producer and consumer, a thread pool}
-  \end{itemize}
+        \item[\textcolor{DeepBlue}{\faParking}] \textbf{5. Semaphores} \\
+        \textcolor{gray}{\small Up to N threads at the same time}
+        \vspace{0.3cm}
+
+        \item[\textcolor{DeepBlue}{\faCogs}] \textbf{6. A thread pool} \\
+        \textcolor{gray}{\small Your own small scheduler}
+      \end{itemize}
+  \end{columns}
 \end{frame}
 
-\begin{frame}{Where we stopped: the bank stops}
+\begin{frame}{From Tuesday: \texttt{counter++} loses updates}
+  \vfill
+  \begin{center}
+    \rwpic
+  \end{center}
+  \vfill
+  \stepbox{Read, add, write}{\texttt{counter++} is three instructions: \texttt{lw}, \texttt{addi}, \texttt{sw}.
+    If two threads run them at the same time, both read the same value, and one addition is lost.}
+  \vfill
+  \keymsg{The fix: a \textbf{mutex}. Only one thread at a time may run the three instructions.}
+\end{frame}
+
+\begin{frame}{From Tuesday: the bank}
+  \begin{center}
+    \bankpic
+  \end{center}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Step 1: no synchronisation}{Several threads move money between 10 accounts. The sum was wrong:
+        the same lost updates as \texttt{counter++}.}
+    \column{0.48\textwidth}
+      \stepbox{Step 2: one mutex for the bank}{Correct, but a queue: only one transfer at a time.}
+  \end{columns}
+  \vfill
+\end{frame}
+
+\begin{frame}{From Tuesday: step 3, one mutex per account}
   \begin{columns}[c,onlytextwidth]
     \column{0.5\textwidth}
       \centering
       \deadlockpic
     \column{0.46\textwidth}
-      \stepbox{Step 2: one mutex for the bank}{Correct, but a queue: one transfer at a time.}
-      \probbox{Step 3: a mutex per account}{Sometimes it \textbf{hangs}: the messages stop, and the CPU usage drops to 0\%.}
+      \stepbox{The idea}{A transfer locks only its \textbf{two} accounts. Transfers on other accounts can run at the same time.}
+      \probbox{The program stopped}{It \textbf{hangs}: the messages stop, and the CPU usage drops to 0\%.
+        On Tuesday we called it a \textbf{deadlock}.}
   \end{columns}
+\end{frame}
+
+\begin{frame}{The question}
   \vfill
-  \begin{alertblock}{The question}
-    \small How can a thread lock \textbf{two} accounts without this happening? \quad Today: the answer.
-  \end{alertblock}
+  \begin{center}
+    \Large How can a thread lock \textbf{two} accounts\\[0.2cm] without a deadlock?
+  \end{center}
+  \vfill
+  \keymsg{Today: the answer. Then: threads that do not only stay out of each other's way, but \textbf{work together}.}
 \end{frame}
 
 % NOTE: 3 minutes. Everybody should have a hanging program in front of them and a working compiler.
@@ -2372,12 +2488,14 @@
     \item How many runs finish?
     \item While it hangs: what does Task Manager, Activity Monitor or \texttt{top} show for the CPU usage?
   \end{enumerate}
+\end{frame}
+
+\begin{frame}{Solution: one more time}
   \vfill
-  \pause
-  \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body answer}
-    \footnotesize\textbf{\textcolor{mygreen!70!black}{\faCheck}\ Solution}\\
-    It never finishes. CPU usage: about 0\%. The threads do not work: they are \textbf{Blocked}, they wait.
-  \end{beamercolorbox}
+  \stepbox{Question 1}{None: it never finishes.}
+  \stepbox{Question 2}{About 0\%. The threads do not work: they are \textbf{Blocked}, they wait.}
+  \vfill
+  \keymsg{A program that hangs and uses no CPU: the typical sign of a deadlock.}
 \end{frame}
 
 % =====================================================================
@@ -2385,54 +2503,101 @@
 % =====================================================================
 
 \begin{frame}{Deadlock}
+  \vfill
   \defbox{A \textbf{deadlock}: a group of threads where each one waits for something that \textbf{another one} in the group
     holds. Nobody can continue, ever.}
-  \vspace{0.1cm}
+  \vfill
+  \stepbox{Why nobody helps}{A Blocked thread gets no time slices (Lecture 6, task states). It waits for a mutex, and the
+    mutex is never given back.}
+  \vfill
+\end{frame}
+
+\begin{frame}{The wait-for graph}
   \begin{columns}[c,onlytextwidth]
     \column{0.52\textwidth}
       \centering
       \waitgraph{1}
     \column{0.44\textwidth}
-      \stepbox{The wait-for graph}{An arrow from a lock to the thread that \textbf{holds} it, and from a thread to the lock
+      \stepbox{Two kinds of arrows}{From a lock to the thread that \textbf{holds} it, and from a thread to the lock
         it \textbf{waits for}.}
       \stepbox{A deadlock}{In the graph, a deadlock is a \textbf{circle}.}
-      {\scriptsize\textcolor{gray}{Monday's scheduler cannot help: a Blocked task never gets a time slice.}\par}
   \end{columns}
+  \vfill
+  \keymsg{Thread A holds X and waits for Y. Thread B holds Y and waits for X.}
 \end{frame}
 
 % NOTE: these are the Coffman conditions (1971); the name is not needed on the slide.
 %   Ask the room: "Which of the four can we break in the bank?" Collect answers, come back to them on the slide "Which condition".
 \begin{frame}{Four conditions for a deadlock}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{\badge{1}\ Mutual exclusion}{A lock has only \textbf{one} owner at a time.}
-      \stepbox{\badge{2}\ Hold and wait}{A thread \textbf{holds} one lock and \textbf{waits} for another.}
+      \stepbox{\badge{1}\ Mutual exclusion}{}
+      \stepbox{\badge{2}\ Hold and wait}{}
     \column{0.48\textwidth}
-      \stepbox{\badge{3}\ No preemption}{Nobody can take a lock \textbf{away} from a thread.}
-      \stepbox{\badge{4}\ Circular wait}{There is a \textbf{circle}: each thread waits for the next one.}
+      \stepbox{\badge{3}\ No preemption}{}
+      \stepbox{\badge{4}\ Circular wait}{}
   \end{columns}
   \vfill
-  \keymsg{A deadlock needs \textbf{all four}. Break \textbf{one} of them, and a deadlock is impossible.}
+  \keymsg{A deadlock needs \textbf{all four}. Break \textbf{one} of them, and a deadlock is impossible.
+    One by one, in the bank:}
 \end{frame}
 
-\begin{frame}{The four conditions in the bank}
-  \begin{center}
-    \footnotesize
-    \renewcommand{\arraystretch}{1.35}
-    \begin{tabular}{lll}
-      \toprule
-      & \textbf{Condition} & \textbf{In the bank} \\
-      \midrule
-      \badge{1} & Mutual exclusion & \texttt{m[3]} has one owner \\
-      \badge{2} & Hold and wait & thread 1 holds \texttt{m[3]} and waits for \texttt{m[7]} \\
-      \badge{3} & No preemption & nobody can take \texttt{m[3]} from thread 1 \\
-      \rowcolor{AccentOrange!12}
-      \badge{4} & Circular wait & thread 1 $\to$ \texttt{m[7]} $\to$ thread 2 $\to$ \texttt{m[3]} $\to$ thread 1 \\
-      \bottomrule
-    \end{tabular}
-  \end{center}
+\begin{frame}{Condition 1: mutual exclusion}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+      \centering
+      \deadlockpic
+    \column{0.46\textwidth}
+      \defbox{\badge{1}\ A lock has only \textbf{one} owner at a time.}
+      \stepbox{In the bank}{\texttt{m[3]} is held by thread 1. Nobody else can have it now.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Condition 2: hold and wait}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+      \centering
+      \deadlockpic
+    \column{0.46\textwidth}
+      \defbox{\badge{2}\ A thread \textbf{holds} one lock and \textbf{waits} for another.}
+      \stepbox{In the bank}{Thread 1 holds \texttt{m[3]} and waits for \texttt{m[7]}.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Condition 3: no preemption}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+      \centering
+      \deadlockpic
+    \column{0.46\textwidth}
+      \defbox{\badge{3}\ Nobody can take a lock \textbf{away} from a thread. Only its owner gives it back.}
+      \stepbox{In the bank}{Nobody can take \texttt{m[3]} from thread 1.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Condition 4: circular wait}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+      \centering
+      \deadlockpic
+    \column{0.46\textwidth}
+      \defbox{\badge{4}\ There is a \textbf{circle}: each thread waits for the next one.}
+      \stepbox{In the bank}{Thread 1 $\to$ \texttt{m[7]} $\to$ thread 2 $\to$ \texttt{m[3]} $\to$ thread 1.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Which condition can we break?}
   \vfill
-  \keymsg{Conditions 1--3 are what a mutex \textbf{is}. The one we can break: \textbf{circular wait}.}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{\badge{1}\ and \badge{3}: we keep them}{They are what a mutex \textbf{is}: one owner, and nobody takes it away.}
+    \column{0.48\textwidth}
+      \stepbox{\badge{2}\ and \badge{4}: we can break them}{They are about \textbf{how} the threads take their locks.
+        That is up to us.}
+  \end{columns}
+  \vfill
+  \keymsg{Next: try it in the simulator, then two ways to break \badge{2} or \badge{4}.}
 \end{frame}
 
 % SIMULATOR (topic "Deadlock"): two threads A and B, two mutexes X and Y. The program of each thread:
@@ -2476,7 +2641,8 @@
       \philtable{0}
     \column{0.5\textwidth}
       \stepbox{Five philosophers, five forks}{They think, get hungry and eat. To eat, a philosopher needs \textbf{both}
-        forks next to him. A fork is a \textbf{mutex}.}
+        forks on either side. A fork is a \textbf{mutex}.}
+      {\scriptsize\textbf{Each philosopher} (not C++ yet)\par}
 \begin{lstlisting}[style=term]
 for (;;) {
     think();
@@ -2502,20 +2668,20 @@ for (;;) {
       \stepbox{Each one holds a fork\ldots}{P0 holds F0, P1 holds F1, \ldots, P4 holds F4.}
       \probbox{\ldots and waits for the next one}{P0 waits for F1, which P1 holds. P1 waits for F2, \ldots,
         and P4 waits for F0, which P0 holds.}
-      {\tiny\textcolor{gray}{\rule{0.4cm}{1.2pt}}\ holds\quad\textcolor{cDead}{\rule{0.15cm}{1.2pt}\,\rule{0.15cm}{1.2pt}}\ waits for\par}
+      {\tiny\textcolor{nInk}{\rule{0.4cm}{1.2pt}}\ holds\quad\textcolor{nLine}{\rule{0.15cm}{1.2pt}\,\rule{0.15cm}{1.2pt}}\ waits for\par}
   \end{columns}
   \vfill
   \keymsg{Five philosophers, five forks, nobody eats. The same circle as in the bank, only bigger.}
 \end{frame}
 
 % CHECK before class: without the pause the program should (almost) never hang, with a 10 us pause it should hang every time.
-%   On the test machine (2 cores): 0 hangs without the pause, hangs every time with it. On a machine with more cores
-%   it may hang without the pause too; then Question 1 has a different answer, which is also a good lesson.
+%   On the test machine (2 cores): 0 hangs without the pause, hangs every time with it. On a laptop with 8 cores
+%   it hung without the pause in 5 of 5 runs (-O0). Both results are on the solution slide.
 \begin{frame}[fragile]{Task 1: the philosophers in C++}
   \begin{columns}[T,onlytextwidth]
     \column{0.55\textwidth}
       {\scriptsize\textbf{\filePhil} (a part)\par}
-\begin{lstlisting}[style=cpp8]
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
 const int P = 5, MEALS = 1000;
 std::mutex fork_[P];
 int meals[P];
@@ -2524,13 +2690,15 @@ void philosopher(int i) {
     int left = i, right = (i + 1) % P;
     for (int k = 0; k < MEALS; k++) {
         std::lock_guard<std::mutex> a(fork_[left]);
-        @// look around@
+        (*\hlcode{// look around}*)
         std::lock_guard<std::mutex> b(fork_[right]);
         meals[i]++;                       // eat
     }
 }
 // main(): start 5 philosophers, join, print meals
 \end{lstlisting}
+      {\scriptsize\textcolor{gray}{\texttt{fork\_} has an underscore because \texttt{fork} is already the name of a
+        function of the operating system.}\par}
     \column{0.41\textwidth}
       \taskhead{Task}{Download \filePhil\ from \ghlink{Task1}. Compile it with \texttt{-O0}.}
       \footnotesize
@@ -2539,7 +2707,7 @@ void philosopher(int i) {
         \item Replace the comment \texttt{look around} with a short pause:\\[2pt]
           {\scriptsize\texttt{std::this\_thread::sleep\_for(}\\
           \texttt{\ \ std::chrono::microseconds(10));}}\\[2pt]
-          Run it again.
+          It stops this thread for 10\,$\mu$s. Run it again.
       \end{enumerate}
   \end{columns}
 \end{frame}
@@ -2547,8 +2715,8 @@ void philosopher(int i) {
 \begin{frame}{Solution: the philosophers in C++}
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{Question 1}{On the test machine it \textbf{never} hung. The time between the two locks is so short that
-        the circle almost never closes.}
+      \stepbox{Question 1}{It depends on the machine. With 2 cores it \textbf{never} hung: the time between the two
+        locks is so short that the circle almost never closes. With 8 cores it hung in 5 of 5 runs.}
       \stepbox{Question 2}{Now it hangs \textbf{every} time: all five hold the left fork while they look around.}
     \column{0.48\textwidth}
       \probbox{A deadlock can hide}{The program passes every test, and one day it hangs at a customer.
@@ -2562,7 +2730,7 @@ void philosopher(int i) {
 \section{Fixing it}
 % =====================================================================
 
-\begin{frame}[fragile]{Rule: always lock in the same order}
+\begin{frame}{Rule: always lock in the same order}
   \begin{columns}[c,onlytextwidth]
     \column{0.44\textwidth}
       \centering
@@ -2571,38 +2739,60 @@ void philosopher(int i) {
       \defbox{Give every lock a \textbf{number}. Every thread takes its locks in \textbf{increasing} order.}
       \stepbox{Why there is no circle}{In a circle, the thread that holds the \textbf{highest} lock would wait for a
         \textbf{lower} one. The rule forbids that.}
-\begin{lstlisting}[style=cpp8]
-int first  = std::min(left, right);
-int second = std::max(left, right);
-std::lock_guard<std::mutex> a(fork_[first]);
-std::lock_guard<std::mutex> b(fork_[second]);
-\end{lstlisting}
   \end{columns}
   \vfill
   \keymsg{Only P4 changes: it takes F0 first. One philosopher is enough to break the circle.}
 \end{frame}
 
+\begin{frame}[fragile]{Rule: always lock in the same order, in C++}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+void philosopher(int i) {
+    int left = i, right = (i + 1) % P;
+    (*\hlcode{int first  = std::min(left, right);}*)(*\eol*)
+    (*\hlcode{int second = std::max(left, right);}*)
+    for (int k = 0; k < MEALS; k++) {
+        std::lock_guard<std::mutex> a(fork_[first]);
+        std::lock_guard<std::mutex> b(fork_[second]);
+        meals[i]++;                       // eat
+    }
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{The lower number first}{\texttt{std::min} and \texttt{std::max} give the smaller and the bigger
+    number (\texttt{\#include <algorithm>}).\\[3pt] P0 to P3: \texttt{first} is still the left fork.
+    P4: left = 4, right = 0, so it takes F0 first.}
+\end{frame}
+
 % NOTE: scoped_lock locks, then tries the others with try_lock; if one is busy, it unlocks and tries again.
 %   In practice it breaks "hold and wait". The details of the algorithm are not needed.
-\begin{frame}[fragile]{\texttt{std::scoped\_lock}: two locks at once}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-\begin{lstlisting}[style=cpp8]
-// in transfers(), around the transfer:
-@std::scoped_lock both(m[from], m[to]);@
-balance[from] -= x;
-balance[to]   += x;
-// both are unlocked at the end of the block
+\begin{frame}[fragile]{Two locks at once: \texttt{std::scoped\_lock}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+void transfers(int id) {
+    // ... rng, acc, amount as on Tuesday ...
+    for (int i = 0; i < TRANSFERS; i++) {
+        int from = acc(rng), to = acc(rng);
+        if (from == to) continue;
+        int x = amount(rng);
+        (*\hlcode{std::scoped\_lock both(m[from], m[to]);}*)(*\eol*)
+        balance[from] -= x;
+        balance[to]   += x;
+    }   // both are unlocked here
+}
 \end{lstlisting}
-    \column{0.46\textwidth}
-      \stepbox{\texttt{std::scoped\_lock}}{Locks several mutexes \textbf{together}, without a deadlock, and unlocks them
-        at the end of the block. (C++17)}
-      \stepbox{How?}{It takes one lock and \textbf{tries} the others. If one is busy, it gives back what it has
-        and tries again.}
-  \end{columns}
+  \end{minipage}
+  \codenote[0.2cm]{Lock several mutexes together}{Like \texttt{lock\_guard}, but for \textbf{several} mutexes.
+    It locks them all \textbf{without a deadlock}, in any order you write them, and unlocks them at the end of the
+    block.\\[3pt] No \texttt{<std::mutex>}: the compiler finds the types itself (C++17).}
+\end{frame}
+
+\begin{frame}{\texttt{std::scoped\_lock}: how does it do it?}
   \vfill
-  \keymsg{Two tools: \textbf{your own order} (works everywhere, also on the ESP32), or \texttt{scoped\_lock}
-    (the simplest in C++).}
+  \stepbox{It never waits while it holds a lock}{It takes one lock and only \textbf{tries} the others. If one is busy,
+    it gives back what it has, waits for the busy one, and tries again.}
+  \vfill
+  \keymsg{So it breaks \badge{2}\ hold and wait.}
 \end{frame}
 
 \begin{frame}{Which condition do we break?}
@@ -2620,7 +2810,8 @@ balance[to]   += x;
     \end{tabular}
   \end{center}
   \vfill
-  \keymsg{Every working fix breaks one of the four conditions.}
+  \keymsg{Two tools: \textbf{your own order} (works everywhere, also on the ESP32), or \texttt{scoped\_lock}
+    (the simplest in C++).}
 \end{frame}
 
 \begin{frame}[fragile]{Task 2: fix the philosophers and the bank}
@@ -2647,6 +2838,7 @@ void slowWork() {
         sink = k;
 }
 \end{lstlisting}
+      {\scriptsize\textcolor{gray}{\texttt{volatile}, as on Monday: the compiler may not remove the loop.}\par}
   \end{columns}
 \end{frame}
 
@@ -2663,7 +2855,7 @@ int second = std::max(from, to);
 std::lock_guard<std::mutex> a(m[first]);
 std::lock_guard<std::mutex> b(m[second]);
 \end{lstlisting}
-      \stepbox{Questions 1--3}{Always finishes, everybody eats 1000 times, the sum is always 10\,000.}
+      \stepbox{Questions 1 to 3}{Always finishes, everybody eats 1000 times, the sum is always 10\,000.}
     \column{0.46\textwidth}
       \stepbox{Question 4}{With 10 accounts: no real gain over one big lock. Transfers often meet on the same account,
         and the work under the lock is tiny.}
@@ -2683,7 +2875,7 @@ std::lock_guard<std::mutex> b(m[second]);
   \begin{beamercolorbox}[rounded=true,sep=0.12cm,wd=\textwidth]{block body}
     \centering\small So far: \emph{do not disturb me} (a mutex). Now: \emph{wake me up when it is ready}.
   \end{beamercolorbox}
-  \vspace{0.2cm}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.31\textwidth}
       \qcard{\faIcon{sync-alt}}{\textbf{Busy waiting}\\[3pt]\texttt{while (!ready) \{ \}}}
@@ -2693,61 +2885,169 @@ std::lock_guard<std::mutex> b(m[second]);
       \qcard{\faBell}{\textbf{Wait until told}\\[3pt]a condition variable}
   \end{columns}
   \vfill
-  \keymsg{Remember polling and interrupts from Lectures 5 and 6? The same story again.}
+  \keymsg{Remember polling and interrupts from Lecture 6? The same story again.}
 \end{frame}
 
 \begin{frame}{Busy waiting is polling}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{On Monday: polling}{\emph{Polling is like checking your mailbox}: the CPU asks the button again and
+        again. ``Check all the time: we waste the CPU.'' ``Check from time to time: we miss presses.''}
+    \column{0.48\textwidth}
+      \stepbox{Today: waiting for a thread}{Busy waiting = check all the time: one core at 100\%.\\
+        Sleep and check = check from time to time: we react late.}
+  \end{columns}
+  \vfill
+  \keymsg{On Monday the answer was an \textbf{interrupt}: the button tells the CPU. Today: another thread tells you.}
+\end{frame}
+
+\begin{frame}{Three ways to wait}
   \begin{center}
     \waitways
   \end{center}
-  \vspace{0.1cm}
+  \vfill
+  \begin{center}
+    \footnotesize
+    \begin{tabular}{lcc}
+      \toprule
+      & \textbf{CPU while waiting} & \textbf{Reacts} \\
+      \midrule
+      busy waiting & 100\% of a core & at once \\
+      sleep and check & almost 0\% & up to 100 ms late \\
+      condition variable & 0\% & at once \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \vfill
+  \keymsg{A condition variable is the \textbf{interrupt} of threads: the waiting thread is Blocked until it is woken up.}
+\end{frame}
+
+\begin{frame}[fragile]{A condition variable in C++}
+  \vspace{-0.2cm}
   \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
-      \centering\footnotesize
-      \begin{tabular}{lcc}
-        \toprule
-        & \textbf{CPU while waiting} & \textbf{Reacts} \\
-        \midrule
-        busy waiting & 100\% of a core & at once \\
-        sleep and check & almost 0\% & up to 100 ms late \\
-        condition variable & 0\% & at once \\
-        \bottomrule
-      \end{tabular}
-    \column{0.41\textwidth}
-      \stepbox{The same story}{Busy waiting = \textbf{polling}.\\
-        A condition variable = an \textbf{interrupt}: the other thread wakes you up.}
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=cpp8]
+#include <condition_variable>
+std::mutex m;
+std::condition_variable cv;
+bool ready = false;
+void worker() {
+    std::unique_lock<std::mutex> lock(m);
+    cv.wait(lock, [] { return ready; });
+    std::cout << "The data is ready\n";
+}
+
+int main() {
+    std::thread w(worker);
+    // ... prepare the data ...
+    {
+        std::lock_guard<std::mutex> lock(m);
+        ready = true;
+    }
+    cv.notify_one();
+    w.join();
+}
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{The whole program}{The worker waits until \texttt{main} has prepared the data and set \texttt{ready}.
+        (Also \texttt{\#include} \texttt{<iostream>}, \texttt{<thread>} and \texttt{<mutex>}.)}
+      \stepbox{Four new things}{\texttt{std::condition\_variable}, \texttt{std::unique\_lock}, \texttt{wait} and
+        \texttt{notify\_one}. Let us look at them \textbf{one by one}.}
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{\texttt{std::condition\_variable}}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.52\textwidth}
-\begin{lstlisting}[style=cpp8]
+\begin{frame}[fragile]{A condition variable: \texttt{std::condition\_variable}}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+std::mutex m;
+(*\hlcode{std::condition\_variable cv;}*)(*\eol*)
+bool ready = false;
+
+void worker() {
+    std::unique_lock<std::mutex> lock(m);
+    cv.wait(lock, [] { return ready; });
+    std::cout << "The data is ready\n";
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{A place to wait}{Threads can sleep on \texttt{cv} until another thread wakes them up.\\[3pt]
+    It holds \textbf{no} data. The condition itself is \texttt{ready}, a normal variable protected by the mutex
+    \texttt{m}. (\texttt{\#include <condition\_variable>})}
+\end{frame}
+
+\begin{frame}[fragile]{A condition variable: \texttt{std::unique\_lock}}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+std::mutex m;
+std::condition_variable cv;
+bool ready = false;
+
+void worker() {
+    (*\hlcode{std::unique\_lock<std::mutex> lock(m);}*)(*\eol*)
+    cv.wait(lock, [] { return ready; });
+    std::cout << "The data is ready\n";
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Like \texttt{lock\_guard}, but more flexible}{It locks \texttt{m} and unlocks it at the end of the
+    block, just like \texttt{lock\_guard}.\\[3pt] The difference: it can be \textbf{unlocked and locked again} in the
+    middle. \texttt{wait} needs exactly that.}
+\end{frame}
+
+\begin{frame}[fragile]{A condition variable: \texttt{wait}}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
 std::mutex m;
 std::condition_variable cv;
 bool ready = false;
 
 void worker() {
     std::unique_lock<std::mutex> lock(m);
-    cv.wait(lock, [] { return ready; });
-    // ... use the data ...
+    (*\hlcode{cv.wait(lock, [] \{ return ready; \});}*)(*\eol*)
+    std::cout << "The data is ready\n";
 }
-
-// in main(), when the data is ready:
-{
-    std::lock_guard<std::mutex> lock(m);
-    ready = true;
-}
-cv.notify_one();      // wake up one thread
 \end{lstlisting}
-    \column{0.44\textwidth}
-      \stepbox{\texttt{cv.wait(lock, condition)}}{If the condition is false: \textbf{unlock} the mutex and sleep
-        (\textbf{Blocked}). When woken up: lock again and \textbf{check again}.}
-      \stepbox{\texttt{notify\_one()}, \texttt{notify\_all()}}{Wake up one, or all, waiting threads.}
-      \stepbox{\texttt{std::unique\_lock}}{Like \texttt{lock\_guard}, but \texttt{wait} can unlock it and lock it again.}
-      {\scriptsize\textcolor{gray}{Always give \texttt{wait} the condition: a thread may wake up \emph{without} a notify,
-        and a notify may come \emph{before} the wait.}\par}
+  \end{minipage}
+  \codenote[0.2cm]{Sleep until the condition is true}{\texttt{[] \{ return ready; \}}: a lambda that gives the
+    condition.\\[3pt] If it is false: \textbf{unlock} \texttt{m} and sleep (\textbf{Blocked}).
+    When woken up: lock \texttt{m} again and \textbf{check again}.\\[3pt] After \texttt{wait}: the condition is true,
+    and we hold \texttt{m}.}
+\end{frame}
+
+\begin{frame}[fragile]{A condition variable: \texttt{notify\_one}}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+int main() {
+    std::thread w(worker);
+    // ... prepare the data ...
+    {
+        std::lock_guard<std::mutex> lock(m);
+        ready = true;
+    }
+    (*\hlcode{cv.notify\_one();}*)(*\eol*)
+    w.join();
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Wake up one thread}{It wakes up \textbf{one} thread that sleeps on \texttt{cv}. That thread checks
+    \texttt{ready} again, sees \texttt{true}, and goes on.\\[3pt] \texttt{ready} is set \textbf{under the mutex}:
+    the worker reads it under the mutex too.}
+\end{frame}
+
+\begin{frame}{\texttt{wait}: why the condition?}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{A notify can come too early}{If \texttt{main} calls \texttt{notify\_one} \textbf{before} the worker
+        waits, nobody is woken up. With the condition, the worker sees \texttt{ready} = \texttt{true} and does not
+        sleep at all.}
+    \column{0.48\textwidth}
+      \stepbox{A thread can wake up by itself}{The system may wake a thread \textbf{without} a notify
+        (a \emph{spurious wakeup}). With the condition, it checks again and goes back to sleep.}
   \end{columns}
+  \vfill
+  \keymsg{Always give \texttt{wait} the condition.}
 \end{frame}
 
 % CHECK: waiting.cpp: main sleeps 3 s, then sets ready = true; the worker prints how late it reacted.
@@ -2784,24 +3084,34 @@ cv.notify_one();      // wake up one thread
 \end{frame}
 
 % =====================================================================
-\section{Cooperating threads}
+\section[Producer-consumer]{Producer and consumer}
 % =====================================================================
 
 \begin{frame}{Producer and consumer}
   \begin{center}
     \pcbuffer{5}{3}
   \end{center}
-  \vspace{0.1cm}
+  \vfill
   \defbox{A \textbf{producer} puts data into a shared \textbf{buffer}, a \textbf{consumer} takes it out.
     They work at different speeds.}
+  \vfill
+  {\scriptsize\textcolor{gray}{Examples: a keyboard and a program; a network card and the network stack;
+    a camera and a video encoder; a button ISR and the LCD task.}\par}
+\end{frame}
+
+\begin{frame}{Producer and consumer: when do they wait?}
+  \begin{center}
+    \pcbuffer{5}{3}
+  \end{center}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \probbox{The buffer is full}{The producer must \textbf{wait} until a place is free.}
     \column{0.48\textwidth}
       \probbox{The buffer is empty}{The consumer must \textbf{wait} until there is data.}
   \end{columns}
-  {\scriptsize\textcolor{gray}{Examples: a keyboard and a program; a network card and the network stack;
-    a camera and a video encoder; a button ISR and the LCD task.}\par}
+  \vfill
+  \keymsg{Two things to wait for: two condition variables.}
 \end{frame}
 
 \begin{frame}{The buffer: one mutex, two conditions}
@@ -2816,7 +3126,7 @@ cv.notify_one();      // wake up one thread
       & \textbf{waits for} & \textbf{after its work, wakes up} \\
       \midrule
       \textcolor{cProd}{\textbf{producer}} & \texttt{notFull} & \texttt{notEmpty} \\
-      \textcolor{cCons}{\textbf{consumer}} & \texttt{notEmpty} & \texttt{notFull} \\
+      \textcolor{sAmberText}{\textbf{consumer}} & \texttt{notEmpty} & \texttt{notFull} \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -2828,7 +3138,7 @@ cv.notify_one();      // wake up one thread
 %   (items per second), an option "random short pauses", the state of each thread (Running / Blocked) in the colours
 %   of Monday, counters "produced / consumed", a chart of the buffer fill over time. Button "Pause".
 \begin{frame}{Simulator 11: producer and consumer}
-  \taskhead{Simulator task}{Topic \simtab{Producer--consumer}. Buffer size = 5.}
+  \taskhead{Simulator task}{Topic \simtab{Producer-consumer}. Buffer size = 5.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
     \item The producer is \textbf{faster} than the consumer. What happens to the buffer?
@@ -2837,7 +3147,7 @@ cv.notify_one();      // wake up one thread
     \item Same speed, with \emph{random short pauses} on. Change the buffer size from \textbf{1} to \textbf{8}.
       What does a bigger buffer give?
   \end{enumerate}
-  \simfoot{\simaddr{Producer--consumer}}
+  \simfoot{\simaddr{Producer-consumer}}
 \end{frame}
 
 \begin{frame}{Solution: Simulator 11}
@@ -2856,7 +3166,7 @@ cv.notify_one();      // wake up one thread
 \end{frame}
 
 \begin{frame}[fragile]{The bounded buffer in C++}
-  \begin{columns}[T,onlytextwidth]
+  \begin{columns}[c,onlytextwidth]
     \column{0.56\textwidth}
 \begin{lstlisting}[style=cpp8]
 #include <queue>
@@ -2878,10 +3188,63 @@ void producer() {
 }
 \end{lstlisting}
     \column{0.4\textwidth}
-      \stepbox{\texttt{std::queue}}{\texttt{push} adds at the back; \texttt{front} reads and \texttt{pop} removes
-        at the front.}
-      \stepbox{One mutex}{The \texttt{wait}, the \texttt{push} and the \texttt{notify}: all under \textbf{one} mutex.}
+      \stepbox{The producer}{It puts the numbers 1 to 1000 into a buffer with 5 places.}
+      \stepbox{One new thing}{\texttt{std::queue}. The rest you know: a mutex, \texttt{wait} and \texttt{notify}.}
   \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{The bounded buffer: \texttt{std::queue}}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+#include <queue>
+#include <condition_variable>
+
+const int SIZE = 5, ITEMS = 1000;
+(*\hlcode{std::queue<int> buffer;}*)(*\eol*)
+std::mutex m;
+std::condition_variable notFull, notEmpty;
+
+void producer() {
+    for (int i = 1; i <= ITEMS; i++) {
+        std::unique_lock<std::mutex> lock(m);
+        notFull.wait(lock,
+            [] { return buffer.size() < SIZE; });
+        buffer.push(i);
+        notEmpty.notify_one();
+    }
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{A queue: first in, first out}{\texttt{push(x)} adds at the back.\\
+    \texttt{front()} reads the first one, \texttt{pop()} removes it.\\
+    \texttt{size()}, \texttt{empty()}: how many, or none?\\[3pt] It has no limit: the limit \texttt{SIZE} is ours.}
+\end{frame}
+
+\begin{frame}[fragile]{The bounded buffer: wait and notify}
+  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+#include <queue>
+#include <condition_variable>
+
+const int SIZE = 5, ITEMS = 1000;
+std::queue<int> buffer;
+std::mutex m;
+std::condition_variable notFull, notEmpty;
+
+void producer() {
+    for (int i = 1; i <= ITEMS; i++) {
+        std::unique_lock<std::mutex> lock(m);
+        (*\hlcode{notFull.wait}*)(lock,(*\eol*)
+            [] { return buffer.size() < SIZE; });
+        buffer.push(i);
+        (*\hlcode{notEmpty.notify\_one();}*)
+    }
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Wait for a place, wake the consumer}{\texttt{notFull.wait}: sleep while the buffer is full.\\[3pt]
+    \texttt{notEmpty.notify\_one}: there is a new item, so wake up the consumer if it sleeps.\\[3pt]
+    All of it under \textbf{one} mutex \texttt{m}.}
 \end{frame}
 
 \begin{frame}{Task 4: the bounded buffer}
@@ -2927,16 +3290,25 @@ long long consumer() {
   \end{columns}
 \end{frame}
 
+% =====================================================================
+\section{Semaphores}
+% =====================================================================
+
 % NOTE: the name comes from the railway signal (Dijkstra, 1965). std::binary_semaphore is a semaphore with one place.
-%   One sentence about the difference to a mutex: a semaphore can be released by ANOTHER thread than the one that took it
-%   (for example an ISR wakes up a task in FreeRTOS).
-\begin{frame}[fragile]{Semaphores}
+\begin{frame}{Semaphores}
   \begin{center}
     \parkingpic
   \end{center}
-  \vspace{0.05cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
+  \vfill
+  \defbox{A \textbf{semaphore} counts free places. \texttt{acquire()}: take a place, or wait if there is none.
+    \texttt{release()}: give a place back and wake up one waiting thread.}
+  \vfill
+  \keymsg{A parking with 3 places: 3 cars inside, the fourth waits at the gate.}
+\end{frame}
+
+\begin{frame}[fragile]{A semaphore in C++}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
 \begin{lstlisting}[style=cpp8]
 #include <semaphore>                   // C++20
 
@@ -2948,12 +3320,79 @@ void car(int id) {
     parking.release();     // leave
 }
 \end{lstlisting}
-    \column{0.46\textwidth}
-      \defbox{A \textbf{semaphore} counts free places. \texttt{acquire()}: take a place, or wait if there is none.
-        \texttt{release()}: give a place back and wake up one waiting thread.}
-      \stepbox{A mutex and a semaphore}{A mutex: \textbf{one} owner. A semaphore: up to \textbf{N} at the same time.
-        On Tuesday you saw one in FreeRTOS: \texttt{xSemaphoreCreateMutex}.}
+    \column{0.45\textwidth}
+      \stepbox{The whole program}{Each car is a thread. At most 3 of them are parked at the same time.}
+      \stepbox{Three new things}{\texttt{std::counting\_semaphore}, \texttt{acquire} and \texttt{release}.
+        Let us look at them \textbf{one by one}.}
   \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{A semaphore in C++: \texttt{std::counting\_semaphore}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+#include <semaphore>                   // C++20
+
+(*\hlcode{std::counting\_semaphore<3> parking(3);}*)(*\eol*)
+
+void car(int id) {
+    parking.acquire();     // wait for a place
+    // ... park ...
+    parking.release();     // leave
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{A counter of free places}{\texttt{<3>}: the counter can never be more than 3.\\[3pt]
+    \texttt{(3)}: it starts at 3, so all places are free.\\[3pt] New in C++20, \texttt{\#include <semaphore>}.}
+\end{frame}
+
+\begin{frame}[fragile]{A semaphore in C++: \texttt{acquire}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+#include <semaphore>                   // C++20
+
+std::counting_semaphore<3> parking(3);
+
+void car(int id) {
+    (*\hlcode{parking.acquire();}*)     // wait for a place(*\eol*)
+    // ... park ...
+    parking.release();     // leave
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Take a place}{If the counter is more than 0: subtract 1 and go on.\\[3pt]
+    If it is 0: wait, \textbf{Blocked}, until another thread calls \texttt{release()}.}
+\end{frame}
+
+\begin{frame}[fragile]{A semaphore in C++: \texttt{release}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+#include <semaphore>                   // C++20
+
+std::counting_semaphore<3> parking(3);
+
+void car(int id) {
+    parking.acquire();     // wait for a place
+    // ... park ...
+    (*\hlcode{parking.release();}*)     // leave(*\eol*)
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Give a place back}{Add 1 to the counter. If a thread waits in \texttt{acquire()}, it wakes up.}
+\end{frame}
+
+\begin{frame}{A mutex and a semaphore}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{A mutex}{\textbf{One} owner. Only the thread that locked it may unlock it.}
+    \column{0.48\textwidth}
+      \stepbox{A semaphore}{Up to \textbf{N} threads at the same time. \textbf{Any} thread may call \texttt{release()},
+        also one that did not call \texttt{acquire()}.}
+  \end{columns}
+  \vfill
+  \stepbox{You saw a semaphore on Tuesday}{In FreeRTOS a mutex is a kind of semaphore: \texttt{xSemaphoreCreateMutex},
+    \texttt{xSemaphoreTake}, \texttt{xSemaphoreGive}. A plain FreeRTOS semaphore is how an ISR wakes up a task.}
+  \vfill
 \end{frame}
 
 \begin{frame}[fragile]{The buffer with two semaphores}
@@ -2973,7 +3412,7 @@ freeSlots.acquire();          // a free place
 fullSlots.release();          // one more item
 \end{lstlisting}
     \column{0.48\textwidth}
-      {\scriptsize\textbf{\textcolor{cCons}{Consumer}}\par}
+      {\scriptsize\textbf{\textcolor{sAmberText}{Consumer}}\par}
 \begin{lstlisting}[style=cpp8]
 // for each item:
 fullSlots.acquire();          // an item
@@ -3032,29 +3471,40 @@ void print(int id) {
   \end{columns}
 \end{frame}
 
+% =====================================================================
+\section[Thread pool]{A thread pool}
+% =====================================================================
+
 \begin{frame}{A thread pool}
   \begin{center}
-    \resizebox{!}{0.3\textheight}{\poolpic}
+    \resizebox{!}{0.35\textheight}{\poolpic}
   \end{center}
+  \vfill
   \defbox{A \textbf{thread pool}: a fixed group of threads (\emph{workers}) that take tasks from a shared queue.}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{Why?}{Starting a thread costs time. Thousands of small tasks do not need thousands of threads, only as
-        many as there are \textbf{cores}.}
-    \column{0.48\textwidth}
-      \stepbox{What is it?}{A producer and consumers: \texttt{main} produces tasks, the workers consume them.}
-  \end{columns}
   \vfill
   \keymsg{On Monday the scheduler gave tasks to \textbf{one core}. A thread pool gives tasks to \textbf{threads}:
     your own small scheduler.}
 \end{frame}
 
-% NOTE: the first class in the course, so the skeleton is given and only two functions are to be written.
-%   Show lambdas that capture variables ([start, &primes]) on the example in the task, without theory.
-\begin{frame}[fragile]{The pool in C++}
+\begin{frame}{A thread pool: why?}
+  \vfill
   \begin{columns}[T,onlytextwidth]
-    \column{0.58\textwidth}
-\begin{lstlisting}[style=cpp8, basicstyle=\color{VSText}\ttfamily\fontsize{6.4}{7.2}\selectfont]
+    \column{0.48\textwidth}
+      \stepbox{Threads are expensive}{Starting a thread costs time. Thousands of small tasks do not need thousands of
+        threads, only as many as there are \textbf{cores}.}
+    \column{0.48\textwidth}
+      \stepbox{Nothing new inside}{A producer and consumers: \texttt{main} produces tasks, the workers consume them.
+        A queue, a mutex and a condition variable.}
+  \end{columns}
+  \vfill
+\end{frame}
+
+% NOTE: the skeleton is given and only two functions are to be written.
+\begin{frame}[fragile]{The pool in C++}
+  \vspace{-0.25cm}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.56\textwidth}
+\begin{lstlisting}[style=cpp8]
 class ThreadPool {
 public:
     explicit ThreadPool(int n) {
@@ -3066,9 +3516,9 @@ public:
           tasks.push(task); }
         cv.notify_one();
     }
-    @~ThreadPool();@   // TODO: stop and join the workers
+    ~ThreadPool();   // TODO: stop and join
 private:
-    @void work();@     // TODO: take a task, run it, repeat
+    void work();     // TODO: take a task, run it
     std::vector<std::thread> workers;
     std::queue<std::function<void()>> tasks;
     std::mutex m;
@@ -3076,11 +3526,101 @@ private:
     bool stop = false;
 };
 \end{lstlisting}
-    \column{0.38\textwidth}
-      \stepbox{\texttt{std::function<void()>}}{Any function without arguments, for example a lambda.}
-      \stepbox{\texttt{[this] \{ work(); \}}}{Each worker runs \texttt{work()} of this pool.}
-      \stepbox{The destructor}{\texttt{\textasciitilde ThreadPool()} runs when the pool goes out of scope.}
+    \column{0.41\textwidth}
+      \stepbox{The whole class}{The skeleton of the pool. You write the two \texttt{TODO} functions in Task 6.}
+      \stepbox{Three new things}{\texttt{std::function}, the lambda \texttt{[this]}, and the destructor
+        \texttt{\textasciitilde ThreadPool}. Let us look at them \textbf{one by one}.}
   \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{The pool in C++: \texttt{std::function}}
+  \begin{minipage}[c][0.8\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+class ThreadPool {
+public:
+    explicit ThreadPool(int n) {
+        for (int i = 0; i < n; i++)
+            workers.emplace_back([this] { work(); });
+    }
+    void submit(std::function<void()> task) {
+        { std::lock_guard<std::mutex> lock(m);
+          tasks.push(task); }
+        cv.notify_one();
+    }
+    ~ThreadPool();   // TODO: stop and join
+private:
+    void work();     // TODO: take a task, run it
+    std::vector<std::thread> workers;
+    std::queue<(*\hlcode{std::function<void()>}*)> tasks;(*\eol*)
+    std::mutex m;
+    std::condition_variable cv;
+    bool stop = false;
+};
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{A task}{\texttt{std::function<void()>}: \textbf{any} function without arguments that returns
+    nothing, for example a lambda.\\[3pt] The queue \texttt{tasks} holds such functions. A worker takes one and
+    calls it: \texttt{task()}. (\texttt{\#include <functional>})}
+\end{frame}
+
+\begin{frame}[fragile]{The pool in C++: the lambda \texttt{[this]}}
+  \begin{minipage}[c][0.8\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+class ThreadPool {
+public:
+    explicit ThreadPool(int n) {
+        for (int i = 0; i < n; i++)
+            workers.emplace_back((*\hlcode{[this] \{ work(); \}}*));(*\eol*)
+    }
+    void submit(std::function<void()> task) {
+        { std::lock_guard<std::mutex> lock(m);
+          tasks.push(task); }
+        cv.notify_one();
+    }
+    ~ThreadPool();   // TODO: stop and join
+private:
+    void work();     // TODO: take a task, run it
+    std::vector<std::thread> workers;
+    std::queue<std::function<void()>> tasks;
+    std::mutex m;
+    std::condition_variable cv;
+    bool stop = false;
+};
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{Each worker runs \texttt{work()}}{A lambda, as in \texttt{hello.cpp}. Between \texttt{[ ]}:
+    what it takes from outside. \texttt{this}: this pool, so it can call \texttt{work()} of this pool.\\[3pt]
+    \texttt{n} workers start in the constructor, all running \texttt{work()}.}
+\end{frame}
+
+\begin{frame}[fragile]{The pool in C++: the destructor}
+  \begin{minipage}[c][0.8\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=cpp8, escapeinside={(*}{*)}]
+class ThreadPool {
+public:
+    explicit ThreadPool(int n) {
+        for (int i = 0; i < n; i++)
+            workers.emplace_back([this] { work(); });
+    }
+    void submit(std::function<void()> task) {
+        { std::lock_guard<std::mutex> lock(m);
+          tasks.push(task); }
+        cv.notify_one();
+    }
+    (*\hlcode{\textasciitilde ThreadPool();}*)   // TODO: stop and join(*\eol*)
+private:
+    void work();     // TODO: take a task, run it
+    std::vector<std::thread> workers;
+    std::queue<std::function<void()>> tasks;
+    std::mutex m;
+    std::condition_variable cv;
+    bool stop = false;
+};
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{When the pool ends}{The destructor runs when the pool goes out of scope, as with
+    \texttt{lock\_guard} on Tuesday.\\[3pt] Our pool's destructor must stop the workers and \textbf{join} them,
+    after they have done all tasks.}
 \end{frame}
 
 % CHECK: replace the times with the results from your own laptop. Test machine (2 cores), -O2:
@@ -3105,6 +3645,8 @@ std::atomic<int> primes{0};
         });
 }   // the destructor waits for all tasks
 \end{lstlisting}
+      {\scriptsize\textcolor{gray}{\texttt{[start, \&primes]}: the lambda takes a \textbf{copy} of \texttt{start} and a
+        \textbf{reference} to \texttt{primes}.}\par}
     \column{0.44\textwidth}
       \taskhead{Task}{Download \filePool\ from \ghlink{Task6}. Write \texttt{work()} and the destructor. Compile with \texttt{-O2}.}
       \footnotesize
@@ -3124,7 +3666,7 @@ std::atomic<int> primes{0};
   \begin{columns}[T,onlytextwidth]
     \column{0.55\textwidth}
 \begin{lstlisting}[style=cpp8, basicstyle=\color{VSText}\ttfamily\fontsize{6.4}{7.2}\selectfont]
-void work() {
+void ThreadPool::work() {
     while (true) {
         std::function<void()> task;
         {
@@ -3138,7 +3680,7 @@ void work() {
         task();             // run without the lock
     }
 }
-~ThreadPool() {
+ThreadPool::~ThreadPool() {
     { std::lock_guard<std::mutex> lock(m);
       stop = true; }
     cv.notify_all();
@@ -3172,67 +3714,104 @@ void work() {
 % =====================================================================
 
 \begin{frame}{What we saw today}
+  \vfill
   \begin{center}
+    \resizebox{\textwidth}{!}{%
     \begin{tikzpicture}[>=Stealth,
-        sbox/.style={very thick, rounded corners=5pt, minimum width=2.9cm, minimum height=1.7cm,
+        sbox/.style={very thick, rounded corners=5pt, minimum width=2.9cm, minimum height=1.9cm,
           align=center, font=\scriptsize, text width=2.7cm, drop shadow}]
-      \node[sbox, draw=MacRed, fill=MacRed!12] (a) at (0,0)
+      \node[sbox, draw=nLine, fill=nFill] (a) at (0,0)
         {\textbf{Deadlock}\\[2pt] four conditions; a circle in the wait-for graph};
-      \node[sbox, draw=StorageBlue, fill=StorageBlue!12] (b) at (3.6,0)
+      \node[sbox, draw=nLine, fill=nFill] (b) at (3.6,0)
         {\textbf{Fixes}\\[2pt] a fixed lock order, \texttt{std::scoped\_lock}};
-      \node[sbox, draw=ProgramPurple, fill=ProgramPurple!12] (c) at (7.2,0)
-        {\textbf{Waiting}\\[2pt] condition variables, semaphores: no busy waiting};
-      \node[sbox, draw=mygreen, fill=mygreen!12] (d) at (10.8,0)
-        {\textbf{Cooperation}\\[2pt] producer and consumer, a thread pool};
+      \node[sbox, draw=nLine, fill=nFill] (c) at (7.2,0)
+        {\textbf{Waiting}\\[2pt] a condition variable: \texttt{wait} and \texttt{notify}, no busy waiting};
+      \node[sbox, draw=nLine, fill=nFill] (d) at (10.8,0)
+        {\textbf{Producer and consumer}\\[2pt] a bounded buffer; semaphores count places};
+      \node[sbox, draw=nLine, fill=nFill] (e) at (14.4,0)
+        {\textbf{Thread pool}\\[2pt] a few workers, many tasks: your own scheduler};
       \draw[->, very thick, DeepBlue] (a) -- (b);
       \draw[->, very thick, DeepBlue] (b) -- (c);
       \draw[->, very thick, DeepBlue] (c) -- (d);
-    \end{tikzpicture}
+      \draw[->, very thick, DeepBlue] (d) -- (e);
+    \end{tikzpicture}}
   \end{center}
   \vfill
   \keymsg{Threads must not only stay out of each other's way. They must also \textbf{work together}.}
 \end{frame}
 
 \begin{frame}{Three days: from a button to a thread pool}
+  \vfill
   \begin{center}
     \resizebox{\textwidth}{!}{\threedays}
   \end{center}
-  \vspace{0.15cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{The same ideas, twice}{polling $\leftrightarrow$ busy waiting\\
-        an interrupt $\leftrightarrow$ \texttt{notify}}
-    \column{0.48\textwidth}
-      \stepbox{\phantom{x}}{a Blocked task in FreeRTOS $\leftrightarrow$ a thread in \texttt{wait}\\
-        the scheduler $\leftrightarrow$ a thread pool}
-  \end{columns}
   \vfill
   \keymsg{A few ideas, from a small microcontroller to a laptop with many cores.}
 \end{frame}
 
-% NOTE: project 3 closes the course: the same circuit as on Monday (button on GPIO 5, LCD over I2C), but now the ISR
-%   and a task cooperate through a queue. A FreeRTOS queue is a ready bounded buffer.
-% CHECK in Wokwi before class: xQueueCreate(10, sizeof(uint32_t)), xQueueSendFromISR, xQueueReceive.
-\begin{frame}{Mini-project (if there is time)}
+\begin{frame}{Three days: the same ideas, twice}
+  \vfill
   \begin{columns}[T,onlytextwidth]
-    \column{0.32\textwidth}
-      \stepbox{\badge{1}\ The auditor (C++)}{Today's bank, plus one more thread that checks the sum
-        \textbf{every 100 ms} while the transfers run. It must lock \textbf{all} accounts, without a deadlock.\\[2pt]
-        \emph{Hint: the lock order.}}
-    \column{0.32\textwidth}
-      \stepbox{\badge{2}\ A pipeline (C++)}{Three threads connected by two bounded buffers:\\
-        \emph{generate numbers $\to$ square them $\to$ add them up}.\\[2pt]
-        Check the result with a formula.}
-    \column{0.32\textwidth}
-      \stepbox{\badge{3}\ Back to the ESP32}{Button A's ISR puts each press into a FreeRTOS queue
-        (\texttt{xQueueSendFromISR}). A task takes them out (\texttt{xQueueReceive}) and shows them on the LCD.\\[2pt]
-        \emph{A producer and a consumer on the microcontroller.}}
+    \column{0.48\textwidth}
+      \stepbox{Waiting}{polling $\leftrightarrow$ busy waiting\\
+        an interrupt $\leftrightarrow$ \texttt{notify}\\
+        a Blocked task in FreeRTOS $\leftrightarrow$ a thread in \texttt{wait}}
+    \column{0.48\textwidth}
+      \stepbox{Sharing and scheduling}{\texttt{presses++} in an ISR $\leftrightarrow$ \texttt{counter++} in a thread\\
+        \texttt{xSemaphoreTake} $\leftrightarrow$ \texttt{std::mutex}\\
+        the scheduler $\leftrightarrow$ a thread pool}
   \end{columns}
   \vfill
-  \keymsg{Choose one. Projects 1 and 2 on your laptop, project 3 in Wokwi with your project \projCircuit.}
+\end{frame}
+
+% NOTE: the three mini-projects have templates (and local solutions) in Project1, Project2 and Project3.
+\begin{frame}{Mini-project (if there is time)}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.32\textwidth}
+      \stepbox{\badge{1}\ The auditor}{C++, the bank.}
+    \column{0.32\textwidth}
+      \stepbox{\badge{2}\ A pipeline}{C++, two bounded buffers.}
+    \column{0.32\textwidth}
+      \stepbox{\badge{3}\ Back to the ESP32}{Wokwi, a FreeRTOS queue.}
+  \end{columns}
+  \vfill
+  \keymsg{Choose one. Each one has a template on GitHub.}
+\end{frame}
+
+\begin{frame}{Mini-project 1: the auditor}
+  \vfill
+  \stepbox{The task}{Today's bank (step 4, the lock order), plus one more thread, the \textbf{auditor}. While the
+    transfers run, it checks the sum \textbf{every 100 ms} and prints it. It must lock \textbf{all} accounts, without a
+    deadlock. Template: \ghlink{Project1}.}
+  \vfill
+  \stepbox{Hint}{The lock order: the auditor takes \texttt{m[0]}, \texttt{m[1]}, \ldots, \texttt{m[9]}, in this order.
+    Why can it not deadlock with the transfers?}
+  \vfill
+\end{frame}
+
+\begin{frame}{Mini-project 2: a pipeline}
+  \vfill
+  \stepbox{The task}{Three threads connected by two bounded buffers:\\[2pt]
+    \emph{generate the numbers 1 to 1000 $\to$ square them $\to$ add them up}.\\[2pt] Template: \ghlink{Project2}.}
+  \vfill
+  \stepbox{Check the result}{$1^2 + 2^2 + \ldots + n^2 = \frac{n(n+1)(2n+1)}{6}$. For $n = 1000$: \textbf{333\,833\,500}.}
+  \vfill
+\end{frame}
+
+% CHECKED: the template and the solution compile for the ESP32-C3 (Arduino core 3.3.x).
+\begin{frame}{Mini-project 3: back to the ESP32}
+  \vfill
+  \stepbox{The task}{Button A's ISR puts each press into a FreeRTOS \textbf{queue} (\texttt{xQueueSendFromISR}).
+    A task takes them out (\texttt{xQueueReceive}) and shows the count on the LCD. Template: \ghlink{Project3}.}
+  \vfill
+  \stepbox{A ready bounded buffer}{A FreeRTOS queue is the bounded buffer of today: \texttt{xQueueCreate(10, \ldots)}
+    makes one with 10 places. A producer and a consumer on the microcontroller.}
+  \vfill
 \end{frame}
 
 \begin{frame}{Check yourself}
+  \vfill
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
     \item What are the four conditions for a deadlock? Which one does a fixed lock order break?
@@ -3243,7 +3822,7 @@ void work() {
     \item Why does a pool with more workers than cores not get faster?
   \end{enumerate}
   \vfill
-  \keymsg{Try to answer each question in \textbf{2--3 sentences}.}
+  \keymsg{Try to answer each question in \textbf{2 or 3 sentences}.}
 \end{frame}
 
 \end{document}

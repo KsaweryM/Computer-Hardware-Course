@@ -21,7 +21,7 @@
 \useinnertheme{rounded}
 \useoutertheme{miniframes}
 
-\definecolor{DeepBlue}{RGB}{20,45,85}
+\definecolor{DeepBlue}{HTML}{283593}% template indigo (colour rules v6)
 \definecolor{AccentOrange}{RGB}{235,90,20}
 \definecolor{LightGray}{RGB}{245,246,250}
 \definecolor{mygreen}{RGB}{0,153,37}
@@ -36,6 +36,37 @@
 \definecolor{MacGreen}{RGB}{39,201,63}
 \definecolor{ProgramPurple}{RGB}{124,58,180}
 \definecolor{StorageBlue}{RGB}{30,120,200}
+
+% ---------- course palette (colour rules v6) ----------
+% actors and categories: fills only
+\definecolor{sIndigo}{HTML}{5C6BC0}
+\definecolor{sPink}{HTML}{EC407A}
+\definecolor{sViolet}{HTML}{7E57C2}
+\definecolor{sAmber}{HTML}{FFB300}   % black text on it
+\definecolor{sTeal}{HTML}{26A69A}
+\definecolor{sBrown}{HTML}{8D6E63}
+% text variants that stay readable on white
+\definecolor{sPinkText}{HTML}{C2185B}
+\definecolor{sAmberText}{HTML}{A06A00}
+\definecolor{sTealText}{HTML}{00796B}
+% actions: frames only (executes, read, write); results: signs only
+\definecolor{aExec}{HTML}{43A047}
+\definecolor{aRead}{HTML}{1E88E5}
+\definecolor{aWrite}{HTML}{E53935}
+% neutral (Blue Grey): hardware, data, waveforms
+\definecolor{nInk}{HTML}{37474F}
+\definecolor{nLine}{HTML}{90A4AE}
+\definecolor{nLight}{HTML}{CFD8DC}
+\definecolor{nFill}{HTML}{ECEFF1}
+\definecolor{nIdle}{HTML}{E0E0E0}
+\tikzset{
+  aexec/.style={draw=aExec, line width=1.6pt},
+  aread/.style={draw=aRead, line width=1.6pt, dash pattern=on 3pt off 2pt},
+  awrite/.style={draw=aWrite, line width=2.4pt},
+}
+\newcommand{\ok}{\textcolor{aExec}{\faCheck}}
+\newcommand{\nok}{\textcolor{aWrite}{\faTimes}}
+
 
 \setbeamercolor{palette primary}{bg=DeepBlue,fg=white}
 \setbeamercolor{palette secondary}{bg=DeepBlue!80!black,fg=white}
@@ -59,11 +90,11 @@
 
 % ---------- helpers used by the von Neumann section ----------
 \tikzset{
-  memcell/.style={draw=DeepBlue!60, minimum width=2.6cm, minimum height=0.45cm,
+  memcell/.style={draw=nLine, minimum width=2.6cm, minimum height=0.45cm,
     inner sep=1pt, font=\ttfamily\scriptsize, align=center},
-  instrcell/.style={memcell, fill=AccentOrange!18},
-  datacell/.style={memcell, fill=StorageBlue!18},
-  addr/.style={font=\ttfamily\scriptsize, text=DeepBlue},
+  instrcell/.style={memcell, fill=sViolet!18},
+  datacell/.style={memcell, fill=sPink!18},
+  addr/.style={font=\ttfamily\scriptsize, text=nInk},
 }
 % numbered orange badge for assumptions
 \newcommand{\num}[1]{\tikz[baseline=(n.base)]\node[circle,fill=AccentOrange,text=white,
@@ -71,10 +102,10 @@
 % mini memory stack with the program counter pointing at cell #2
 % #1 = x offset, #2 = highlighted cell (0-3), #3 = text of cell 3, #4 = panel heading
 \newcommand{\pcstack}[4]{%
-  \node[font=\scriptsize\bfseries, text=DeepBlue] at (#1,0.55) {#4};
+  \node[font=\scriptsize\bfseries, text=nInk] at (#1,0.55) {#4};
   \foreach \i/\t in {0/{LOAD 6},1/{ADD 7},2/{STORE 8},3/{#3}} {
     \ifnum\i=#2
-      \node[instrcell, minimum width=1.7cm, fill=AccentOrange!45, very thick, draw=AccentOrange] at (#1,{-0.45*\i}) {\t};
+      \node[instrcell, minimum width=1.7cm, aexec] at (#1,{-0.45*\i}) {\t};
     \else
       \node[instrcell, minimum width=1.7cm] at (#1,{-0.45*\i}) {\t};
     \fi
@@ -91,8 +122,8 @@
     \centering\small\textbf{#1}\\[0.1cm]
     #2\\[0.1cm]
     \raggedright\footnotesize
-    \textcolor{mygreen}{\textbf{+}}\ #3\\[0.06cm]
-    \textcolor{MacRed}{\textbf{$-$}}\ #4
+    \textcolor{aExec}{\textbf{+}}\ #3\\[0.06cm]
+    \textcolor{aWrite}{\textbf{$-$}}\ #4
   \end{beamercolorbox}}
 
 % progress strip: #1 = number of decisions already made
@@ -101,17 +132,17 @@
   \begin{tikzpicture}
     \foreach \i/\t in {1/Stored program,2/Shared memory,3/Binary,4/Sequential,5/Separate units} {
       \ifnum\i>#1
-        \node[draw=DeepBlue!35, dashed, rounded corners=3pt, text=DeepBlue!55, font=\tiny\bfseries,
+        \node[draw=nLine, dashed, rounded corners=3pt, text=nLine, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \else
-        \node[draw=AccentOrange, fill=AccentOrange, rounded corners=3pt, text=white, font=\tiny\bfseries,
+        \node[draw=DeepBlue, fill=DeepBlue, rounded corners=3pt, text=white, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \fi
     }
   \end{tikzpicture}\par}}
 
 % ----- small diagrams used on the dilemma slides -----
-\tikzset{smallcell/.style={draw=DeepBlue!60, minimum height=0.27cm, inner sep=0.5pt,
+\tikzset{smallcell/.style={draw=nLine, minimum height=0.27cm, inner sep=0.5pt,
   font=\ttfamily\tiny, align=center}}
 
 \newcommand{\diagWired}{\begin{tikzpicture}
@@ -121,17 +152,17 @@
 \end{tikzpicture}}
 
 \newcommand{\diagTape}{\begin{tikzpicture}
-  \draw[draw=DeepBlue!60, fill=LightGray] (0,0) rectangle (2.6,0.55);
+  \draw[draw=nLine, fill=nFill] (0,0) rectangle (2.6,0.55);
   \foreach \x/\y in {0.25/0.15,0.25/0.4,0.55/0.28,0.85/0.15,0.85/0.4,1.15/0.28,1.45/0.15,1.75/0.4,1.75/0.15,2.05/0.28,2.4/0.15,2.4/0.4}
-    {\fill[DeepBlue] (\x,\y) circle (0.045);}
-  \draw[AccentOrange, very thick] (1.0,-0.08) -- (1.0,0.63);
-  \node[font=\tiny, text=AccentOrange, anchor=north] at (1.0,-0.08) {reader};
+    {\fill[nInk] (\x,\y) circle (0.045);}
+  \draw[nInk, very thick] (1.0,-0.08) -- (1.0,0.63);
+  \node[font=\tiny, text=nInk, anchor=north] at (1.0,-0.08) {reader};
 \end{tikzpicture}}
 
 \newcommand{\diagMemStackSmall}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0.3) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,-0.3) {2};
@@ -140,12 +171,12 @@
 \newcommand{\diagTwoMem}{\begin{tikzpicture}
   \node[font=\tiny] at (0,0.55) {program memory};
   \node[font=\tiny] at (2.5,0.55) {data memory};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,-0.3) {HALT};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0.3) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0) {3};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,-0.3) {0};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,-0.3) {HALT};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0.3) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,-0.3) {0};
   \foreach \i in {0,1,2} {
     \node[addr, font=\ttfamily\tiny, anchor=west] at (0.8,{0.3-0.3*\i}) {\i};
     \node[addr, font=\ttfamily\tiny, anchor=west] at (3.3,{0.3-0.3*\i}) {\i};
@@ -154,16 +185,16 @@
 \end{tikzpicture}}
 
 \newcommand{\diagOneMem}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
   \node[smallcell, draw=none, minimum width=1.7cm] at (0,-0.04) {$\vdots$};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.31) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.58) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.31) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.58) {3};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.5) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.23) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.31) {6};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.58) {7};
-  \node[font=\tiny, text=DeepBlue, anchor=west] at (1.4,0) {one numbering};
+  \node[font=\tiny, text=nInk, anchor=west] at (1.4,0) {one numbering};
 \end{tikzpicture}}
 
 \newcommand{\diagDecimal}{\begin{tikzpicture}
@@ -181,47 +212,48 @@
 \end{tikzpicture}}
 
 \newcommand{\diagParallel}{\begin{tikzpicture}
-  \foreach \k in {0,1,2} {\draw[fill=AccentOrange!25, draw=AccentOrange] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
+  \foreach \k in {0,1,2} {\draw[fill=nFill, draw=nLine] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
   \node[font=\tiny, anchor=west] at (2.1,0.2) {all at once};
 \end{tikzpicture}}
 
 \newcommand{\diagDataflow}{\begin{tikzpicture}[>=Stealth]
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
-  \node[circle, draw=DeepBlue, fill=StorageBlue!15, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
-  \draw[->, thick, DeepBlue] (a) -- (c); \draw[->, thick, DeepBlue] (b) -- (c);
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
+  \draw[->, thick, nInk] (a) -- (c); \draw[->, thick, nInk] (b) -- (c);
   \node[font=\tiny, anchor=west] at (1.35,0.05) {when ready};
 \end{tikzpicture}}
 
 \newcommand{\diagSequential}{\begin{tikzpicture}[>=Stealth]
-  \foreach \k in {1,2,3} {\node[draw=DeepBlue, fill=LightGray, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
+  \foreach \k in {1,2,3} {\node[draw=nLine, fill=nFill, text=nInk, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
     (s\k) at ({0.75*\k-0.75},0.05) {\k};}
-  \draw[->, thick, DeepBlue] (s1) -- (s2); \draw[->, thick, DeepBlue] (s2) -- (s3);
+  \draw[->, thick, nInk] (s1) -- (s2); \draw[->, thick, nInk] (s2) -- (s3);
   \node[font=\tiny, anchor=west] at (1.95,0.05) {in order};
 \end{tikzpicture}}
 
 \newcommand{\diagMonolith}{\begin{tikzpicture}
-  \node[draw=DeepBlue, very thick, rounded corners=4pt, fill=LightGray, minimum width=2.6cm, minimum height=0.85cm,
+  \node[draw=nLine, very thick, rounded corners=4pt, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=0.85cm,
     font=\scriptsize, align=center] {one block:\\[-1pt]everything mixed together};
 \end{tikzpicture}}
 
 \newcommand{\diagUnits}{\begin{tikzpicture}
-  \node[draw=StorageBlue, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
-  \node[draw=mygreen, fill=mygreen!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
-  \node[draw=DeepBlue, fill=LightGray, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
   \node[font=\tiny] at (1.425,-0.2) {one job each};
 \end{tikzpicture}}
 
 % ---------- helpers for the CPU section ----------
 \tikzset{
-  reg/.style={draw=orange!80!black, very thick, fill=yellow!25, rounded corners=2pt,
+  reg/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=2pt,
     minimum width=1.95cm, minimum height=0.55cm, inner sep=2pt, font=\ttfamily\scriptsize, align=center},
   cpuunit/.style={very thick, rounded corners=3pt, minimum width=1.2cm, minimum height=0.6cm,
     inner sep=2pt, font=\scriptsize\bfseries, align=center},
-  hot/.style={fill=AccentOrange!45, draw=AccentOrange, very thick},
-  hotdata/.style={fill=StorageBlue!40, draw=StorageBlue, very thick},
-  hotalu/.style={fill=mygreen!18, line width=1.6pt},
+  hot/.style={aexec, label={[text=aExec, inner sep=1pt, font=\tiny]right:$\blacktriangleleft$}},
+  hotdata/.style={aread},
+  hotwrite/.style={awrite},
+  hotalu/.style={aexec},
   fetcharrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   dataarrow/.style={-{Stealth}, very thick, DeepBlue, rounded corners=3pt},
   steplabel/.style={font=\tiny\bfseries, fill=white, inner sep=1pt},
@@ -229,7 +261,7 @@
 % memory with the running example
 % #1 highlighted instruction (0-3, -1 = none)  #2 text of cell 8  #3 highlighted data cell (6-8, 0 = none)
 \newcommand{\mempanel}[3]{%
-  \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,1.8) {Memory};
+  \node[font=\scriptsize\bfseries, text=nInk] at (0,1.8) {Memory};
   \foreach \i/\t in {0/{0001 0110\ \ LOAD 6},1/{0011 0111\ \ ADD 7},2/{0010 1000\ \ STORE 8},3/{0111 0000\ \ HALT}} {
     \ifnum\i=#1
       \node[instrcell, minimum width=2.9cm, hot] (m\i) at (0,{1.35-0.45*\i}) {\t};
@@ -241,7 +273,7 @@
   \node[memcell, draw=none, minimum width=2.9cm] at (0,-0.45) {$\vdots$};
   \foreach \i/\t/\y in {6/{0000 0101\ \ (5)}/-0.9,7/{0000 0011\ \ (3)}/-1.35,8/{#2}/-1.8} {
     \ifnum\i=#3
-      \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};
+      \ifnum\i=8 \node[datacell, minimum width=2.9cm, hotwrite] (m\i) at (0,\y) {\t};\else \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};\fi
     \else
       \node[datacell, minimum width=2.9cm] (m\i) at (0,\y) {\t};
     \fi
@@ -251,9 +283,9 @@
 % the CPU, built up step by step
 % #1 level: 0 empty, 1 +PC, 2 +IR, 3 +AC, 4 +ALU, 5 +CU   #2 PC   #3 IR   #4 AC   #5 extra ALU style
 \newcommand{\cpupanel}[5]{%
-  \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=4.65cm,
+  \node[draw=nLine, very thick, rounded corners=6pt, fill=nFill!50, minimum width=4.65cm,
     minimum height=3.85cm, anchor=west] (cpu) at (2.45,-0.2) {};
-  \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
+  \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
   \ifnum#1>0 \node[reg] (pc) at (3.65,0.95) {\textbf{PC}\ \ #2}; \fi
   \ifnum#1>1 \node[reg] (ir) at (3.65,0.0) {\textbf{IR}\\[-1pt]#3}; \fi
   \ifnum#1>2 \node[reg] (ac) at (3.65,-1.05) {\textbf{AC}\ \ #4}; \fi
@@ -322,9 +354,9 @@
 \BeforeBeginEnvironment{lstlisting}{%
   \begin{beamercolorbox}[rounded=true,sep=2mm,wd=\linewidth]{vscodelisting}%
   \begin{tikzpicture}
-    \fill[MacRed] (0,0) circle (3pt);
-    \fill[MacYellow] (0.35,0) circle (3pt);
-    \fill[MacGreen] (0.70,0) circle (3pt);
+    \fill[nLine] (0,0) circle (3pt);
+    \fill[nLine] (0.35,0) circle (3pt);
+    \fill[nLine] (0.70,0) circle (3pt);
   \end{tikzpicture}%
   \vspace{-0.2cm}%
 }
@@ -338,18 +370,18 @@
 % \busdiagram[values]{source}{destination}{extra TikZ}
 %   source (Read, blue) and destination (Write, red): ir, out, in, ac, mbr, pc, mar, mem, none
 %   values: ir=, out=, in=, ac=, mbr=, pc=, mar=, mem= (contents of M[MAR]), step= (0-7, -1 = none)
-\definecolor{ReadBlue}{RGB}{30,150,230}
-\definecolor{WriteRed}{RGB}{220,50,80}
-\definecolor{BusGreen}{RGB}{60,170,110}
+\definecolor{ReadBlue}{HTML}{1E88E5}
+\definecolor{WriteRed}{HTML}{E53935}
+\definecolor{BusGreen}{HTML}{B0BEC5}% the bus: neutral
 \tikzset{
-  dpreg/.style={draw=DeepBlue!80, thick, fill=white, minimum width=1.1cm, minimum height=0.46cm,
+  dpreg/.style={draw=nLine, thick, fill=white, text=nInk, minimum width=1.1cm, minimum height=0.46cm,
     inner sep=1pt, font=\ttfamily\scriptsize},
-  dpname/.style={font=\tiny, text=DeepBlue!80, above=0pt, inner sep=1pt},
-  dpwire/.style={thin, DeepBlue!18},
-  dpmem/.style={draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=3pt,
+  dpname/.style={font=\tiny, text=nInk, above=0pt, inner sep=1pt},
+  dpwire/.style={thin, nLight},
+  dpmem/.style={draw=nLine, very thick, fill=nFill, rounded corners=3pt,
     minimum width=1.3cm, minimum height=0.95cm, font=\scriptsize\bfseries, align=center},
-  srcreg/.style={draw=ReadBlue, line width=1.6pt},
-  dstreg/.style={draw=WriteRed, line width=1.6pt},
+  srcreg/.style={aread},
+  dstreg/.style={awrite},
 }
 \pgfkeys{/dp/.is family, /dp,
   ir/.initial={0000}, out/.initial={0000}, in/.initial={0000}, ac/.initial={0000},
@@ -376,7 +408,7 @@
     \foreach \k in {0,...,7} {
       \pgfmathtruncatemacro{\cur}{\dpv{step}}
       \ifnum\k=\cur
-        \fill[ReadBlue] (-2.0,{1.1-0.15*\k}) circle (0.065);
+        \fill[AccentOrange] (-2.0,{1.1-0.15*\k}) circle (0.065);
       \else
         \fill[DeepBlue!30] (-2.0,{1.1-0.15*\k}) circle (0.035);
       \fi
@@ -430,7 +462,7 @@
         {\draw[line width=1.3pt, WriteRed, -{Stealth}] (-1.1,-0.6) -| ($(#3.south)+(0.3,0)$);}}
     % ----- the value travelling along the bus -----
     \ifstrequal{#2}{none}{}{\ifstrequal{#3}{none}{}{%
-      \draw[line width=3pt, BusGreen] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
+      \draw[line width=3pt, nInk] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);
       \draw[line width=1.5pt, white, dash pattern=on 1.5pt off 1.5pt] (#2-port) -- (#2-bus) -- (#3-bus) -- (#3-port);}}
     #4
   \end{tikzpicture}%
@@ -438,9 +470,9 @@
 
 % legend for the colours of the data path
 \newcommand{\dplegend}{%
-  {\tiny\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ \textbf{Read}: puts its value on the bus
-  \qquad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ \textbf{Write}: stores the value from the bus
-  \qquad\tikz[baseline=-0.6ex]{\draw[line width=3pt, BusGreen] (0,0) -- (0.5,0);\draw[line width=1.5pt, white, dash pattern=on 1.5pt off 1.5pt] (0,0) -- (0.5,0);}\ the value travelling on the bus}}
+  {\tiny\tikz[baseline=-0.6ex]\draw[aread] (0,-0.08) rectangle (0.4,0.12);\ \textbf{Read}: puts its value on the bus
+  \qquad\tikz[baseline=-0.6ex]\draw[awrite] (0,-0.08) rectangle (0.4,0.12);\ \textbf{Write}: stores the value from the bus
+  \qquad\tikz[baseline=-0.6ex]{\draw[line width=3pt, nInk] (0,0) -- (0.5,0);\draw[line width=1.5pt, white, dash pattern=on 1.5pt off 1.5pt] (0,0) -- (0.5,0);}\ the value travelling on the bus}}
 
 % one step of an instruction: data path on top, explanation below
 % #1 title, #2 source, #3 destination, #4 values (keys), #5 explanation
@@ -463,29 +495,29 @@
 \newcommand{\steptimeline}[3]{%
   \begin{tikzpicture}
     \foreach \i in {1,...,#1}
-      \node[draw=white, fill=StorageBlue!75, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sAmber, text=black, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(\i-1)},0) {T\the\numexpr\i-1\relax};
     \foreach \i in {1,...,#2}
-      \node[draw=white, fill=AccentOrange, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sTeal, text=white, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*(#1+\i-1)},0) {T\the\numexpr#1+\i-1\relax};
     \node[anchor=west, font=\scriptsize] at ({0.62*(#1+#2)-0.25},0) {#3};
   \end{tikzpicture}}
 
 % legend for the timeline colours
 \newcommand{\timelinelegend}{%
-  {\tiny\textcolor{StorageBlue!75}{\rule{0.25cm}{0.2cm}}\ fetch
-  \qquad\textcolor{AccentOrange}{\rule{0.25cm}{0.2cm}}\ execute}}
+  {\tiny\textcolor{sAmber}{\rule{0.25cm}{0.2cm}}\ fetch
+  \qquad\textcolor{sTeal}{\rule{0.25cm}{0.2cm}}\ execute}}
 
 % ---------- small pieces for the addressing-mode slides ----------
 \tikzset{
-  mcell/.style={draw=DeepBlue!60, minimum width=1.5cm, minimum height=0.42cm, inner sep=1pt,
-    font=\ttfamily\scriptsize, align=center, fill=StorageBlue!15},
-  mcellhot/.style={mcell, fill=StorageBlue!45, draw=StorageBlue, very thick},
-  mcellptr/.style={mcell, fill=ProgramPurple!18, draw=ProgramPurple, very thick},
-  instrbox/.style={draw=AccentOrange, very thick, fill=AccentOrange!15, rounded corners=2pt,
+  mcell/.style={draw=nLine, minimum width=1.5cm, minimum height=0.42cm, inner sep=1pt,
+    font=\ttfamily\scriptsize, align=center, fill=white, text=nInk},
+  mcellhot/.style={mcell, fill=sPink!25, draw=sPink, very thick},
+  mcellptr/.style={mcell, fill=sIndigo!20, draw=sIndigo, very thick},
+  instrbox/.style={draw=sViolet, very thick, fill=sViolet!15, rounded corners=2pt,
     minimum height=0.5cm, inner sep=3pt, font=\ttfamily\scriptsize},
-  ptrarrow/.style={-{Stealth}, very thick, DeepBlue},
-  valarrow/.style={-{Stealth}, very thick, DeepBlue},
+  ptrarrow/.style={-{Stealth}, very thick, nInk},
+  valarrow/.style={-{Stealth}, very thick, nInk},
 }
 
 % task header box (same look as on Day 1)
@@ -524,19 +556,19 @@
 \begin{frame}{Agenda For Today}
   \Large
   \begin{itemize}
-    \item[\textcolor{AccentOrange}{\faMapMarker}] \textbf{1. Addressing Modes} \\
+    \item[\textcolor{DeepBlue}{\faMapMarker}] \textbf{1. Addressing Modes} \\
     \textcolor{gray}{\small Direct and indirect addressing, arrays, and immediate values}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faArrowRight}] \textbf{2. How the CPU Talks to Memory} \\
+    \item[\textcolor{DeepBlue}{\faArrowRight}] \textbf{2. How the CPU Talks to Memory} \\
     \textcolor{gray}{\small MAR, MBR, the bus, micro-operations, instruction steps, and the von Neumann bottleneck}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faSitemap}] \textbf{3. The Control Unit} \\
+    \item[\textcolor{DeepBlue}{\faSitemap}] \textbf{3. The Control Unit} \\
     \textcolor{gray}{\small How control signals are generated: hardwired and microprogrammed control}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faBalanceScale}] \textbf{4. RISC and CISC} \\
+    \item[\textcolor{DeepBlue}{\faBalanceScale}] \textbf{4. RISC and CISC} \\
     \textcolor{gray}{\small Operand sources, instruction length, a comparison exercise, and RISC/CISC today}
   \end{itemize}
 \end{frame}
@@ -549,12 +581,12 @@
       \begin{tikzpicture}[>=Stealth,
           phase/.style={very thick, rounded corners=5pt, minimum width=2.6cm, minimum height=0.75cm,
             align=center, font=\small\bfseries, drop shadow}]
-        \node[phase, draw=AccentOrange, fill=AccentOrange!15] (f) at (0,1.3) {Fetch};
-        \node[phase, draw=ProgramPurple, fill=ProgramPurple!15] (d) at (1.6,0) {Decode};
-        \node[phase, draw=mygreen, fill=mygreen!15] (e) at (0,-1.3) {Execute};
-        \draw[->, very thick, DeepBlue] (f) to[bend left=20] (d);
-        \draw[->, very thick, DeepBlue] (d) to[bend left=20] (e);
-        \draw[->, very thick, DeepBlue] (e) to[bend left=40] node[left, font=\scriptsize] {next} (f);
+        \node[phase, draw=sAmber, fill=sAmber!25] (f) at (0,1.3) {Fetch};
+        \node[phase, draw=sBrown, fill=sBrown!20] (d) at (1.6,0) {Decode};
+        \node[phase, draw=sTeal, fill=sTeal!20] (e) at (0,-1.3) {Execute};
+        \draw[->, very thick, nInk] (f) to[bend left=20] (d);
+        \draw[->, very thick, nInk] (d) to[bend left=20] (e);
+        \draw[->, very thick, nInk] (e) to[bend left=40] node[left, font=\scriptsize] {next} (f);
       \end{tikzpicture}
     \column{0.52\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
@@ -586,19 +618,19 @@
   \vspace{0.3cm}
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
-      \node[draw=AccentOrange, fill=AccentOrange!20, very thick, minimum width=1.1cm, minimum height=0.55cm,
+      \node[draw=sViolet, fill=sViolet!18, very thick, minimum width=1.1cm, minimum height=0.55cm,
         font=\ttfamily\small] (op) at (0,0) {0001};
-      \node[draw=StorageBlue, fill=StorageBlue!20, very thick, minimum width=3.2cm, minimum height=0.55cm,
+      \node[draw=sIndigo, fill=sIndigo!18, very thick, minimum width=3.2cm, minimum height=0.55cm,
         font=\ttfamily\small, right=0pt of op] (ad) {0000 0000 0100};
-      \node[font=\tiny, text=AccentOrange, below=2pt of op] {opcode: Load};
-      \node[font=\tiny, text=StorageBlue, below=2pt of ad] {address: 4};
+      \node[font=\tiny, text=sViolet, below=2pt of op] {opcode: Load};
+      \node[font=\tiny, text=sIndigo, below=2pt of ad] {address: 4};
       \node[mcell] (c5) at (7,0.84) {\dots};
       \node[mcellhot] (c6) at (7,0.42) {0005};
       \node[mcell] (c7) at (7,0) {0003};
       \node[mcell] (c8) at (7,-0.42) {\dots};
       \node[addr, anchor=east] (l6) at (6.15,0.42) {4 (\texttt{X})};
       \node[addr, anchor=east] at (6.2,0) {5 (\texttt{Y})};
-      \node[font=\scriptsize\bfseries, text=StorageBlue] at (7,1.35) {Memory};
+      \node[font=\scriptsize\bfseries, text=nInk] at (7,1.35) {Memory};
       \node[reg, minimum width=1.4cm] (ac) at (10,0.42) {\textbf{AC}\ \ 5};
       \draw[ptrarrow] (ad.east) to[out=20, in=180] (l6.west);
       \draw[valarrow] (c6.east) -- (ac.west);
@@ -635,15 +667,15 @@ Store Sum
     \column{0.47\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,0.5) {Array values};
+        \node[font=\scriptsize\bfseries, text=nInk] at (0,0.5) {Array values};
         \foreach \i/\v in {0/4,1/7,2/1,3/9,4/3} {
           \node[mcell, minimum width=1.15cm] at (0,{-0.42*\i}) {\v};
           \node[addr, anchor=west, font=\ttfamily\tiny] at (0.7,{-0.42*\i}) {A\the\numexpr\i+1\relax};
         }
-        \draw[decorate, decoration={brace, amplitude=5pt}, very thick, StorageBlue]
+        \draw[decorate, decoration={brace, amplitude=5pt}, very thick, nLine]
           (1.15,0.21) -- (1.15,-1.89);
         \draw[valarrow] (1.45,-0.84) -- (2.65,-0.84);
-        \node[draw=mygreen, fill=mygreen!15, very thick, rounded corners=3pt,
+        \node[draw=nLine, fill=nFill, text=nInk, very thick, rounded corners=3pt,
           minimum width=2.2cm, minimum height=0.6cm, font=\small\bfseries, anchor=west] at (2.75,-0.84) {Sum = 24};
       \end{tikzpicture}
   \end{columns}
@@ -692,8 +724,8 @@ Loop, Load Sum
     \column{0.45\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,0.55) {Memory};
-        \node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (p) at (0,0) {25};
+        \node[font=\scriptsize\bfseries, text=nInk] at (0,0.55) {Memory};
+        \node[mcellptr] (p) at (0,0) {25};
         \node[mcell] at (0,-0.42) {\dots};
         \alt<2>{\node[mcellhot] (a) at (0,-0.84) {4};}{\node[mcell] (a) at (0,-0.84) {4};}
         \node[mcell] at (0,-1.26) {7};
@@ -729,21 +761,21 @@ Loop, Load Sum
     \column{0.55\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,0.55) {Memory};
-        \node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (p) at (0,0) {25};
+        \node[font=\scriptsize\bfseries, text=nInk] at (0,0.55) {Memory};
+        \node[mcellptr] (p) at (0,0) {25};
         \node[mcell] at (0,-0.42) {\dots};
         \alt<2>{\node[mcellhot] (a) at (0,-0.84) {4};}{\node[mcell] (a) at (0,-0.84) {4};}
         \node[mcell] at (0,-1.26) {7};
         \node[addr, anchor=east] at (-0.85,0) {18};
         \node[addr, anchor=east] at (-0.85,-0.84) {25};
         \node[addr, anchor=east] at (-0.85,-1.26) {26};
-        \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=2.4cm,
+        \node[draw=nInk, very thick, rounded corners=6pt, fill=nFill, minimum width=2.4cm,
           minimum height=1.6cm] (cpu) at (4,-0.4) {};
-        \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at (cpu.north west) {CPU};
+        \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at (cpu.north west) {CPU};
         \node[reg, minimum width=1.6cm] (ac) at (4,-0.6) {\textbf{AC}\ \ \only<1>{?}\only<2>{4}};
-        \draw<1>[ptrarrow] (p.east) -- node[midway, above=1pt, font=\bfseries\small, text=DeepBlue] {1} (cpu.west |- p.east);
+        \draw<1>[ptrarrow] (p.east) -- node[midway, above=1pt, font=\bfseries\small, text=nInk] {1} (cpu.west |- p.east);
         \draw<2>[ptrarrow, opacity=0.3] (p.east) -- (cpu.west |- p.east);
-        \draw<2>[valarrow] (a.east) -- node[midway, below=1pt, font=\bfseries\small, text=DeepBlue] {2} (cpu.west |- a.east);
+        \draw<2>[valarrow] (a.east) -- node[midway, below=1pt, font=\bfseries\small, text=nInk] {2} (cpu.west |- a.east);
       \end{tikzpicture}
     \column{0.42\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body example}
@@ -819,11 +851,11 @@ Arr,   DEC 4
     \column{0.4\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,0.55) {Memory};
-        \only<1>{\node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (ad) at (0,0) {10};}
-        \only<2>{\node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (ad) at (0,0) {11};}
-        \only<3>{\node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (ad) at (0,0) {12};}
-        \only<4>{\node[mcell, fill=AccentOrange!25, draw=AccentOrange, very thick] (ad) at (0,0) {13};}
+        \node[font=\scriptsize\bfseries, text=nInk] at (0,0.55) {Memory};
+        \only<1>{\node[mcellptr] (ad) at (0,0) {10};}
+        \only<2>{\node[mcellptr] (ad) at (0,0) {11};}
+        \only<3>{\node[mcellptr] (ad) at (0,0) {12};}
+        \only<4>{\node[mcellptr] (ad) at (0,0) {13};}
         \node[addr, anchor=east] at (-0.85,0) {9 (\textbf{Addr})};
         \alt<1>{\node[mcellhot] (e0) at (0,-0.60) {4};}{\node[mcell] (e0) at (0,-0.60) {4};}
         \node[addr, anchor=east] at (-0.85,-0.60) {10 (\textbf{Arr})};
@@ -1016,18 +1048,18 @@ Arr,   DEC 4
     \column{0.55\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=3.6cm,
+        \node[draw=nInk, very thick, rounded corners=6pt, fill=nFill, minimum width=3.6cm,
           minimum height=3.3cm] (cpu) at (0,0) {};
-        \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at (cpu.north west) {CPU};
+        \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at (cpu.north west) {CPU};
         \node[reg, minimum width=1.4cm] at (-0.8,0.9) {\textbf{PC}};
         \node[reg, minimum width=1.4cm] at (-0.8,0.0) {\textbf{IR}};
         \node[reg, minimum width=1.4cm] at (-0.8,-0.9) {\textbf{AC}};
-        \node[reg, minimum width=1.2cm, fill=ProgramPurple!18, draw=ProgramPurple] (mar) at (1.0,0.6) {\textbf{MAR}};
-        \node[reg, minimum width=1.2cm, fill=StorageBlue!18, draw=StorageBlue] (mbr) at (1.0,-0.6) {\textbf{MBR}};
+        \node[reg, minimum width=1.2cm, fill=sIndigo!18, draw=sIndigo] (mar) at (1.0,0.6) {\textbf{MAR}};
+        \node[reg, minimum width=1.2cm, fill=sPink!18, draw=sPink] (mbr) at (1.0,-0.6) {\textbf{MBR}};
         \node[dpmem, minimum width=1.8cm, minimum height=3.3cm] (mem) at (4.3,0) {Memory};
-        \draw[-{Stealth}, very thick, DeepBlue] (mar.east) -- node[above, font=\tiny\bfseries] {address}
+        \draw[-{Stealth}, very thick, nInk] (mar.east) -- node[above, font=\tiny\bfseries] {address}
           (mem.west |- mar.east);
-        \draw[{Stealth}-{Stealth}, very thick, DeepBlue] (mbr.east) -- node[below, font=\tiny\bfseries] {data}
+        \draw[{Stealth}-{Stealth}, very thick, nInk] (mbr.east) -- node[below, font=\tiny\bfseries] {data}
           (mem.west |- mbr.east);
       \end{tikzpicture}
     \column{0.42\textwidth}
@@ -1158,18 +1190,18 @@ Z, DEC 0
   \begin{center}
     \begin{tikzpicture}[scale=1.25, every node/.style={transform shape}]
       \foreach \i in {0,...,3}
-        \node[draw=white, fill=StorageBlue!75, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+        \node[draw=white, fill=sAmber, text=black, font=\tiny\bfseries, minimum width=0.62cm,
           minimum height=0.45cm, inner sep=0pt] at ({0.62*\i},0) {T\i};
-      \node[draw=white, fill=ProgramPurple!70, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+      \node[draw=white, fill=sBrown, text=white, font=\tiny\bfseries, minimum width=0.62cm,
         minimum height=0.45cm, inner sep=0pt] at ({0.62*4},0) {dec.};
       \foreach \i in {4,...,6}
-        \node[draw=white, fill=AccentOrange, text=white, font=\tiny\bfseries, minimum width=0.62cm,
+        \node[draw=white, fill=sTeal, text=white, font=\tiny\bfseries, minimum width=0.62cm,
           minimum height=0.45cm, inner sep=0pt] at ({0.62*(\i+1)},0) {T\i};
       \node[anchor=west, font=\scriptsize] at ({0.62*8-0.25},0) {\texttt{Load} = 4 + 3 = \textbf{7 steps}};
     \end{tikzpicture}\\[0.05cm]
-    {\tiny\textcolor{StorageBlue!75}{\rule{0.25cm}{0.2cm}}\ fetch
-    \qquad\textcolor{ProgramPurple!70}{\rule{0.25cm}{0.2cm}}\ decode
-    \qquad\textcolor{AccentOrange}{\rule{0.25cm}{0.2cm}}\ execute}
+    {\tiny\textcolor{sAmber}{\rule{0.25cm}{0.2cm}}\ fetch
+    \qquad\textcolor{sBrown}{\rule{0.25cm}{0.2cm}}\ decode
+    \qquad\textcolor{sTeal}{\rule{0.25cm}{0.2cm}}\ execute}
   \end{center}
   \vspace{-0.15cm}
   \begin{center}
@@ -1268,35 +1300,35 @@ Z, DEC 0
 
 % ---------- NEW: the von Neumann bottleneck and the Harvard architecture ----------
 \newcommand{\diagVN}{\begin{tikzpicture}[>=Stealth]
-  \node[draw=DeepBlue, very thick, fill=DeepBlue, text=white, rounded corners=2pt, font=\tiny\bfseries,
+  \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=2pt, font=\tiny\bfseries,
     minimum width=0.8cm, minimum height=0.5cm] (c) at (0,0) {CPU};
-  \node[draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, align=center,
+  \node[draw=nLine, very thick, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, align=center,
     minimum width=1.5cm, minimum height=0.75cm] (m) at (2.3,0) {instructions\\+ data};
-  \draw[<->, line width=2pt, BusGreen] (c) -- (m);
+  \draw[<->, line width=2pt, nLine] (c) -- (m);
 \end{tikzpicture}}
 \newcommand{\diagHarv}{\begin{tikzpicture}[>=Stealth]
-  \node[draw=DeepBlue, very thick, fill=DeepBlue, text=white, rounded corners=2pt, font=\tiny\bfseries,
+  \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=2pt, font=\tiny\bfseries,
     minimum width=0.8cm, minimum height=0.75cm] (c) at (0,0) {CPU};
-  \node[draw=AccentOrange, very thick, fill=AccentOrange!15, rounded corners=2pt, font=\tiny\bfseries,
+  \node[draw=sViolet, very thick, fill=sViolet!15, rounded corners=2pt, font=\tiny\bfseries,
     minimum width=1.5cm, minimum height=0.33cm] (i) at (2.3,0.22) {instructions};
-  \node[draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries,
+  \node[draw=sPink, very thick, fill=sPink!15, rounded corners=2pt, font=\tiny\bfseries,
     minimum width=1.5cm, minimum height=0.33cm] (d) at (2.3,-0.22) {data};
-  \draw[<->, line width=2pt, BusGreen] (c.east |- i) -- (i);
-  \draw[<->, line width=2pt, BusGreen] (c.east |- d) -- (d);
+  \draw[<->, line width=2pt, nLine] (c.east |- i) -- (i);
+  \draw[<->, line width=2pt, nLine] (c.east |- d) -- (d);
 \end{tikzpicture}}
 \newcommand{\diagModHarv}{\begin{tikzpicture}[>=Stealth]
-  \node[draw=DeepBlue, very thick, fill=DeepBlue, text=white, rounded corners=2pt, font=\tiny\bfseries,
+  \node[draw=nInk, very thick, fill=nInk, text=white, rounded corners=2pt, font=\tiny\bfseries,
     minimum width=0.8cm, minimum height=0.75cm] (c) at (0,0) {CPU};
-  \node[draw=AccentOrange, thick, fill=AccentOrange!15, font=\tiny\bfseries, minimum width=0.7cm,
+  \node[draw=sViolet, thick, fill=sViolet!15, font=\tiny\bfseries, minimum width=0.7cm,
     minimum height=0.33cm, inner sep=1pt] (i) at (1.15,0.22) {L1-I};
-  \node[draw=StorageBlue, thick, fill=StorageBlue!12, font=\tiny\bfseries, minimum width=0.7cm,
+  \node[draw=sPink, thick, fill=sPink!15, font=\tiny\bfseries, minimum width=0.7cm,
     minimum height=0.33cm, inner sep=1pt] (d) at (1.15,-0.22) {L1-D};
-  \node[draw=StorageBlue, very thick, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, align=center,
+  \node[draw=nLine, very thick, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, align=center,
     minimum width=1.0cm, minimum height=0.75cm] (m) at (2.6,0) {one\\memory};
-  \draw[line width=1.5pt, BusGreen] (c.east |- i) -- (i);
-  \draw[line width=1.5pt, BusGreen] (c.east |- d) -- (d);
-  \draw[line width=1.5pt, BusGreen] (i.east) -- (m.west |- i);
-  \draw[line width=1.5pt, BusGreen] (d.east) -- (m.west |- d);
+  \draw[line width=1.5pt, nLine] (c.east |- i) -- (i);
+  \draw[line width=1.5pt, nLine] (c.east |- d) -- (d);
+  \draw[line width=1.5pt, nLine] (i.east) -- (m.west |- i);
+  \draw[line width=1.5pt, nLine] (d.east) -- (m.west |- d);
 \end{tikzpicture}}
 
 \begin{frame}{One bus for everything: the von Neumann bottleneck}
@@ -1343,8 +1375,8 @@ Z, DEC 0
     \column{0.5\textwidth}
       \centering
       \begin{tikzpicture}
-        \node[cpuunit, draw=AccentOrange, fill=AccentOrange!18, minimum width=2.2cm, minimum height=1.2cm,
-          font=\large\bfseries] (cu) {\textcolor{AccentOrange}{CU}};
+        \node[cpuunit, draw=nLine, fill=nFill, minimum width=2.2cm, minimum height=1.2cm,
+          font=\large\bfseries, text=nInk] (cu) {CU};
         \node[font=\Huge\bfseries, text=AccentOrange, right=0.4cm of cu] {?};
       \end{tikzpicture}
   \end{columns}
@@ -1360,7 +1392,7 @@ Z, DEC 0
     \resizebox{\textwidth}{!}{%
     \begin{tikzpicture}[>=Stealth]
     \fill[white] (3.6,3.25) rectangle (7.0,1.47);
-    \fill[DeepBlue!10] (3.6,3.25) rectangle (7.0,2.91);
+    \fill[nLight] (3.6,3.25) rectangle (7.0,2.91);
     \node[font=\tiny\bfseries, text=black] at (5.300,3.080) {Fetch (every instruction)};
     \node[font=\tiny, text=black!45, anchor=west] at (3.680,2.790) {Step};
     \node[font=\tiny, text=ReadBlue, anchor=west] at (4.100,2.790) {Read};
@@ -1377,28 +1409,28 @@ Z, DEC 0
     \node[font=\tiny\bfseries, text=black, anchor=west] at (3.680,1.620) {T3};
     \node[font=\ttfamily\tiny, text=black, anchor=west] at (4.100,1.620) {--};
     \node[font=\ttfamily\tiny, text=black, anchor=west] at (5.550,1.620) {PC +1};
-    \draw[DeepBlue!70, line width=1.3pt, rounded corners=2pt] (3.6,3.25) rectangle (7.0,1.47);
+    \draw[nLine, line width=1.3pt, rounded corners=2pt] (3.6,3.25) rectangle (7.0,1.47);
     \node[font=\tiny, text width=2.6cm, align=left, anchor=north west, text=black!70] at (7.15,3.25) {The same for every instruction: before the decode, the CU does not know the opcode yet.};
-    \node[draw=DeepBlue!40, fill=LightGray, rounded corners=2pt, anchor=north east, inner sep=3pt, font=\tiny] at (14.05,3.25) {%
+    \node[draw=nLight, fill=LightGray, rounded corners=2pt, anchor=north east, inner sep=3pt, font=\tiny] at (14.05,3.25) {%
   \begin{tabular}{@{}cl@{}}\multicolumn{2}{@{}l}{\textbf{Reminder: opcodes}}\\[1pt]
   \texttt{1} & \texttt{Load X}\\ \texttt{2} & \texttt{Store X}\\ \texttt{3} & \texttt{Add X}\\ \texttt{9} & \texttt{Jump X}\end{tabular}};
-    \only<1>{\node[draw=DeepBlue!80, thick, fill=AccentOrange!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {1};
-    \node[draw=DeepBlue!80, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {004};}
-    \only<2>{\node[draw=DeepBlue!80, thick, fill=AccentOrange!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {2};
-    \node[draw=DeepBlue!80, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {006};}
-    \only<3>{\node[draw=DeepBlue!80, thick, fill=AccentOrange!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {9};
-    \node[draw=DeepBlue!80, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {005};}
-    \node[font=\tiny, text=DeepBlue!80] at (1.15,2.78) {IR};
-    \node[font=\tiny, text=AccentOrange] at (0.55,2.02) {opcode};
-    \node[draw=DeepBlue!80, thick, fill=LightGray, minimum width=2.2cm, minimum height=1.1cm] (cu) at (1.2,0.2) {};
-    \node[font=\scriptsize\bfseries, text=DeepBlue] at (1.2,0.45) {Control unit};
+    \only<1>{\node[draw=nLine, thick, fill=sViolet!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {1};
+    \node[draw=nLine, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {004};}
+    \only<2>{\node[draw=nLine, thick, fill=sViolet!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {2};
+    \node[draw=nLine, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {006};}
+    \only<3>{\node[draw=nLine, thick, fill=sViolet!20, minimum width=0.6cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (op) at (0.55,2.4) {9};
+    \node[draw=nLine, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize, right=0pt of op] (ad) {005};}
+    \node[font=\tiny, text=nLine] at (1.15,2.78) {IR};
+    \node[font=\tiny, text=sViolet] at (0.55,2.02) {opcode};
+    \node[draw=nLine, thick, fill=LightGray, minimum width=2.2cm, minimum height=1.1cm] (cu) at (1.2,0.2) {};
+    \node[font=\scriptsize\bfseries, text=nInk] at (1.2,0.45) {Control unit};
     \only<1>{\node[font=\scriptsize] at (1.2,0.05) {Step: \textbf{T5}};}
     \only<2>{\node[font=\scriptsize] at (1.2,0.05) {Step: \textbf{T5}};}
     \only<3>{\node[font=\scriptsize] at (1.2,0.05) {Step: \textbf{T4}};}
-    \draw[thick, BusGreen, -{Stealth[length=2mm, width=1.8mm]}] (0.55,1.88) -- (0.55,0.77);
-    \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,0.55) -- (2.8,0.55) -- (2.8,2.2) -- (3.58,2.2);
-    \node[circle, fill=DeepBlue, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.8,1.35) {1};
-    \node[font=\tiny, text=DeepBlue, anchor=south] at (3.2,2.22) {first};
+    \draw[thick, nInk, -{Stealth[length=2mm, width=1.8mm]}] (0.55,1.88) -- (0.55,0.77);
+    \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,0.55) -- (2.8,0.55) -- (2.8,2.2) -- (3.58,2.2);
+    \node[circle, fill=AccentOrange, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.8,1.35) {1};
+    \node[font=\tiny, text=nInk, anchor=south] at (3.2,2.22) {first};
     \only<1>{\fill[white] (3.6,1.0) rectangle (6.1,-0.48);
   \fill[AccentOrange!20] (3.6,1.0) rectangle (6.1,0.66);
   \node[font=\tiny\bfseries, text=black] at (4.850,0.830) {\texttt{Load} (opcode 1)};
@@ -1431,7 +1463,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (6.330,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (6.750,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (7.750,-0.330) {memory};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (6.25,1.0) rectangle (8.75,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (6.25,1.0) rectangle (8.75,-0.48);
   \fill[white] (8.9,1.0) rectangle (11.4,-0.48);
   \fill[LightGray] (8.9,1.0) rectangle (11.4,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (10.150,0.830) {\texttt{Add} (opcode 3)};
@@ -1447,7 +1479,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (8.980,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (9.400,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (10.400,-0.330) {AC \scalebox{0.8}{(add)}};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
   \fill[white] (11.55,1.0) rectangle (14.05,0.12);
   \fill[LightGray] (11.55,1.0) rectangle (14.05,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (12.800,0.830) {\texttt{Jump} (opcode 9)};
@@ -1457,10 +1489,10 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (11.630,0.270) {T4};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (12.050,0.270) {IR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (13.050,0.270) {PC};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (11.55,1.0) rectangle (14.05,0.12);
-  \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,-0.030) -- (3.580,-0.030);
-  \node[circle, fill=DeepBlue, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
-  \node[font=\tiny, text=DeepBlue, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
+  \draw[nLight, thick, rounded corners=2pt] (11.55,1.0) rectangle (14.05,0.12);
+  \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,-0.030) -- (3.580,-0.030);
+  \node[circle, fill=AccentOrange, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
+  \node[font=\tiny, text=nInk, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
     \only<2>{\fill[white] (3.6,1.0) rectangle (6.1,-0.48);
   \fill[LightGray] (3.6,1.0) rectangle (6.1,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (4.850,0.830) {\texttt{Load} (opcode 1)};
@@ -1476,7 +1508,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (3.680,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (4.100,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (5.100,-0.330) {AC};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (3.6,1.0) rectangle (6.1,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (3.6,1.0) rectangle (6.1,-0.48);
   \fill[white] (6.25,1.0) rectangle (8.75,-0.48);
   \fill[AccentOrange!20] (6.25,1.0) rectangle (8.75,0.66);
   \node[font=\tiny\bfseries, text=black] at (7.500,0.830) {\texttt{Store} (opcode 2)};
@@ -1509,7 +1541,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (8.980,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (9.400,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (10.400,-0.330) {AC \scalebox{0.8}{(add)}};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
   \fill[white] (11.55,1.0) rectangle (14.05,0.12);
   \fill[LightGray] (11.55,1.0) rectangle (14.05,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (12.800,0.830) {\texttt{Jump} (opcode 9)};
@@ -1519,10 +1551,10 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (11.630,0.270) {T4};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (12.050,0.270) {IR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (13.050,0.270) {PC};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (11.55,1.0) rectangle (14.05,0.12);
-  \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,-0.030) -- (6.230,-0.030);
-  \node[circle, fill=DeepBlue, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
-  \node[font=\tiny, text=DeepBlue, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
+  \draw[nLight, thick, rounded corners=2pt] (11.55,1.0) rectangle (14.05,0.12);
+  \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,-0.030) -- (6.230,-0.030);
+  \node[circle, fill=AccentOrange, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
+  \node[font=\tiny, text=nInk, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
     \only<3>{\fill[white] (3.6,1.0) rectangle (6.1,-0.48);
   \fill[LightGray] (3.6,1.0) rectangle (6.1,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (4.850,0.830) {\texttt{Load} (opcode 1)};
@@ -1538,7 +1570,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (3.680,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (4.100,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (5.100,-0.330) {AC};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (3.6,1.0) rectangle (6.1,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (3.6,1.0) rectangle (6.1,-0.48);
   \fill[white] (6.25,1.0) rectangle (8.75,-0.48);
   \fill[LightGray] (6.25,1.0) rectangle (8.75,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (7.500,0.830) {\texttt{Store} (opcode 2)};
@@ -1554,7 +1586,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (6.330,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (6.750,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (7.750,-0.330) {memory};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (6.25,1.0) rectangle (8.75,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (6.25,1.0) rectangle (8.75,-0.48);
   \fill[white] (8.9,1.0) rectangle (11.4,-0.48);
   \fill[LightGray] (8.9,1.0) rectangle (11.4,0.66);
   \node[font=\tiny\bfseries, text=black!35] at (10.150,0.830) {\texttt{Add} (opcode 3)};
@@ -1570,7 +1602,7 @@ Z, DEC 0
   \node[font=\tiny\bfseries, text=black!35, anchor=west] at (8.980,-0.330) {T6};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (9.400,-0.330) {MBR};
   \node[font=\ttfamily\tiny, text=black!35, anchor=west] at (10.400,-0.330) {AC \scalebox{0.8}{(add)}};
-  \draw[DeepBlue!25, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
+  \draw[nLight, thick, rounded corners=2pt] (8.9,1.0) rectangle (11.4,-0.48);
   \fill[white] (11.55,1.0) rectangle (14.05,0.12);
   \fill[AccentOrange!20] (11.55,1.0) rectangle (14.05,0.66);
   \node[font=\tiny\bfseries, text=black] at (12.800,0.830) {\texttt{Jump} (opcode 9)};
@@ -1582,9 +1614,9 @@ Z, DEC 0
   \node[font=\ttfamily\tiny, text=black, anchor=west] at (12.050,0.270) {IR};
   \node[font=\ttfamily\tiny, text=black, anchor=west] at (13.050,0.270) {PC};
   \draw[AccentOrange, line width=1.3pt, rounded corners=2pt] (11.55,1.0) rectangle (14.05,0.12);
-  \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,0.270) -- (11.530,0.270);
-  \node[circle, fill=DeepBlue, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
-  \node[font=\tiny, text=DeepBlue, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
+  \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (2.3,0.270) -- (11.530,0.270);
+  \node[circle, fill=AccentOrange, text=white, font=\tiny\bfseries, inner sep=1pt] at (2.95,-0.030) {2};
+  \node[font=\tiny, text=nInk, anchor=north west] at (2.7,-0.88) {then: the opcode picks the card, the step picks the row};}
     \end{tikzpicture}}
   \end{center}
   \vfill
@@ -1594,13 +1626,13 @@ Z, DEC 0
   \vfill
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
-      \node[draw=DeepBlue!80, very thick, fill=LightGray, minimum width=3.6cm, minimum height=2.4cm] (cu) at (0,0) {};
-      \node[font=\small\bfseries, text=DeepBlue] at (0,0.75) {Control unit};
+      \node[draw=nLine, very thick, fill=LightGray, minimum width=3.6cm, minimum height=2.4cm] (cu) at (0,0) {};
+      \node[font=\small\bfseries, text=nInk] at (0,0.75) {Control unit};
       \node[font=\Huge\bfseries, text=AccentOrange] at (0,-0.2) {?};
       \foreach \y/\t in {0.7/opcode, 0/step, -0.7/{AC conditions}}
-        \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (-4.2,\y) node[left, font=\small] {\t} -- (-1.82,\y);
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (1.82,0) -- (3.2,0);
-      \node[anchor=west, draw=DeepBlue!70, thick, fill=white, rounded corners=2pt, inner sep=3pt, font=\scriptsize] at (3.3,0) {%
+        \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (-4.2,\y) node[left, font=\small] {\t} -- (-1.82,\y);
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (1.82,0) -- (3.2,0);
+      \node[anchor=west, draw=nLine, thick, fill=white, rounded corners=2pt, inner sep=3pt, font=\scriptsize] at (3.3,0) {%
         \begin{tabular}{@{}lll@{}}
           \textcolor{ReadBlue}{\textbf{Read}} & \textcolor{WriteRed}{\textbf{Write}} & \textbf{other} \\ \hline
           \texttt{?} & \texttt{?} & \texttt{?}
@@ -1618,32 +1650,32 @@ Z, DEC 0
       \centering
       \resizebox{!}{5.5cm}{%
       \begin{tikzpicture}[>=Stealth]
-      \node[draw=DeepBlue!80, thick, fill=LightGray, minimum height=0.42cm, minimum width=2.06cm, font=\tiny\bfseries] (idec) at (1.38,5.05) {instruction decoder};
-      \node[draw=DeepBlue!80, thick, fill=LightGray, minimum height=0.42cm, minimum width=3.62cm, font=\tiny\bfseries] (sdec) at (4.24,5.05) {step decoder};
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (1.38,5.75) node[above, font=\tiny] {opcode} -- (idec.north);
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (4.24,5.75) node[above, font=\tiny] {step} -- (sdec.north);
-      \draw[DeepBlue!60] (0.60,4.84) -- (0.60,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (0.60,4.8) {Load};
-      \draw[DeepBlue!60] (1.12,4.84) -- (1.12,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (1.12,4.8) {Store};
-      \draw[DeepBlue!60] (1.64,4.84) -- (1.64,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (1.64,4.8) {Add};
-      \draw[DeepBlue!60] (2.16,4.84) -- (2.16,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (2.16,4.8) {Jump};
-      \draw[DeepBlue!60] (2.68,4.84) -- (2.68,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (2.68,4.8) {T0};
-      \draw[DeepBlue!60] (3.20,4.84) -- (3.20,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (3.20,4.8) {T1};
-      \draw[DeepBlue!60] (3.72,4.84) -- (3.72,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (3.72,4.8) {T2};
-      \draw[DeepBlue!60] (4.24,4.84) -- (4.24,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (4.24,4.8) {T3};
-      \draw[DeepBlue!60] (4.76,4.84) -- (4.76,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (4.76,4.8) {T4};
-      \draw[DeepBlue!60] (5.28,4.84) -- (5.28,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (5.28,4.8) {T5};
-      \draw[DeepBlue!60] (5.80,4.84) -- (5.80,-1.08);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east, fill=white, inner sep=1pt] at (5.80,4.8) {T6};
+      \node[draw=nLine, thick, fill=LightGray, minimum height=0.42cm, minimum width=2.06cm, font=\tiny\bfseries] (idec) at (1.38,5.05) {instruction decoder};
+      \node[draw=nLine, thick, fill=LightGray, minimum height=0.42cm, minimum width=3.62cm, font=\tiny\bfseries] (sdec) at (4.24,5.05) {step decoder};
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (1.38,5.75) node[above, font=\tiny] {opcode} -- (idec.north);
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (4.24,5.75) node[above, font=\tiny] {step} -- (sdec.north);
+      \draw[nLine] (0.60,4.84) -- (0.60,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (0.60,4.8) {Load};
+      \draw[nLine] (1.12,4.84) -- (1.12,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (1.12,4.8) {Store};
+      \draw[nLine] (1.64,4.84) -- (1.64,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (1.64,4.8) {Add};
+      \draw[nLine] (2.16,4.84) -- (2.16,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (2.16,4.8) {Jump};
+      \draw[nLine] (2.68,4.84) -- (2.68,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (2.68,4.8) {T0};
+      \draw[nLine] (3.20,4.84) -- (3.20,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (3.20,4.8) {T1};
+      \draw[nLine] (3.72,4.84) -- (3.72,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (3.72,4.8) {T2};
+      \draw[nLine] (4.24,4.84) -- (4.24,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (4.24,4.8) {T3};
+      \draw[nLine] (4.76,4.84) -- (4.76,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (4.76,4.8) {T4};
+      \draw[nLine] (5.28,4.84) -- (5.28,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (5.28,4.8) {T5};
+      \draw[nLine] (5.80,4.84) -- (5.80,-1.08);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east, fill=white, inner sep=1pt] at (5.80,4.8) {T6};
       \draw[ReadBlue!70] (7.300,3.42) -- (7.30,-1.83) coordinate (o0);
       \node[font=\scriptsize, text=ReadBlue, rotate=90, anchor=east] at (7.30,-1.90) {Read PC};
       \node[or gate US, draw=ReadBlue, fill=white, logic gate inputs=nnn, rotate=-90, scale=0.55] (or1) at (7.92,-1.48) {};
@@ -1691,33 +1723,33 @@ Z, DEC 0
       \node[font=\scriptsize, text=WriteRed, rotate=90, anchor=east] at (12.88,-1.90) {Write PC};
       \draw[WriteRed!70] (13.500,0.18) -- (13.50,-1.83) coordinate (o10);
       \node[font=\scriptsize, text=WriteRed, rotate=90, anchor=east] at (13.50,-1.90) {Write mem};
-      \draw[DeepBlue!70] (14.120,2.34) -- (14.12,-1.83) coordinate (o11);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east] at (14.12,-1.90) {PC+1};
-      \draw[DeepBlue!70] (14.740,-0.54) -- (14.74,-1.83) coordinate (o12);
-      \node[font=\scriptsize, text=DeepBlue, rotate=90, anchor=east] at (14.74,-1.90) {ALU add};
-      \fill[DeepBlue] (2.68,3.42) circle (0.07);
-      \draw[DeepBlue!55, thin] (2.68,3.42) -- (10.315,3.42);
-      \fill[DeepBlue] (7.300,3.42) circle (0.06);
-      \fill[DeepBlue] (10.315,3.42) circle (0.06);
-      \fill[DeepBlue] (3.20,3.06) circle (0.07);
-      \draw[DeepBlue!55, thin] (3.20,3.06) -- (10.893,3.06);
-      \fill[DeepBlue] (9.695,3.06) circle (0.06);
-      \fill[DeepBlue] (10.893,3.06) circle (0.06);
-      \fill[DeepBlue] (3.72,2.70) circle (0.07);
-      \draw[DeepBlue!55, thin] (3.72,2.70) -- (11.640,2.70);
-      \fill[DeepBlue] (8.412,2.70) circle (0.06);
-      \fill[DeepBlue] (11.640,2.70) circle (0.06);
-      \fill[DeepBlue] (4.24,2.34) circle (0.07);
-      \draw[DeepBlue!55, thin] (4.24,2.34) -- (14.120,2.34);
-      \fill[DeepBlue] (14.120,2.34) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g4) at (6.40,1.98) {};
-      \draw[DeepBlue!55, thin] (0.60,2.050) -- (g4.input 1 -| 0.60,0) (g4.input 1 -| 0.60,0) -- (g4.input 1);
-      \draw[DeepBlue!55, thin] (4.76,1.910) -- (g4.input 2 -| 4.76,0) (g4.input 2 -| 4.76,0) -- (g4.input 2);
-      \fill[DeepBlue] (g4.input 1 -| 0.60,0) circle (0.07);
-      \fill[DeepBlue] (g4.input 2 -| 4.76,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g4.output) -- (10.400,1.98);
-      \fill[DeepBlue] (7.835,1.98) circle (0.06);
-      \fill[DeepBlue] (10.400,1.98) circle (0.06);
+      \draw[nLine] (14.120,2.34) -- (14.12,-1.83) coordinate (o11);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east] at (14.12,-1.90) {PC+1};
+      \draw[nLine] (14.740,-0.54) -- (14.74,-1.83) coordinate (o12);
+      \node[font=\scriptsize, text=nInk, rotate=90, anchor=east] at (14.74,-1.90) {ALU add};
+      \fill[nInk] (2.68,3.42) circle (0.07);
+      \draw[nLine, thin] (2.68,3.42) -- (10.315,3.42);
+      \fill[nInk] (7.300,3.42) circle (0.06);
+      \fill[nInk] (10.315,3.42) circle (0.06);
+      \fill[nInk] (3.20,3.06) circle (0.07);
+      \draw[nLine, thin] (3.20,3.06) -- (10.893,3.06);
+      \fill[nInk] (9.695,3.06) circle (0.06);
+      \fill[nInk] (10.893,3.06) circle (0.06);
+      \fill[nInk] (3.72,2.70) circle (0.07);
+      \draw[nLine, thin] (3.72,2.70) -- (11.640,2.70);
+      \fill[nInk] (8.412,2.70) circle (0.06);
+      \fill[nInk] (11.640,2.70) circle (0.06);
+      \fill[nInk] (4.24,2.34) circle (0.07);
+      \draw[nLine, thin] (4.24,2.34) -- (14.120,2.34);
+      \fill[nInk] (14.120,2.34) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g4) at (6.40,1.98) {};
+      \draw[nLine, thin] (0.60,2.050) -- (g4.input 1 -| 0.60,0) (g4.input 1 -| 0.60,0) -- (g4.input 1);
+      \draw[nLine, thin] (4.76,1.910) -- (g4.input 2 -| 4.76,0) (g4.input 2 -| 4.76,0) -- (g4.input 2);
+      \fill[nInk] (g4.input 1 -| 0.60,0) circle (0.07);
+      \fill[nInk] (g4.input 2 -| 4.76,0) circle (0.07);
+      \draw[nLine, thin] (g4.output) -- (10.400,1.98);
+      \fill[nInk] (7.835,1.98) circle (0.06);
+      \fill[nInk] (10.400,1.98) circle (0.06);
       \node[and gate US, draw=AccentOrange, fill=AccentOrange!25, logic gate inputs=nn, scale=0.55] (g5) at (6.40,1.62) {};
       \draw[AccentOrange, line width=1.2pt] (0.60,1.690) -- (g5.input 1 -| 0.60,0) (g5.input 1 -| 0.60,0) -- (g5.input 1);
       \draw[AccentOrange, line width=1.2pt] (5.28,1.550) -- (g5.input 2 -| 5.28,0) (g5.input 2 -| 5.28,0) -- (g5.input 2);
@@ -1726,66 +1758,66 @@ Z, DEC 0
       \draw[AccentOrange, line width=1.2pt] (g5.output) -- (10.977,1.62);
       \fill[AccentOrange] (9.780,1.62) circle (0.06);
       \fill[AccentOrange] (10.977,1.62) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g6) at (6.40,1.26) {};
-      \draw[DeepBlue!55, thin] (0.60,1.330) -- (g6.input 1 -| 0.60,0) (g6.input 1 -| 0.60,0) -- (g6.input 1);
-      \draw[DeepBlue!55, thin] (5.80,1.190) -- (g6.input 2 -| 5.80,0) (g6.input 2 -| 5.80,0) -- (g6.input 2);
-      \fill[DeepBlue] (g6.input 1 -| 0.60,0) circle (0.07);
-      \fill[DeepBlue] (g6.input 2 -| 5.80,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g6.output) -- (12.217,1.26);
-      \fill[DeepBlue] (8.497,1.26) circle (0.06);
-      \fill[DeepBlue] (12.217,1.26) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g7) at (6.40,0.90) {};
-      \draw[DeepBlue!55, thin] (1.12,0.970) -- (g7.input 1 -| 1.12,0) (g7.input 1 -| 1.12,0) -- (g7.input 1);
-      \draw[DeepBlue!55, thin] (4.76,0.830) -- (g7.input 2 -| 4.76,0) (g7.input 2 -| 4.76,0) -- (g7.input 2);
-      \fill[DeepBlue] (g7.input 1 -| 1.12,0) circle (0.07);
-      \fill[DeepBlue] (g7.input 2 -| 4.76,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g7.output) -- (10.485,0.90);
-      \fill[DeepBlue] (7.920,0.90) circle (0.06);
-      \fill[DeepBlue] (10.485,0.90) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g8) at (6.40,0.54) {};
-      \draw[DeepBlue!55, thin] (1.12,0.610) -- (g8.input 1 -| 1.12,0) (g8.input 1 -| 1.12,0) -- (g8.input 1);
-      \draw[DeepBlue!55, thin] (5.28,0.470) -- (g8.input 2 -| 5.28,0) (g8.input 2 -| 5.28,0) -- (g8.input 2);
-      \fill[DeepBlue] (g8.input 1 -| 1.12,0) circle (0.07);
-      \fill[DeepBlue] (g8.input 2 -| 5.28,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g8.output) -- (11.062,0.54);
-      \fill[DeepBlue] (9.160,0.54) circle (0.06);
-      \fill[DeepBlue] (11.062,0.54) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g9) at (6.40,0.18) {};
-      \draw[DeepBlue!55, thin] (1.12,0.250) -- (g9.input 1 -| 1.12,0) (g9.input 1 -| 1.12,0) -- (g9.input 1);
-      \draw[DeepBlue!55, thin] (5.80,0.110) -- (g9.input 2 -| 5.80,0) (g9.input 2 -| 5.80,0) -- (g9.input 2);
-      \fill[DeepBlue] (g9.input 1 -| 1.12,0) circle (0.07);
-      \fill[DeepBlue] (g9.input 2 -| 5.80,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g9.output) -- (13.500,0.18);
-      \fill[DeepBlue] (8.582,0.18) circle (0.06);
-      \fill[DeepBlue] (13.500,0.18) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g10) at (6.40,-0.18) {};
-      \draw[DeepBlue!55, thin] (1.64,-0.110) -- (g10.input 1 -| 1.64,0) (g10.input 1 -| 1.64,0) -- (g10.input 1);
-      \draw[DeepBlue!55, thin] (5.28,-0.250) -- (g10.input 2 -| 5.28,0) (g10.input 2 -| 5.28,0) -- (g10.input 2);
-      \fill[DeepBlue] (g10.input 1 -| 1.64,0) circle (0.07);
-      \fill[DeepBlue] (g10.input 2 -| 5.28,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g10.output) -- (11.147,-0.18);
-      \fill[DeepBlue] (9.865,-0.18) circle (0.06);
-      \fill[DeepBlue] (11.147,-0.18) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g11) at (6.40,-0.54) {};
-      \draw[DeepBlue!55, thin] (1.64,-0.470) -- (g11.input 1 -| 1.64,0) (g11.input 1 -| 1.64,0) -- (g11.input 1);
-      \draw[DeepBlue!55, thin] (5.80,-0.610) -- (g11.input 2 -| 5.80,0) (g11.input 2 -| 5.80,0) -- (g11.input 2);
-      \fill[DeepBlue] (g11.input 1 -| 1.64,0) circle (0.07);
-      \fill[DeepBlue] (g11.input 2 -| 5.80,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g11.output) -- (14.740,-0.54);
-      \fill[DeepBlue] (8.667,-0.54) circle (0.06);
-      \fill[DeepBlue] (12.303,-0.54) circle (0.06);
-      \fill[DeepBlue] (14.740,-0.54) circle (0.06);
-      \node[and gate US, draw=DeepBlue, fill=white, logic gate inputs=nn, scale=0.55] (g12) at (6.40,-0.90) {};
-      \draw[DeepBlue!55, thin] (2.16,-0.830) -- (g12.input 1 -| 2.16,0) (g12.input 1 -| 2.16,0) -- (g12.input 1);
-      \draw[DeepBlue!55, thin] (4.76,-0.970) -- (g12.input 2 -| 4.76,0) (g12.input 2 -| 4.76,0) -- (g12.input 2);
-      \fill[DeepBlue] (g12.input 1 -| 2.16,0) circle (0.07);
-      \fill[DeepBlue] (g12.input 2 -| 4.76,0) circle (0.07);
-      \draw[DeepBlue!55, thin] (g12.output) -- (12.880,-0.90);
-      \fill[DeepBlue] (8.005,-0.90) circle (0.06);
-      \fill[DeepBlue] (12.880,-0.90) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g6) at (6.40,1.26) {};
+      \draw[nLine, thin] (0.60,1.330) -- (g6.input 1 -| 0.60,0) (g6.input 1 -| 0.60,0) -- (g6.input 1);
+      \draw[nLine, thin] (5.80,1.190) -- (g6.input 2 -| 5.80,0) (g6.input 2 -| 5.80,0) -- (g6.input 2);
+      \fill[nInk] (g6.input 1 -| 0.60,0) circle (0.07);
+      \fill[nInk] (g6.input 2 -| 5.80,0) circle (0.07);
+      \draw[nLine, thin] (g6.output) -- (12.217,1.26);
+      \fill[nInk] (8.497,1.26) circle (0.06);
+      \fill[nInk] (12.217,1.26) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g7) at (6.40,0.90) {};
+      \draw[nLine, thin] (1.12,0.970) -- (g7.input 1 -| 1.12,0) (g7.input 1 -| 1.12,0) -- (g7.input 1);
+      \draw[nLine, thin] (4.76,0.830) -- (g7.input 2 -| 4.76,0) (g7.input 2 -| 4.76,0) -- (g7.input 2);
+      \fill[nInk] (g7.input 1 -| 1.12,0) circle (0.07);
+      \fill[nInk] (g7.input 2 -| 4.76,0) circle (0.07);
+      \draw[nLine, thin] (g7.output) -- (10.485,0.90);
+      \fill[nInk] (7.920,0.90) circle (0.06);
+      \fill[nInk] (10.485,0.90) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g8) at (6.40,0.54) {};
+      \draw[nLine, thin] (1.12,0.610) -- (g8.input 1 -| 1.12,0) (g8.input 1 -| 1.12,0) -- (g8.input 1);
+      \draw[nLine, thin] (5.28,0.470) -- (g8.input 2 -| 5.28,0) (g8.input 2 -| 5.28,0) -- (g8.input 2);
+      \fill[nInk] (g8.input 1 -| 1.12,0) circle (0.07);
+      \fill[nInk] (g8.input 2 -| 5.28,0) circle (0.07);
+      \draw[nLine, thin] (g8.output) -- (11.062,0.54);
+      \fill[nInk] (9.160,0.54) circle (0.06);
+      \fill[nInk] (11.062,0.54) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g9) at (6.40,0.18) {};
+      \draw[nLine, thin] (1.12,0.250) -- (g9.input 1 -| 1.12,0) (g9.input 1 -| 1.12,0) -- (g9.input 1);
+      \draw[nLine, thin] (5.80,0.110) -- (g9.input 2 -| 5.80,0) (g9.input 2 -| 5.80,0) -- (g9.input 2);
+      \fill[nInk] (g9.input 1 -| 1.12,0) circle (0.07);
+      \fill[nInk] (g9.input 2 -| 5.80,0) circle (0.07);
+      \draw[nLine, thin] (g9.output) -- (13.500,0.18);
+      \fill[nInk] (8.582,0.18) circle (0.06);
+      \fill[nInk] (13.500,0.18) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g10) at (6.40,-0.18) {};
+      \draw[nLine, thin] (1.64,-0.110) -- (g10.input 1 -| 1.64,0) (g10.input 1 -| 1.64,0) -- (g10.input 1);
+      \draw[nLine, thin] (5.28,-0.250) -- (g10.input 2 -| 5.28,0) (g10.input 2 -| 5.28,0) -- (g10.input 2);
+      \fill[nInk] (g10.input 1 -| 1.64,0) circle (0.07);
+      \fill[nInk] (g10.input 2 -| 5.28,0) circle (0.07);
+      \draw[nLine, thin] (g10.output) -- (11.147,-0.18);
+      \fill[nInk] (9.865,-0.18) circle (0.06);
+      \fill[nInk] (11.147,-0.18) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g11) at (6.40,-0.54) {};
+      \draw[nLine, thin] (1.64,-0.470) -- (g11.input 1 -| 1.64,0) (g11.input 1 -| 1.64,0) -- (g11.input 1);
+      \draw[nLine, thin] (5.80,-0.610) -- (g11.input 2 -| 5.80,0) (g11.input 2 -| 5.80,0) -- (g11.input 2);
+      \fill[nInk] (g11.input 1 -| 1.64,0) circle (0.07);
+      \fill[nInk] (g11.input 2 -| 5.80,0) circle (0.07);
+      \draw[nLine, thin] (g11.output) -- (14.740,-0.54);
+      \fill[nInk] (8.667,-0.54) circle (0.06);
+      \fill[nInk] (12.303,-0.54) circle (0.06);
+      \fill[nInk] (14.740,-0.54) circle (0.06);
+      \node[and gate US, draw=nInk, fill=white, logic gate inputs=nn, scale=0.55] (g12) at (6.40,-0.90) {};
+      \draw[nLine, thin] (2.16,-0.830) -- (g12.input 1 -| 2.16,0) (g12.input 1 -| 2.16,0) -- (g12.input 1);
+      \draw[nLine, thin] (4.76,-0.970) -- (g12.input 2 -| 4.76,0) (g12.input 2 -| 4.76,0) -- (g12.input 2);
+      \fill[nInk] (g12.input 1 -| 2.16,0) circle (0.07);
+      \fill[nInk] (g12.input 2 -| 4.76,0) circle (0.07);
+      \draw[nLine, thin] (g12.output) -- (12.880,-0.90);
+      \fill[nInk] (8.005,-0.90) circle (0.06);
+      \fill[nInk] (12.880,-0.90) circle (0.06);
       \node[font=\tiny, text=black!50, anchor=west] at (0.40,-1.26) {\dots\ and many more rows};
-      \node[font=\tiny\bfseries, text=DeepBlue] at (6.40,3.85) {AND};
-      \node[font=\tiny\bfseries, text=DeepBlue] at (11.02,3.90) {control signals (OR)};
+      \node[font=\tiny\bfseries, text=nInk] at (6.40,3.85) {AND};
+      \node[font=\tiny\bfseries, text=nInk] at (11.02,3.90) {control signals (OR)};
       \end{tikzpicture}}
     \column{0.34\textwidth}
       \stepbox{Decoders}{one line per instruction, one line per step.}
@@ -1804,110 +1836,110 @@ Z, DEC 0
       \centering
       \resizebox{\linewidth}{!}{%
       \begin{tikzpicture}[>=Stealth]
-      \node[font=\scriptsize\bfseries, text=DeepBlue] at (6.55,4.45) {control memory};
+      \node[font=\scriptsize\bfseries, text=nInk] at (6.55,4.45) {control memory};
       \node[font=\tiny, text=black!50, anchor=west] at (4.05,4.08) {addr.};
       \node[font=\tiny, text=black!50, anchor=west] at (4.70,4.08) {step};
       \node[font=\tiny, text=ReadBlue, anchor=west] at (5.40,4.08) {Read};
       \node[font=\tiny, text=WriteRed, anchor=west] at (6.80,4.08) {Write};
-      \draw[DeepBlue!40, fill=white] (4.6,3.90) rectangle (8.5,3.63);
+      \draw[nLight, fill=white] (4.6,3.90) rectangle (8.5,3.63);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,3.76) {0};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,3.76) {T0};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,3.76) {PC};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,3.76) {MAR};
-      \draw[DeepBlue!40, fill=white] (4.6,3.63) rectangle (8.5,3.36);
+      \draw[nLight, fill=white] (4.6,3.63) rectangle (8.5,3.36);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,3.50) {1};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,3.50) {T1};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,3.50) {memory};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,3.50) {MBR};
-      \draw[DeepBlue!40, fill=white] (4.6,3.36) rectangle (8.5,3.09);
+      \draw[nLight, fill=white] (4.6,3.36) rectangle (8.5,3.09);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,3.22) {2};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,3.22) {T2};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,3.22) {MBR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,3.22) {IR};
-      \draw[DeepBlue!40, fill=white] (4.6,3.09) rectangle (8.5,2.82);
+      \draw[nLight, fill=white] (4.6,3.09) rectangle (8.5,2.82);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,2.96) {3};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,2.96) {T3};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,2.96) {--};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,2.96) {PC +1};
-      \draw[DeepBlue!40, fill=white] (4.6,2.82) rectangle (8.5,2.55);
+      \draw[nLight, fill=white] (4.6,2.82) rectangle (8.5,2.55);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,2.68) {4};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,2.68) {T4};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,2.68) {IR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,2.68) {MAR};
-      \draw[DeepBlue!40, fill=AccentOrange!25] (4.6,2.55) rectangle (8.5,2.28);
+      \draw[nLight, fill=AccentOrange!25] (4.6,2.55) rectangle (8.5,2.28);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,2.42) {5};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,2.42) {T5};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,2.42) {memory};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,2.42) {MBR};
       \coordinate (hlrow) at (8.5,2.42); \coordinate (hlrowL) at (4.05,2.42);
-      \draw[DeepBlue!40, fill=white] (4.6,2.28) rectangle (8.5,2.01);
+      \draw[nLight, fill=white] (4.6,2.28) rectangle (8.5,2.01);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,2.14) {6};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,2.14) {T6};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,2.14) {MBR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,2.14) {AC};
-      \draw[DeepBlue!40, fill=white] (4.6,2.01) rectangle (8.5,1.74);
+      \draw[nLight, fill=white] (4.6,2.01) rectangle (8.5,1.74);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,1.87) {7};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,1.87) {T4};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,1.87) {IR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,1.87) {MAR};
-      \draw[DeepBlue!40, fill=white] (4.6,1.74) rectangle (8.5,1.47);
+      \draw[nLight, fill=white] (4.6,1.74) rectangle (8.5,1.47);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,1.60) {8};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,1.60) {T5};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,1.60) {AC};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,1.60) {MBR};
-      \draw[DeepBlue!40, fill=white] (4.6,1.47) rectangle (8.5,1.20);
+      \draw[nLight, fill=white] (4.6,1.47) rectangle (8.5,1.20);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,1.33) {9};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,1.33) {T6};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,1.33) {MBR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,1.33) {memory};
-      \draw[DeepBlue!40, fill=white] (4.6,1.20) rectangle (8.5,0.93);
+      \draw[nLight, fill=white] (4.6,1.20) rectangle (8.5,0.93);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,1.06) {10};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,1.06) {T4};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,1.06) {IR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,1.06) {MAR};
-      \draw[DeepBlue!40, fill=white] (4.6,0.93) rectangle (8.5,0.66);
+      \draw[nLight, fill=white] (4.6,0.93) rectangle (8.5,0.66);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,0.79) {11};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,0.79) {T5};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,0.79) {memory};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,0.79) {MBR};
-      \draw[DeepBlue!40, fill=white] (4.6,0.66) rectangle (8.5,0.39);
+      \draw[nLight, fill=white] (4.6,0.66) rectangle (8.5,0.39);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,0.52) {12};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,0.52) {T6};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,0.52) {MBR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,0.52) {AC (add)};
-      \draw[DeepBlue!40, fill=white] (4.6,0.39) rectangle (8.5,0.12);
+      \draw[nLight, fill=white] (4.6,0.39) rectangle (8.5,0.12);
       \node[font=\ttfamily\tiny, text=black!55, anchor=west] at (4.10,0.25) {13};
       \node[font=\tiny\bfseries, anchor=west] at (4.70,0.25) {T4};
       \node[font=\ttfamily\tiny, anchor=west] at (5.40,0.25) {IR};
       \node[font=\ttfamily\tiny, anchor=west] at (6.80,0.25) {PC};
-      \draw[DeepBlue!80, thick] (4.6,3.90) rectangle (8.5,2.82);
-      \draw[decorate, decoration={brace, amplitude=3pt}, DeepBlue] (8.58,3.88) -- (8.58,2.84);
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at (8.70,3.36) {Fetch};
-      \draw[DeepBlue!80, thick] (4.6,2.82) rectangle (8.5,2.01);
-      \draw[decorate, decoration={brace, amplitude=3pt}, DeepBlue] (8.58,2.80) -- (8.58,2.03);
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at (8.70,2.42) {Load};
-      \draw[DeepBlue!80, thick] (4.6,2.01) rectangle (8.5,1.20);
-      \draw[decorate, decoration={brace, amplitude=3pt}, DeepBlue] (8.58,1.99) -- (8.58,1.22);
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at (8.70,1.60) {Store};
-      \draw[DeepBlue!80, thick] (4.6,1.20) rectangle (8.5,0.39);
-      \draw[decorate, decoration={brace, amplitude=3pt}, DeepBlue] (8.58,1.18) -- (8.58,0.41);
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at (8.70,0.79) {Add};
-      \draw[DeepBlue!80, thick] (4.6,0.39) rectangle (8.5,0.12);
-      \draw[decorate, decoration={brace, amplitude=3pt}, DeepBlue] (8.58,0.37) -- (8.58,0.14);
-      \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at (8.70,0.25) {Jump};
-      \node[draw=DeepBlue!80, thick, fill=AccentOrange!20, minimum width=0.55cm, minimum height=0.42cm, font=\ttfamily\scriptsize] (op) at (0.5,3.7) {1};
-      \node[draw=DeepBlue!80, thick, fill=white, minimum width=1.1cm, minimum height=0.42cm, font=\ttfamily\scriptsize, right=0pt of op] {004};
-      \node[font=\tiny, text=DeepBlue] at (1.1,4.08) {IR};
-      \node[draw=DeepBlue!60, fill=LightGray, rounded corners=2pt, font=\tiny, inner sep=2pt] (map) at (1.1,2.2) {%
+      \draw[nLine, thick] (4.6,3.90) rectangle (8.5,2.82);
+      \draw[decorate, decoration={brace, amplitude=3pt}, nInk] (8.58,3.88) -- (8.58,2.84);
+      \node[font=\tiny\bfseries, text=nInk, anchor=west] at (8.70,3.36) {Fetch};
+      \draw[nLine, thick] (4.6,2.82) rectangle (8.5,2.01);
+      \draw[decorate, decoration={brace, amplitude=3pt}, nInk] (8.58,2.80) -- (8.58,2.03);
+      \node[font=\tiny\bfseries, text=nInk, anchor=west] at (8.70,2.42) {Load};
+      \draw[nLine, thick] (4.6,2.01) rectangle (8.5,1.20);
+      \draw[decorate, decoration={brace, amplitude=3pt}, nInk] (8.58,1.99) -- (8.58,1.22);
+      \node[font=\tiny\bfseries, text=nInk, anchor=west] at (8.70,1.60) {Store};
+      \draw[nLine, thick] (4.6,1.20) rectangle (8.5,0.39);
+      \draw[decorate, decoration={brace, amplitude=3pt}, nInk] (8.58,1.18) -- (8.58,0.41);
+      \node[font=\tiny\bfseries, text=nInk, anchor=west] at (8.70,0.79) {Add};
+      \draw[nLine, thick] (4.6,0.39) rectangle (8.5,0.12);
+      \draw[decorate, decoration={brace, amplitude=3pt}, nInk] (8.58,0.37) -- (8.58,0.14);
+      \node[font=\tiny\bfseries, text=nInk, anchor=west] at (8.70,0.25) {Jump};
+      \node[draw=nLine, thick, fill=sViolet!20, minimum width=0.55cm, minimum height=0.42cm, font=\ttfamily\scriptsize] (op) at (0.5,3.7) {1};
+      \node[draw=nLine, thick, fill=white, minimum width=1.1cm, minimum height=0.42cm, font=\ttfamily\scriptsize, right=0pt of op] {004};
+      \node[font=\tiny, text=nInk] at (1.1,4.08) {IR};
+      \node[draw=nLine, fill=LightGray, rounded corners=2pt, font=\tiny, inner sep=2pt] (map) at (1.1,2.2) {%
   \begin{tabular}{@{}cc@{}}\multicolumn{2}{@{}c@{}}{\textbf{start of each card}}\\ opcode & address\\ \hline
   \textbf{1} & \textbf{4}\\ 2 & 7\\ 3 & 10\\ 9 & 13\end{tabular}};
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (0.5,3.47) -- (0.5,2.95);
-      \node[draw=DeepBlue!80, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (upc) at (2.9,0.35) {5};
-      \node[font=\tiny, text=DeepBlue, align=center] at (2.9,0.8) {micro-PC\\(current row)};
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (map.south) |- (upc.west);
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (0.5,3.47) -- (0.5,2.95);
+      \node[draw=nLine, thick, fill=white, minimum width=1.2cm, minimum height=0.45cm, font=\ttfamily\scriptsize] (upc) at (2.9,0.35) {5};
+      \node[font=\tiny, text=nInk, align=center] at (2.9,0.8) {micro-PC\\(current row)};
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (map.south) |- (upc.west);
       \node[font=\tiny, text=black!60, align=left, anchor=north west] at (0.2,0.05) {after the decode: jump to the start of the card;\\then $+1$ after every step};
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (upc.east) -| ($(hlrowL)+(-0.15,0)$) -- (hlrowL);
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt, dashed] ($(hlrow)+(0.9,0)$) -- ++(0.9,0) node[right, font=\tiny, align=left] {control signals:\\\textcolor{ReadBlue}{Read memory},\\\textcolor{WriteRed}{Write MBR}};
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt] (upc.east) -| ($(hlrowL)+(-0.15,0)$) -- (hlrowL);
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt, rounded corners=2pt, dashed] ($(hlrow)+(0.9,0)$) -- ++(0.9,0) node[right, font=\tiny, align=left] {control signals:\\\textcolor{ReadBlue}{Read memory},\\\textcolor{WriteRed}{Write MBR}};
       \end{tikzpicture}}
     \column{0.32\textwidth}
       \stepbox{Control memory}{a small memory inside the CU that holds \textbf{all the cards}.}
@@ -1939,8 +1971,8 @@ Z, DEC 0
 \begin{frame}{History and today}
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
-      \draw[->, very thick, DeepBlue] (0,0) -- (12.5,0);
-      \foreach \x/\y/\c in {1.2/1951/AccentOrange, 6.0/1964/ProgramPurple, 10.8/2018/StorageBlue} {
+      \draw[->, very thick, nInk] (0,0) -- (12.5,0);
+      \foreach \x/\y/\c in {1.2/1951/nInk, 6.0/1964/nInk, 10.8/2018/nInk} {
         \fill[\c] (\x,0) circle (0.12);
         \node[font=\small\bfseries, text=\c] at (\x,0.4) {\y};
       }
@@ -1965,9 +1997,9 @@ Z, DEC 0
 \begin{frame}{From the control unit to two ideas: CISC and RISC}
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
-      \draw[line width=1.1pt, DeepBlue, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt] (0,0) -- (13.6,0);
-      \fill[AccentOrange] (3.2,0) circle (0.1); \node[font=\small\bfseries, text=AccentOrange, above] at (3.2,0.08) {1970s};
-      \fill[ReadBlue] (10.2,0) circle (0.1); \node[font=\small\bfseries, text=ReadBlue, above] at (10.2,0.08) {1980s};
+      \draw[line width=1.1pt, nInk, -{Stealth[length=2.2mm, width=2mm]}, shorten >= 2pt] (0,0) -- (13.6,0);
+      \fill[sBrown] (3.2,0) circle (0.1); \node[font=\small\bfseries, text=sBrown, above] at (3.2,0.08) {1970s};
+      \fill[sTeal] (10.2,0) circle (0.1); \node[font=\small\bfseries, text=sTealText, above] at (10.2,0.08) {1980s};
     \end{tikzpicture}
   \end{center}
   \vspace{-0.2cm}
@@ -2012,16 +2044,16 @@ Z, DEC 0
     \column{0.45\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[draw=AccentOrange, very thick, fill=AccentOrange!15, rounded corners=5pt, minimum width=3.8cm, minimum height=1.2cm, align=center, font=\small\bfseries] (cisc) {CISC\\[-0.05cm]\scriptsize Complex Instruction Set};
-        \node[font=\footnotesize, text=DeepBlue, anchor=north] at ([yshift=-0.1cm]cisc.south) {Different answers lead to...};
+        \node[draw=sBrown, very thick, fill=sBrown!20, rounded corners=5pt, minimum width=3.8cm, minimum height=1.2cm, align=center, font=\small\bfseries] (cisc) {CISC\\[-0.05cm]\scriptsize Complex Instruction Set};
+        \node[font=\footnotesize, text=nInk, anchor=north] at ([yshift=-0.1cm]cisc.south) {Different answers lead to...};
       \end{tikzpicture}
     \column{0.1\textwidth}
       \centering\Large\textbf{vs}
     \column{0.45\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth]
-        \node[draw=ReadBlue, very thick, fill=ReadBlue!15, rounded corners=5pt, minimum width=3.8cm, minimum height=1.2cm, align=center, font=\small\bfseries] (risc) {RISC\\[-0.05cm]\scriptsize Reduced Instruction Set};
-        \node[font=\footnotesize, text=DeepBlue, anchor=north] at ([yshift=-0.1cm]risc.south) {different processor types.};
+        \node[draw=sTeal, very thick, fill=sTeal!20, rounded corners=5pt, minimum width=3.8cm, minimum height=1.2cm, align=center, font=\small\bfseries] (risc) {RISC\\[-0.05cm]\scriptsize Reduced Instruction Set};
+        \node[font=\footnotesize, text=nInk, anchor=north] at ([yshift=-0.1cm]risc.south) {different processor types.};
       \end{tikzpicture}
   \end{columns}
   
@@ -2075,14 +2107,14 @@ str r3, A
   \begin{center}
     \begin{tikzpicture}
       \node[font=\scriptsize\bfseries, anchor=east] at (-0.2,0) {MARIE};
-      \foreach \i in {0,...,5} \node[draw=white, fill=AccentOrange!70, minimum width=1.2cm, minimum height=0.45cm,
+      \foreach \i in {0,...,5} \node[draw=white, fill=nLine, minimum width=1.2cm, minimum height=0.45cm,
         inner sep=0pt, font=\tiny] at ({1.2*\i+0.6},0) {16 bit};
       \node[font=\scriptsize\bfseries, anchor=east] at (-0.2,-0.8) {RISC-V};
-      \foreach \i in {0,1,2} \node[draw=white, fill=mygreen!60, minimum width=2.4cm, minimum height=0.45cm,
+      \foreach \i in {0,1,2} \node[draw=white, fill=sTeal!70, minimum width=2.4cm, minimum height=0.45cm,
         inner sep=0pt, font=\tiny] at ({2.4*\i+1.2},-0.8) {4 bytes};
       \node[font=\scriptsize\bfseries, anchor=east] at (-0.2,-1.6) {x86};
       \foreach \x/\w/\t in {0/0.6/1, 0.6/1.8/3, 2.4/3.6/6, 6.0/0.6/1, 6.6/0.6/1} {
-        \node[draw=white, fill=StorageBlue!60, minimum width=\w cm, minimum height=0.45cm, inner sep=0pt,
+        \node[draw=white, fill=sBrown!60, minimum width=\w cm, minimum height=0.45cm, inner sep=0pt,
           font=\tiny, anchor=west] at (\x,-1.6) {\t\,B};
       }
       \node[font=\tiny, anchor=west] at (7.4,-1.6) {\dots\ from 1 up to 15 bytes};
@@ -2104,14 +2136,14 @@ str r3, A
       \node[font=\scriptsize\bfseries, anchor=west] at (0,1.25) {``All instructions are 4 bytes''};
       \foreach \i in {0,...,15} {
         \pgfmathtruncatemacro{\g}{mod(floor(\i/4),2)}
-        \ifnum\g=0 \def\col{mygreen!45}\else\def\col{mygreen!20}\fi
+        \ifnum\g=0 \def\col{sTeal!45}\else\def\col{sTeal!20}\fi
         \node[draw=white, fill=\col, minimum size=0.55cm, inner sep=0pt, font=\tiny] at ({0.55*\i+0.3},0.4) {\i};
       }
       \node[draw=AccentOrange, line width=1.5pt, minimum size=0.55cm, inner sep=0pt] at (4.7,0.4) {};
       \foreach \k/\x in {1/1.125,2/3.325,3/5.525} \node[font=\tiny, text=gray] at (\x,0.8) {instr.\ \k};
       \node[font=\scriptsize, text=AccentOrange, anchor=west] at (9.2,0.4) {byte 8: easy!};
       \node[font=\scriptsize\bfseries, anchor=west] at (0,-0.5) {``Instructions are 1 to 15 bytes''};
-      \foreach \i in {0,...,15} \node[draw=white, fill=StorageBlue!30, minimum size=0.55cm, inner sep=0pt, font=\tiny] at ({0.55*\i+0.3},-1.0) {\i};
+      \foreach \i in {0,...,15} \node[draw=white, fill=sBrown!30, minimum size=0.55cm, inner sep=0pt, font=\tiny] at ({0.55*\i+0.3},-1.0) {\i};
       \node[font=\Large\bfseries, text=AccentOrange] at (9.5,-1.0) {?};
       \node[font=\scriptsize, anchor=west, text width=3.5cm] at (10.0,-1.0) {decode instruction 1, then 2, and only then you know};
     \end{tikzpicture}
@@ -2230,24 +2262,24 @@ store r1, [Z]      ; Z = r1
     \column{0.5\textwidth}
       \centering
       \begin{tikzpicture}[>=Stealth,
-          ins/.style={draw=StorageBlue, very thick, fill=StorageBlue!15, rounded corners=2pt,
+          ins/.style={draw=sBrown, very thick, fill=sBrown!20, rounded corners=2pt,
             font=\ttfamily\scriptsize, minimum height=0.5cm, inner sep=3pt},
-          uop/.style={draw=mygreen, very thick, fill=mygreen!15, rounded corners=2pt,
+          uop/.style={draw=sTeal, very thick, fill=sTeal!20, rounded corners=2pt,
             font=\ttfamily\scriptsize, minimum height=0.45cm, minimum width=2.4cm, inner sep=2pt}]
-        \node[font=\tiny\bfseries, text=StorageBlue] at (0,1.55) {x86 instruction (CISC)};
+        \node[font=\tiny\bfseries, text=sBrown] at (0,1.55) {x86 instruction (CISC)};
         \node[ins] (x) at (0,1.1) {add eax, [C]};
-        \node[draw=ProgramPurple, very thick, fill=ProgramPurple!12, rounded corners=3pt,
+        \node[draw=nLine, very thick, fill=nFill, text=nInk, rounded corners=3pt,
           font=\scriptsize\bfseries, minimum width=2.4cm] (dec) at (0,0.15) {decoder};
         \node[uop] (u1) at (-1.35,-0.9) {load tmp, [C]};
         \node[uop] (u2) at (1.35,-0.9) {add eax, tmp};
-        \node[font=\tiny\bfseries, text=mygreen!70!black] at (0,-1.4) {simple micro-ops ($\mu$ops)};
-        \node[draw=DeepBlue, very thick, fill=DeepBlue!8, rounded corners=3pt, font=\scriptsize\bfseries,
+        \node[font=\tiny\bfseries, text=sTealText] at (0,-1.4) {simple micro-ops ($\mu$ops)};
+        \node[draw=nInk, very thick, fill=nFill, rounded corners=3pt, font=\scriptsize\bfseries,
           minimum width=5.1cm, minimum height=0.5cm] (core) at (0,-2.05) {RISC-like execution core};
-        \draw[->, very thick, DeepBlue] (x) -- (dec);
-        \draw[->, very thick, DeepBlue] (dec) -- (u1);
-        \draw[->, very thick, DeepBlue] (dec) -- (u2);
-        \draw[->, thick, DeepBlue] (u1) -- (u1 |- core.north);
-        \draw[->, thick, DeepBlue] (u2) -- (u2 |- core.north);
+        \draw[->, very thick, nInk] (x) -- (dec);
+        \draw[->, very thick, nInk] (dec) -- (u1);
+        \draw[->, very thick, nInk] (dec) -- (u2);
+        \draw[->, thick, nInk] (u1) -- (u1 |- core.north);
+        \draw[->, thick, nInk] (u2) -- (u2 |- core.north);
       \end{tikzpicture}
     \column{0.48\textwidth}
       \stepbox{x86 (Intel, AMD)}{CISC on the outside. Since the mid-1990s (Intel Pentium Pro, 1995)
@@ -2268,17 +2300,17 @@ store r1, [Z]      ; Z = r1
     \begin{tikzpicture}[>=Stealth,
         sbox/.style={very thick, rounded corners=5pt, minimum width=2.9cm, minimum height=1.6cm,
           align=center, font=\scriptsize, text width=2.7cm, drop shadow}]
-      \node[sbox, draw=AccentOrange, fill=AccentOrange!12] (a) at (0,0)
+      \node[sbox, draw=nLine, fill=nFill] (a) at (0,0)
         {\textbf{Addressing modes}\\[2pt] an instruction can point to its data in different ways};
-      \node[sbox, draw=StorageBlue, fill=StorageBlue!12] (b) at (3.6,0)
+      \node[sbox, draw=nLine, fill=nFill] (b) at (3.6,0)
         {\textbf{MAR, MBR, steps}\\[2pt] every memory read costs extra steps; one bus is a bottleneck};
-      \node[sbox, draw=ProgramPurple, fill=ProgramPurple!12] (c) at (7.2,0)
+      \node[sbox, draw=nLine, fill=nFill] (c) at (7.2,0)
         {\textbf{Control unit}\\[2pt] sets the switches in each step: hardwired or microprogram};
-      \node[sbox, draw=mygreen, fill=mygreen!12] (d) at (10.8,0)
+      \node[sbox, draw=nLine, fill=nFill] (d) at (10.8,0)
         {\textbf{RISC and CISC}\\[2pt] two design styles, which today's processors combine};
-      \draw[->, very thick, DeepBlue] (a) -- (b);
-      \draw[->, very thick, DeepBlue] (b) -- (c);
-      \draw[->, very thick, DeepBlue] (c) -- (d);
+      \draw[->, very thick, nInk] (a) -- (b);
+      \draw[->, very thick, nInk] (b) -- (c);
+      \draw[->, very thick, nInk] (c) -- (d);
     \end{tikzpicture}
   \end{center}
 \end{frame}

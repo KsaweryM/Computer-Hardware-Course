@@ -14,8 +14,8 @@ make run        # compile and run
 Or by hand:
 
 ```
-g++ -std=c++20 -O0 -pthread hello.cpp -o hello
+g++ -std=c++20 -pthread hello.cpp -o hello
 ./hello
 ```
 
-With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od hello.cpp`, then `hello.exe`.
+With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc hello.cpp`, then `hello.exe`.

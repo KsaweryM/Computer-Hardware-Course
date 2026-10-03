@@ -21,7 +21,7 @@
 \useinnertheme{rounded}
 \useoutertheme{miniframes}
 
-\definecolor{DeepBlue}{RGB}{20,45,85}
+\definecolor{DeepBlue}{HTML}{283593}% template indigo (colour rules v6)
 \definecolor{AccentOrange}{RGB}{235,90,20}
 \definecolor{LightGray}{RGB}{245,246,250}
 \definecolor{mygreen}{RGB}{0,153,37}
@@ -36,6 +36,37 @@
 \definecolor{MacGreen}{RGB}{39,201,63}
 \definecolor{ProgramPurple}{RGB}{124,58,180}
 \definecolor{StorageBlue}{RGB}{30,120,200}
+
+% ---------- course palette (colour rules v6) ----------
+% actors and categories: fills only
+\definecolor{sIndigo}{HTML}{5C6BC0}
+\definecolor{sPink}{HTML}{EC407A}
+\definecolor{sViolet}{HTML}{7E57C2}
+\definecolor{sAmber}{HTML}{FFB300}   % black text on it
+\definecolor{sTeal}{HTML}{26A69A}
+\definecolor{sBrown}{HTML}{8D6E63}
+% text variants that stay readable on white
+\definecolor{sPinkText}{HTML}{C2185B}
+\definecolor{sAmberText}{HTML}{A06A00}
+\definecolor{sTealText}{HTML}{00796B}
+% actions: frames only (executes, read, write); results: signs only
+\definecolor{aExec}{HTML}{43A047}
+\definecolor{aRead}{HTML}{1E88E5}
+\definecolor{aWrite}{HTML}{E53935}
+% neutral (Blue Grey): hardware, data, waveforms
+\definecolor{nInk}{HTML}{37474F}
+\definecolor{nLine}{HTML}{90A4AE}
+\definecolor{nLight}{HTML}{CFD8DC}
+\definecolor{nFill}{HTML}{ECEFF1}
+\definecolor{nIdle}{HTML}{E0E0E0}
+\tikzset{
+  aexec/.style={draw=aExec, line width=1.6pt},
+  aread/.style={draw=aRead, line width=1.6pt, dash pattern=on 3pt off 2pt},
+  awrite/.style={draw=aWrite, line width=2.4pt},
+}
+\newcommand{\ok}{\textcolor{aExec}{\faCheck}}
+\newcommand{\nok}{\textcolor{aWrite}{\faTimes}}
+
 
 \setbeamercolor{palette primary}{bg=DeepBlue,fg=white}
 \setbeamercolor{palette secondary}{bg=DeepBlue!80!black,fg=white}
@@ -56,11 +87,11 @@
 
 % ---------- helpers used by the von Neumann section ----------
 \tikzset{
-  memcell/.style={draw=DeepBlue!60, minimum width=2.6cm, minimum height=0.45cm,
+  memcell/.style={draw=nLine, minimum width=2.6cm, minimum height=0.45cm,
     inner sep=1pt, font=\ttfamily\scriptsize, align=center},
-  instrcell/.style={memcell, fill=AccentOrange!18},
-  datacell/.style={memcell, fill=StorageBlue!18},
-  addr/.style={font=\ttfamily\scriptsize, text=DeepBlue},
+  instrcell/.style={memcell, fill=sViolet!18},
+  datacell/.style={memcell, fill=sPink!18},
+  addr/.style={font=\ttfamily\scriptsize, text=nInk},
 }
 % numbered orange badge for assumptions
 \newcommand{\num}[1]{\tikz[baseline=(n.base)]\node[circle,fill=AccentOrange,text=white,
@@ -68,10 +99,10 @@
 % mini memory stack with the program counter pointing at cell #2
 % #1 = x offset, #2 = highlighted cell (0-3), #3 = text of cell 3, #4 = panel heading
 \newcommand{\pcstack}[4]{%
-  \node[font=\scriptsize\bfseries, text=DeepBlue] at (#1,0.55) {#4};
+  \node[font=\scriptsize\bfseries, text=nInk] at (#1,0.55) {#4};
   \foreach \i/\t in {0/{LOAD 6},1/{ADD 7},2/{STORE 8},3/{#3}} {
     \ifnum\i=#2
-      \node[instrcell, minimum width=1.7cm, fill=AccentOrange!45, very thick, draw=AccentOrange] at (#1,{-0.45*\i}) {\t};
+      \node[instrcell, minimum width=1.7cm, aexec] at (#1,{-0.45*\i}) {\t};
     \else
       \node[instrcell, minimum width=1.7cm] at (#1,{-0.45*\i}) {\t};
     \fi
@@ -88,8 +119,8 @@
     \centering\small\textbf{#1}\\[0.1cm]
     #2\\[0.1cm]
     \raggedright\footnotesize
-    \textcolor{mygreen}{\textbf{+}}\ #3\\[0.06cm]
-    \textcolor{MacRed}{\textbf{$-$}}\ #4
+    \textcolor{aExec}{\textbf{+}}\ #3\\[0.06cm]
+    \textcolor{aWrite}{\textbf{$-$}}\ #4
   \end{beamercolorbox}}
 
 % progress strip: #1 = number of decisions already made
@@ -98,37 +129,37 @@
   \begin{tikzpicture}
     \foreach \i/\t in {1/Stored program,2/Shared memory,3/Binary,4/Sequential,5/Separate units} {
       \ifnum\i>#1
-        \node[draw=DeepBlue!35, dashed, rounded corners=3pt, text=DeepBlue!55, font=\tiny\bfseries,
+        \node[draw=nLine, dashed, rounded corners=3pt, text=nLine, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \else
-        \node[draw=AccentOrange, fill=AccentOrange, rounded corners=3pt, text=white, font=\tiny\bfseries,
+        \node[draw=DeepBlue, fill=DeepBlue, rounded corners=3pt, text=white, font=\tiny\bfseries,
           minimum width=2.45cm, minimum height=0.36cm, inner sep=1pt] at ({(\i-3)*2.6},0) {\i\ \t};
       \fi
     }
   \end{tikzpicture}\par}}
 
 % ----- small diagrams used on the dilemma slides -----
-\tikzset{smallcell/.style={draw=DeepBlue!60, minimum height=0.27cm, inner sep=0.5pt,
+\tikzset{smallcell/.style={draw=nLine, minimum height=0.27cm, inner sep=0.5pt,
   font=\ttfamily\tiny, align=center}}
 
 \newcommand{\diagWired}{\begin{tikzpicture}
-  \node[draw=AccentOrange, very thick, rounded corners=4pt, fill=AccentOrange!12, minimum width=2.5cm,
-    minimum height=0.85cm, font=\scriptsize, align=center]
-    {\textcolor{AccentOrange}{\faWrench}\ fixed circuit\\[-1pt]program = wiring};
+  \node[draw=nLine, very thick, rounded corners=4pt, fill=nFill, minimum width=2.5cm,
+    minimum height=0.85cm, font=\scriptsize, align=center, text=nInk]
+    {\faWrench\ fixed circuit\\[-1pt]program = wiring};
 \end{tikzpicture}}
 
 \newcommand{\diagTape}{\begin{tikzpicture}
-  \draw[draw=DeepBlue!60, fill=LightGray] (0,0) rectangle (2.6,0.55);
+  \draw[draw=nLine, fill=nFill] (0,0) rectangle (2.6,0.55);
   \foreach \x/\y in {0.25/0.15,0.25/0.4,0.55/0.28,0.85/0.15,0.85/0.4,1.15/0.28,1.45/0.15,1.75/0.4,1.75/0.15,2.05/0.28,2.4/0.15,2.4/0.4}
-    {\fill[DeepBlue] (\x,\y) circle (0.045);}
-  \draw[AccentOrange, very thick] (1.0,-0.08) -- (1.0,0.63);
-  \node[font=\tiny, text=AccentOrange, anchor=north] at (1.0,-0.08) {reader};
+    {\fill[nInk] (\x,\y) circle (0.045);}
+  \draw[nInk, very thick] (1.0,-0.08) -- (1.0,0.63);
+  \node[font=\tiny, text=nInk, anchor=north] at (1.0,-0.08) {reader};
 \end{tikzpicture}}
 
 \newcommand{\diagMemStackSmall}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,0) {ADD 7};
-  \node[smallcell, fill=AccentOrange!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0.3) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,0) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=2.0cm] at (0,-0.3) {STORE 8};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0.3) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,0) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (1.05,-0.3) {2};
@@ -137,12 +168,12 @@
 \newcommand{\diagTwoMem}{\begin{tikzpicture}
   \node[font=\tiny] at (0,0.55) {program memory};
   \node[font=\tiny] at (2.5,0.55) {data memory};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0.3) {LOAD 0};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,0) {ADD 1};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.5cm] at (0,-0.3) {HALT};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0.3) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,0) {3};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.5cm] at (2.5,-0.3) {0};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0.3) {LOAD 0};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,0) {ADD 1};
+  \node[smallcell, fill=sViolet!18, minimum width=1.5cm] at (0,-0.3) {HALT};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0.3) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,0) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.5cm] at (2.5,-0.3) {0};
   \foreach \i in {0,1,2} {
     \node[addr, font=\ttfamily\tiny, anchor=west] at (0.8,{0.3-0.3*\i}) {\i};
     \node[addr, font=\ttfamily\tiny, anchor=west] at (3.3,{0.3-0.3*\i}) {\i};
@@ -151,82 +182,83 @@
 \end{tikzpicture}}
 
 \newcommand{\diagOneMem}{\begin{tikzpicture}
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
-  \node[smallcell, fill=AccentOrange!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] (o0) at (0,0.5) {LOAD 6};
+  \node[smallcell, fill=sViolet!18, minimum width=1.7cm] at (0,0.23) {ADD 7};
   \node[smallcell, draw=none, minimum width=1.7cm] at (0,-0.04) {$\vdots$};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.31) {5};
-  \node[smallcell, fill=StorageBlue!18, minimum width=1.7cm] at (0,-0.58) {3};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.31) {5};
+  \node[smallcell, fill=sPink!18, minimum width=1.7cm] at (0,-0.58) {3};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.5) {0};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,0.23) {1};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.31) {6};
   \node[addr, font=\ttfamily\tiny, anchor=west] at (0.95,-0.58) {7};
-  \node[font=\tiny, text=DeepBlue, anchor=west] at (1.4,0) {one numbering};
+  \node[font=\tiny, text=nInk, anchor=west] at (1.4,0) {one numbering};
 \end{tikzpicture}}
 
 \newcommand{\diagDecimal}{\begin{tikzpicture}
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
-    minimum width=2.3cm] at (0,0.28) {digits 0--9};
-  \node[draw=ProgramPurple, fill=ProgramPurple!12, rounded corners=3pt, font=\scriptsize, minimum height=0.4cm,
+  \node[draw=sPink, fill=sPink!15, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
+    minimum width=2.3cm] at (0,0.28) {digits 0 to 9};
+  \node[draw=sViolet, fill=sViolet!15, rounded corners=3pt, font=\scriptsize, minimum height=0.4cm,
     minimum width=2.3cm] at (0,-0.22) {instructions: other code};
 \end{tikzpicture}}
 
 \newcommand{\diagBinary}{\begin{tikzpicture}
-  \node[draw=StorageBlue, fill=StorageBlue!12, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
+  \node[draw=sPink, fill=sPink!15, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
     minimum width=2.3cm] at (0,0.28) {0000 0101 (5)};
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
+  \node[draw=sViolet, fill=sViolet!15, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
     minimum width=2.3cm] at (0,-0.22) {0011 0111 (ADD 7)};
 \end{tikzpicture}}
 
 \newcommand{\diagParallel}{\begin{tikzpicture}
-  \foreach \k in {0,1,2} {\draw[fill=AccentOrange!25, draw=AccentOrange] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
+  \foreach \k in {0,1,2} {\draw[fill=nFill, draw=nLine] (0,{0.6-0.27*\k}) rectangle (2.0,{0.4-0.27*\k});}
   \node[font=\tiny, anchor=west] at (2.1,0.2) {all at once};
 \end{tikzpicture}}
 
 \newcommand{\diagDataflow}{\begin{tikzpicture}[>=Stealth]
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
-  \node[circle, draw=DeepBlue, fill=LightGray, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
-  \node[circle, draw=DeepBlue, fill=StorageBlue!15, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
-  \draw[->, thick, DeepBlue] (a) -- (c); \draw[->, thick, DeepBlue] (b) -- (c);
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (a) at (0,0.3) {a};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.35cm, inner sep=0pt, font=\tiny] (b) at (0,-0.2) {b};
+  \node[circle, draw=nLine, fill=nFill, minimum size=0.4cm, inner sep=0pt, font=\tiny] (c) at (1.0,0.05) {a+b};
+  \draw[->, thick, nInk] (a) -- (c); \draw[->, thick, nInk] (b) -- (c);
   \node[font=\tiny, anchor=west] at (1.35,0.05) {when ready};
 \end{tikzpicture}}
 
 \newcommand{\diagSequential}{\begin{tikzpicture}[>=Stealth]
-  \foreach \k in {1,2,3} {\node[draw=DeepBlue, fill=LightGray, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
+  \foreach \k in {1,2,3} {\node[draw=nLine, fill=nFill, text=nInk, minimum size=0.4cm, inner sep=0pt, font=\scriptsize\bfseries]
     (s\k) at ({0.75*\k-0.75},0.05) {\k};}
-  \draw[->, thick, DeepBlue] (s1) -- (s2); \draw[->, thick, DeepBlue] (s2) -- (s3);
+  \draw[->, thick, nInk] (s1) -- (s2); \draw[->, thick, nInk] (s2) -- (s3);
   \node[font=\tiny, anchor=west] at (1.95,0.05) {in order};
 \end{tikzpicture}}
 
 \newcommand{\diagMonolith}{\begin{tikzpicture}
-  \node[draw=DeepBlue, very thick, rounded corners=4pt, fill=LightGray, minimum width=2.6cm, minimum height=0.85cm,
+  \node[draw=nLine, very thick, rounded corners=4pt, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=0.85cm,
     font=\scriptsize, align=center] {one block:\\[-1pt]everything mixed together};
 \end{tikzpicture}}
 
 \newcommand{\diagUnits}{\begin{tikzpicture}
-  \node[draw=StorageBlue, fill=StorageBlue!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
-  \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
-  \node[draw=mygreen, fill=mygreen!12, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
-  \node[draw=DeepBlue, fill=LightGray, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0,0.22) {Memory};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (0.95,0.22) {CU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (1.9,0.22) {ALU};
+  \node[draw=nLine, fill=nFill, text=nInk, rounded corners=2pt, font=\tiny\bfseries, minimum width=0.8cm, minimum height=0.36cm] at (2.85,0.22) {I/O};
   \node[font=\tiny] at (1.425,-0.2) {one job each};
 \end{tikzpicture}}
 
 % ---------- helpers for the CPU section ----------
 \tikzset{
-  reg/.style={draw=orange!80!black, very thick, fill=yellow!25, rounded corners=2pt,
+  reg/.style={draw=nLine, very thick, fill=white, text=nInk, rounded corners=2pt,
     minimum width=1.95cm, minimum height=0.55cm, inner sep=2pt, font=\ttfamily\scriptsize, align=center},
   cpuunit/.style={very thick, rounded corners=3pt, minimum width=1.2cm, minimum height=0.6cm,
     inner sep=2pt, font=\scriptsize\bfseries, align=center},
-  hot/.style={fill=AccentOrange!45, draw=AccentOrange, very thick},
-  hotdata/.style={fill=StorageBlue!40, draw=StorageBlue, very thick},
-  hotalu/.style={fill=mygreen!18, line width=1.6pt},
-  fetcharrow/.style={-{Stealth}, very thick, AccentOrange, rounded corners=3pt},
-  dataarrow/.style={-{Stealth}, very thick, StorageBlue, rounded corners=3pt},
+  hot/.style={aexec, label={[text=aExec, inner sep=1pt, font=\tiny]right:$\blacktriangleleft$}},
+  hotdata/.style={aread},
+  hotwrite/.style={awrite},
+  hotalu/.style={aexec},
+  fetcharrow/.style={-{Stealth}, very thick, nInk, rounded corners=3pt},
+  dataarrow/.style={-{Stealth}, very thick, nInk, rounded corners=3pt},
   steplabel/.style={font=\tiny\bfseries, fill=white, inner sep=1pt},
 }
 % memory with the running example
 % #1 highlighted instruction (0-3, -1 = none)  #2 text of cell 8  #3 highlighted data cell (6-8, 0 = none)
 \newcommand{\mempanel}[3]{%
-  \node[font=\scriptsize\bfseries, text=StorageBlue] at (0,1.8) {Memory};
+  \node[font=\scriptsize\bfseries, text=nInk] at (0,1.8) {Memory};
   \foreach \i/\t in {0/{0001 0110\ \ LOAD 6},1/{0011 0111\ \ ADD 7},2/{0010 1000\ \ STORE 8},3/{0111 0000\ \ HALT}} {
     \ifnum\i=#1
       \node[instrcell, minimum width=2.9cm, hot] (m\i) at (0,{1.35-0.45*\i}) {\t};
@@ -238,7 +270,7 @@
   \node[memcell, draw=none, minimum width=2.9cm] at (0,-0.45) {$\vdots$};
   \foreach \i/\t/\y in {6/{0000 0101\ \ (5)}/-0.9,7/{0000 0011\ \ (3)}/-1.35,8/{#2}/-1.8} {
     \ifnum\i=#3
-      \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};
+      \ifnum\i=8 \node[datacell, minimum width=2.9cm, hotwrite] (m\i) at (0,\y) {\t};\else \node[datacell, minimum width=2.9cm, hotdata] (m\i) at (0,\y) {\t};\fi
     \else
       \node[datacell, minimum width=2.9cm] (m\i) at (0,\y) {\t};
     \fi
@@ -248,16 +280,16 @@
 % the CPU, built up step by step
 % #1 level: 0 empty, 1 +PC, 2 +IR, 3 +AC, 4 +ALU, 5 +CU   #2 PC   #3 IR   #4 AC   #5 extra ALU style
 \newcommand{\cpupanel}[5]{%
-  \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=4.65cm,
+  \node[draw=nLine, very thick, rounded corners=6pt, fill=nFill!50, minimum width=4.65cm,
     minimum height=3.85cm, anchor=west] (cpu) at (2.45,-0.2) {};
-  \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
+  \node[font=\scriptsize\bfseries, text=nInk, anchor=north west] at ([shift={(0.1,-0.06)}]cpu.north west) {CPU};
   \ifnum#1>0 \node[reg] (pc) at (3.65,0.95) {\textbf{PC}\ \ #2}; \fi
   \ifnum#1>1 \node[reg] (ir) at (3.65,0.0) {\textbf{IR}\\[-1pt]#3}; \fi
   \ifnum#1>2 \node[reg] (ac) at (3.65,-1.05) {\textbf{AC}\ \ #4}; \fi
-  \ifnum#1>3 \node[cpuunit, draw=mygreen, fill=mygreen!18, #5] (alu) at (6.3,-1.05)
-    {\textcolor{mygreen!60!black}{\faCalculator}\\[-1pt]ALU}; \fi
-  \ifnum#1>4 \node[cpuunit, draw=AccentOrange, fill=AccentOrange!18] (cu) at (6.3,0.5)
-    {\textcolor{AccentOrange}{\faCogs}\\[-1pt]CU}; \fi
+  \ifnum#1>3 \node[cpuunit, draw=nLine, fill=nFill, text=nInk, #5] (alu) at (6.3,-1.05)
+    {\faCalculator\\[-1pt]ALU}; \fi
+  \ifnum#1>4 \node[cpuunit, draw=nLine, fill=nFill, text=nInk] (cu) at (6.3,0.5)
+    {\faCogs\\[-1pt]CU}; \fi
 }
 % explanation slide: #1 title, #2 tikz body (memory + CPU), #3 right-hand column
 \newcommand{\explainframe}[3]{%
@@ -319,9 +351,9 @@
 \BeforeBeginEnvironment{lstlisting}{%
   \begin{beamercolorbox}[rounded=true,sep=2mm,wd=\linewidth]{vscodelisting}%
   \begin{tikzpicture}
-    \fill[MacRed] (0,0) circle (3pt);
-    \fill[MacYellow] (0.35,0) circle (3pt);
-    \fill[MacGreen] (0.70,0) circle (3pt);
+    \fill[nLine] (0,0) circle (3pt);
+    \fill[nLine] (0.35,0) circle (3pt);
+    \fill[nLine] (0.70,0) circle (3pt);
   \end{tikzpicture}%
   \vspace{-0.2cm}%
 }
@@ -341,19 +373,19 @@
 \begin{frame}{Agenda For Today}
   \Large
   \begin{itemize}
-    \item[\textcolor{AccentOrange}{\faLaptop}] \textbf{1. What Is a Computer?} \\
+    \item[\textcolor{DeepBlue}{\faLaptop}] \textbf{1. What Is a Computer?} \\
     \textcolor{gray}{\small Input, programs, processing, output, and programmability}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faCogs}] \textbf{2. Designing a Computer} \\
+    \item[\textcolor{DeepBlue}{\faCogs}] \textbf{2. Designing a Computer} \\
     \textcolor{gray}{\small Five design decisions behind the von Neumann model}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faMicrochip}] \textbf{3. How Does a CPU Work?} \\
+    \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{3. How Does a CPU Work?} \\
     \textcolor{gray}{\small Processor functions, registers, ALU, CU, and the instruction cycle}
     \vspace{0.25cm}
 
-    \item[\textcolor{AccentOrange}{\faLaptop}] \textbf{4. Programming a Simple CPU} \\
+    \item[\textcolor{DeepBlue}{\faLaptop}] \textbf{4. Programming a Simple CPU} \\
     \textcolor{gray}{\small MARIE.js, assembly instructions, input/output, jumps, and loops}
   \end{itemize}
 \end{frame}
@@ -366,11 +398,11 @@
   \end{beamercolorbox}
   \begin{beamercolorbox}[rounded=true,sep=0.25cm,wd=\textwidth]{block body}
     \centering\small
-    A computer is a \textcolor{ProgramPurple}{\textbf{programmable}} device that accepts
-    \textcolor{AccentOrange}{\textbf{data as input}},
-    processes it according to \textcolor{ProgramPurple}{\textbf{a set of instructions (a program)}},
-    and \textcolor{mygreen}{\textbf{produces output}}.
-    It usually also \textcolor{StorageBlue}{\textbf{stores data and results}}.
+    A computer is a \textbf{programmable} device that accepts
+    \textcolor{sPinkText}{\textbf{data}} \textbf{as input},
+    processes it according to \textcolor{sViolet}{\textbf{a set of instructions (a program)}},
+    and \textbf{produces output}.
+    It usually also \textbf{stores data and results}.
   \end{beamercolorbox}
 
   \vspace{0.25cm}
@@ -379,26 +411,26 @@
       >=Stealth,
       role/.style={very thick, rounded corners=5pt, minimum width=3.0cm,
         minimum height=1.05cm, align=center, font=\bfseries, drop shadow},
-      core/.style={draw=DeepBlue, very thick, rounded corners=8pt, fill=DeepBlue,
+      core/.style={draw=nInk, very thick, rounded corners=8pt, fill=nInk,
         text=white, minimum width=3.7cm, minimum height=1.9cm, align=center,
         font=\Large\bfseries, drop shadow},
       arrow/.style={-{Stealth}, very thick}
     ]
       \node[core] (computer) at (4,0) {\faMicrochip\\[-2pt]\normalsize COMPUTER};
 
-      \node[role, draw=AccentOrange, fill=AccentOrange!12] (input) at (-0.95,0.7)
-        {\textcolor{AccentOrange}{\faDownload}\ Input\\[-2pt]\scriptsize data enters};
-      \node[role, draw=ProgramPurple, fill=ProgramPurple!12] (program) at (-0.95,-0.7)
-        {\textcolor{ProgramPurple}{\faCode}\ Program\\[-2pt]\scriptsize instructions};
-      \node[role, draw=StorageBlue, fill=StorageBlue!12, above=0.6cm of computer] (storage)
-        {\textcolor{StorageBlue}{\faDatabase}\ Storage\\[-2pt]\scriptsize data and results};
-      \node[role, draw=mygreen, fill=mygreen!12, right=1.6cm of computer] (output)
-        {\textcolor{mygreen}{\faUpload}\ Output\\[-2pt]\scriptsize results};
+      \node[role, draw=sPink, fill=sPink!15] (input) at (-0.95,0.7)
+        {\textcolor{sPinkText}{\faDownload}\ Input\\[-2pt]\scriptsize data enters};
+      \node[role, draw=sViolet, fill=sViolet!15] (program) at (-0.95,-0.7)
+        {\textcolor{sViolet}{\faCode}\ Program\\[-2pt]\scriptsize instructions};
+      \node[role, draw=nLine, fill=nFill, text=nInk, above=0.6cm of computer] (storage)
+        {\faDatabase\ Storage\\[-2pt]\scriptsize data and results};
+      \node[role, draw=nLine, fill=nFill, text=nInk, right=1.6cm of computer] (output)
+        {\faUpload\ Output\\[-2pt]\scriptsize results};
 
-      \draw[arrow, AccentOrange]  (input.east)   -- (computer.west |- input.east);
-      \draw[arrow, ProgramPurple] (program.east) -- (computer.west |- program.east);
-      \draw[arrow, mygreen]       (computer.east) -- (output.west);
-      \draw[arrow, StorageBlue, <->] (computer.north) -- (storage.south);
+      \draw[arrow, nInk]  (input.east)   -- (computer.west |- input.east);
+      \draw[arrow, nInk] (program.east) -- (computer.west |- program.east);
+      \draw[arrow, nInk]       (computer.east) -- (output.west);
+      \draw[arrow, nInk, <->] (computer.north) -- (storage.south);
     \end{tikzpicture}
   \end{center}
 \end{frame}
@@ -410,48 +442,48 @@
   \begin{beamercolorbox}[rounded=true,sep=0.25cm,wd=\textwidth]{block body}
     \centering\small
     Programmability means that the same hardware can perform different tasks:
-    given the \textcolor{AccentOrange}{\textbf{same data}}, different
-    \textcolor{ProgramPurple}{\textbf{programs}} make the computer produce different
-    \textcolor{mygreen}{\textbf{results}}.
+    given the \textcolor{sPinkText}{\textbf{same data}}, different
+    \textcolor{sViolet}{\textbf{programs}} make the computer produce different
+    \textbf{results}.
   \end{beamercolorbox}
 
   \vspace{0.3cm}
   \begin{center}
     \begin{tikzpicture}[
       >=Stealth,
-      data/.style={draw=AccentOrange, very thick, rounded corners=5pt, fill=AccentOrange!12,
+      data/.style={draw=sPink, very thick, rounded corners=5pt, fill=sPink!15,
         minimum width=2.9cm, minimum height=0.95cm, align=center, font=\bfseries, drop shadow},
-      program/.style={draw=ProgramPurple, very thick, rounded corners=5pt, fill=ProgramPurple!12,
+      program/.style={draw=sViolet, very thick, rounded corners=5pt, fill=sViolet!15,
         minimum width=2.9cm, minimum height=0.95cm, align=center, font=\bfseries, drop shadow},
-      computer/.style={draw=DeepBlue, very thick, rounded corners=8pt, fill=DeepBlue,
+      computer/.style={draw=nInk, very thick, rounded corners=8pt, fill=nInk,
         text=white, minimum width=3.6cm, minimum height=0.95cm, align=center,
         font=\bfseries, drop shadow},
-      result/.style={draw=mygreen, very thick, rounded corners=5pt, fill=mygreen!12,
+      result/.style={draw=nLine, very thick, rounded corners=5pt, fill=nFill, text=nInk,
         minimum width=2.9cm, minimum height=0.95cm, align=center, font=\bfseries, drop shadow},
       arrow/.style={-{Stealth}, very thick}
     ]
       % ---------- LEFT: Program 1 ----------
-      \node[data]     (d1) at (-4.85, 0)   {\textcolor{AccentOrange}{\faDatabase}\ Same data\\[-2pt]\scriptsize\texttt{x = 5}};
-      \node[program]  (p1) at (-1.75, 0)   {\textcolor{ProgramPurple}{\faCode}\ Program 1\\[-2pt]\scriptsize\texttt{result = x * 2}};
+      \node[data]     (d1) at (-4.85, 0)   {\textcolor{sPinkText}{\faDatabase}\ Same data\\[-2pt]\scriptsize\texttt{x = 5}};
+      \node[program]  (p1) at (-1.75, 0)   {\textcolor{sViolet}{\faCode}\ Program 1\\[-2pt]\scriptsize\texttt{result = x * 2}};
       \node[computer] (c1) at (-3.3, -1.5) {\faMicrochip\ SAME COMPUTER};
-      \node[result]   (r1) at (-3.3, -3.0) {\textcolor{mygreen}{\faCheckCircle}\ Output 1\\[-2pt]\scriptsize\texttt{10}};
+      \node[result]   (r1) at (-3.3, -3.0) {\faCheckCircle\ Output 1\\[-2pt]\scriptsize\texttt{10}};
 
-      \draw[arrow, AccentOrange]  (d1.south) -- (d1.south |- c1.north);
-      \draw[arrow, ProgramPurple] (p1.south) -- (p1.south |- c1.north);
-      \draw[arrow, mygreen]       (c1.south) -- (r1.north);
+      \draw[arrow, nInk]  (d1.south) -- (d1.south |- c1.north);
+      \draw[arrow, nInk] (p1.south) -- (p1.south |- c1.north);
+      \draw[arrow, nInk]       (c1.south) -- (r1.north);
 
       % ---------- RIGHT: Program 2 ----------
-      \node[data]     (d2) at (1.75, 0)   {\textcolor{AccentOrange}{\faDatabase}\ Same data\\[-2pt]\scriptsize\texttt{x = 5}};
-      \node[program]  (p2) at (4.85, 0)   {\textcolor{ProgramPurple}{\faCode}\ Program 2\\[-2pt]\scriptsize\texttt{result = x + 4}};
+      \node[data]     (d2) at (1.75, 0)   {\textcolor{sPinkText}{\faDatabase}\ Same data\\[-2pt]\scriptsize\texttt{x = 5}};
+      \node[program]  (p2) at (4.85, 0)   {\textcolor{sViolet}{\faCode}\ Program 2\\[-2pt]\scriptsize\texttt{result = x + 4}};
       \node[computer] (c2) at (3.3, -1.5) {\faMicrochip\ SAME COMPUTER};
-      \node[result]   (r2) at (3.3, -3.0) {\textcolor{mygreen}{\faCheckCircle}\ Output 2\\[-2pt]\scriptsize\texttt{9}};
+      \node[result]   (r2) at (3.3, -3.0) {\faCheckCircle\ Output 2\\[-2pt]\scriptsize\texttt{9}};
 
-      \draw[arrow, AccentOrange]  (d2.south) -- (d2.south |- c2.north);
-      \draw[arrow, ProgramPurple] (p2.south) -- (p2.south |- c2.north);
-      \draw[arrow, mygreen]       (c2.south) -- (r2.north);
+      \draw[arrow, nInk]  (d2.south) -- (d2.south |- c2.north);
+      \draw[arrow, nInk] (p2.south) -- (p2.south |- c2.north);
+      \draw[arrow, nInk]       (c2.south) -- (r2.north);
 
       % ---------- divider ----------
-      \draw[DeepBlue!40, dashed, thick] (0,0.7) -- (0,-3.5);
+      \draw[nLine, dashed, thick] (0,0.7) -- (0,-3.5);
     \end{tikzpicture}
   \end{center}
 \end{frame}
@@ -554,10 +586,10 @@
           \node[instrcell, minimum width=1.9cm] (m\i) at (0,{0.3-0.45*\i}) {\t};
           \node[addr, anchor=west] at (1.0,{0.3-0.45*\i}) {\i};
         }
-        \node[draw=DeepBlue, fill=DeepBlue, text=white, rounded corners=5pt, minimum width=1.4cm, minimum height=1.6cm,
+        \node[draw=nInk, fill=nInk, text=white, rounded corners=5pt, minimum width=1.4cm, minimum height=1.6cm,
           font=\bfseries\small] (cpu) at (4.0,-0.45) {CPU};
-        \draw[-{Stealth}, very thick, DeepBlue] (1.35,-0.45) -- node[above, font=\scriptsize] {reads} (cpu.west);
-        \node[font=\tiny, text=DeepBlue, align=center] at (2.3,-1.05) {instruction\\at a given address};
+        \draw[-{Stealth}, very thick, nInk] (1.35,-0.45) -- node[above, font=\scriptsize] {reads} (cpu.west);
+        \node[font=\tiny, text=nInk, align=center] at (2.3,-1.05) {instruction\\at a given address};
       \end{tikzpicture}
     \column{0.55\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.13cm,wd=\linewidth]{block body example}
@@ -633,11 +665,11 @@
         \node[addr, anchor=west] at ([xshift=2pt]a6.east) {6};
         \node[addr, anchor=west] at ([xshift=2pt]a7.east) {7};
         \node[addr, anchor=west] at ([xshift=2pt]a8.east) {8};
-        \draw[<->, very thick, DeepBlue] ([xshift=-0.3cm]a0.north west) -- ([xshift=-0.3cm]a8.south west)
+        \draw[<->, very thick, nInk] ([xshift=-0.3cm]a0.north west) -- ([xshift=-0.3cm]a8.south west)
           node[midway, below=1pt, sloped, font=\scriptsize\bfseries] {one address space};
       \end{tikzpicture}\\[0.05cm]
       \scriptsize
-      \textcolor{AccentOrange}{$\blacksquare$} instruction\quad\textcolor{StorageBlue}{$\blacksquare$} data
+      \textcolor{sViolet}{$\blacksquare$} instruction\quad\textcolor{sPink}{$\blacksquare$} data
     \column{0.57\textwidth}
       \small
       \textbf{What does ``the same'' mean? Three things:}
@@ -664,19 +696,19 @@
   \vspace{0.15cm}
   \begin{center}
     \begin{tikzpicture}[>=Stealth,
-      bits/.style={draw=DeepBlue, very thick, rounded corners=5pt, fill=LightGray,
+      bits/.style={draw=nLine, very thick, rounded corners=5pt, fill=nFill, text=nInk,
         minimum width=3.2cm, minimum height=0.9cm, align=center, font=\ttfamily\large, drop shadow},
-      context/.style={draw=DeepBlue, very thick, rounded corners=5pt, minimum width=5.0cm,
+      context/.style={draw=nLine, very thick, rounded corners=5pt, minimum width=5.0cm,
         minimum height=1.0cm, align=center, font=\small\bfseries, drop shadow},
-      arrow/.style={-{Stealth}, very thick, DeepBlue}]
+      arrow/.style={-{Stealth}, very thick, nInk}]
       \node[bits] (cell) at (0,0) {0011 0101};
       \node[above=2pt of cell, font=\scriptsize] {one memory location};
-      \node[context, draw=AccentOrange, fill=AccentOrange!12, right=3.2cm of cell, yshift=0.75cm] (instruction)
+      \node[context, draw=sViolet, fill=sViolet!15, right=3.2cm of cell, yshift=0.75cm] (instruction)
         {Context A: continue the program\\[-2pt]\scriptsize interpret these bits as an instruction: ADD 5};
-      \node[context, draw=StorageBlue, fill=StorageBlue!12, right=3.2cm of cell, yshift=-0.75cm] (data)
+      \node[context, draw=sPink, fill=sPink!15, right=3.2cm of cell, yshift=-0.75cm] (data)
         {Context B: use a value\\[-2pt]\scriptsize interpret these bits as data: $53$};
-      \draw[arrow, AccentOrange] (cell.east) -- (instruction.west);
-      \draw[arrow, StorageBlue] (cell.east) -- (data.west);
+      \draw[arrow] (cell.east) -- (instruction.west);
+      \draw[arrow] (cell.east) -- (data.west);
     \end{tikzpicture}
   \end{center}
   \vspace{0.05cm}
@@ -730,12 +762,12 @@
       \centering
       \footnotesize\textbf{An instruction is a number too}\\[0.1cm]
       \begin{tikzpicture}[>=Stealth]
-        \node[draw=AccentOrange, fill=AccentOrange!18, very thick, minimum width=1.7cm, minimum height=0.6cm,
+        \node[draw=sViolet, fill=sViolet!18, very thick, minimum width=1.7cm, minimum height=0.6cm,
           font=\ttfamily\small] (op) {0001};
-        \node[draw=StorageBlue, fill=StorageBlue!18, very thick, minimum width=1.7cm, minimum height=0.6cm,
+        \node[draw=sIndigo, fill=sIndigo!18, very thick, minimum width=1.7cm, minimum height=0.6cm,
           font=\ttfamily\small, right=0pt of op] (ad) {0110};
-        \node[above=1pt of op, font=\scriptsize\bfseries, text=AccentOrange] {opcode};
-        \node[above=1pt of ad, font=\scriptsize\bfseries, text=StorageBlue] {address};
+        \node[above=1pt of op, font=\scriptsize\bfseries, text=sViolet] {opcode};
+        \node[above=1pt of ad, font=\scriptsize\bfseries, text=sIndigo] {address};
         \node[below=2pt of op, font=\scriptsize] {\texttt{LOAD}};
         \node[below=2pt of ad, font=\scriptsize] {cell 6};
       \end{tikzpicture}\\[0.12cm]
@@ -758,13 +790,13 @@
         \toprule
         \textbf{Address} & \textbf{Bits} & \textbf{Meaning} \\
         \midrule
-        0 & \texttt{0001 0110} & \cellcolor{AccentOrange!15} instruction \texttt{LOAD 6} \\
-        1 & \texttt{0011 0111} & \cellcolor{AccentOrange!15} instruction \texttt{ADD 7} \\
-        2 & \texttt{0010 1000} & \cellcolor{AccentOrange!15} instruction \texttt{STORE 8} \\
-        3 & \texttt{0111 0000} & \cellcolor{AccentOrange!15} instruction \texttt{HALT} \\
-        6 & \texttt{0000 0101} & \cellcolor{StorageBlue!15} number 5 \\
-        7 & \texttt{0000 0011} & \cellcolor{StorageBlue!15} number 3 \\
-        8 & \texttt{0000 0000} & \cellcolor{StorageBlue!15} number 0 (result) \\
+        0 & \texttt{0001 0110} & \cellcolor{sViolet!15} instruction \texttt{LOAD 6} \\
+        1 & \texttt{0011 0111} & \cellcolor{sViolet!15} instruction \texttt{ADD 7} \\
+        2 & \texttt{0010 1000} & \cellcolor{sViolet!15} instruction \texttt{STORE 8} \\
+        3 & \texttt{0111 0000} & \cellcolor{sViolet!15} instruction \texttt{HALT} \\
+        6 & \texttt{0000 0101} & \cellcolor{sPink!15} number 5 \\
+        7 & \texttt{0000 0011} & \cellcolor{sPink!15} number 3 \\
+        8 & \texttt{0000 0000} & \cellcolor{sPink!15} number 0 (result) \\
         \bottomrule
       \end{tabular}\\[0.1cm]
       \tiny 8-bit teaching format: 4-bit opcode + 4-bit address (opcodes as in MARIE, used later). Real CPUs use longer, richer formats.
@@ -821,10 +853,10 @@
       \pcstack{-1.45}{1}{instr 3}{PC = 1}
       \pcstack{2.0}{2}{instr 3}{PC = 2}
       \pcstack{5.45}{3}{JUMP 0}{a jump: PC $\leftarrow$ 0}
-      \node[font=\large\bfseries, text=DeepBlue] at (-3.17,0.55) {$\Rightarrow$};
-      \node[font=\large\bfseries, text=DeepBlue] at (0.28,0.55) {$\Rightarrow$};
-      \node[font=\large\bfseries, text=DeepBlue] at (3.73,0.55) {$\Rightarrow$};
-      \draw[-{Stealth}, very thick, AccentOrange, dashed, rounded corners=3pt]
+      \node[font=\large\bfseries, text=nInk] at (-3.17,0.55) {$\Rightarrow$};
+      \node[font=\large\bfseries, text=nInk] at (0.28,0.55) {$\Rightarrow$};
+      \node[font=\large\bfseries, text=nInk] at (3.73,0.55) {$\Rightarrow$};
+      \draw[-{Stealth}, very thick, DeepBlue, dashed, rounded corners=3pt]
         (6.75,-1.35) -- (7.05,-1.35) -- (7.05,0) -- (6.75,0);
     \end{tikzpicture}
   \end{center}
@@ -877,37 +909,37 @@
   \begin{center}
     \begin{tikzpicture}[
       >=Stealth,
-      module/.style={draw=DeepBlue, very thick, rounded corners=4pt, align=center,
+      module/.style={draw=nLine, very thick, rounded corners=4pt, align=center, text=nInk,
         font=\small\bfseries, drop shadow, inner sep=2pt},
-      external/.style={draw=DeepBlue, very thick, rounded corners=5pt, fill=LightGray,
+      external/.style={draw=nLine, very thick, rounded corners=5pt, fill=nFill, text=nInk,
         minimum width=1.6cm, minimum height=0.85cm, align=center, font=\small\bfseries, drop shadow},
-      flow/.style={-{Stealth}, very thick, DeepBlue},
-      inside/.style={{Stealth[length=1.6mm,width=1.4mm]}-{Stealth[length=1.6mm,width=1.4mm]}, thick, DeepBlue},
-      busline/.style={very thick, DeepBlue!75}
+      flow/.style={-{Stealth}, very thick, nInk},
+      inside/.style={{Stealth[length=1.6mm,width=1.4mm]}-{Stealth[length=1.6mm,width=1.4mm]}, thick, nInk},
+      busline/.style={very thick, nLine}
     ]
       % ---------- blocks (all bottoms aligned at y = -1.2) ----------
-      \node[module, anchor=south, fill=gray!18, draw=gray, minimum width=2.2cm, minimum height=1.5cm] (io) at (-3.6,-1.2)
-        {\textcolor{gray}{\faArrowRight}\ I/O\\[-2pt]\scriptsize interfaces\\[-3pt]\scriptsize to devices};
-      \node[module, anchor=south, fill=StorageBlue!18, minimum width=2.2cm, minimum height=1.5cm] (memory) at (-0.6,-1.2)
-        {\textcolor{StorageBlue}{\faDatabase}\ Memory\\[-2pt]\scriptsize program\\[-3pt]\scriptsize + data};
+      \node[module, anchor=south, fill=nFill, minimum width=2.2cm, minimum height=1.5cm] (io) at (-3.6,-1.2)
+        {\faArrowRight\ I/O\\[-2pt]\scriptsize interfaces\\[-3pt]\scriptsize to devices};
+      \node[module, anchor=south, fill=nFill, minimum width=2.2cm, minimum height=1.5cm] (memory) at (-0.6,-1.2)
+        {\faDatabase\ Memory\\[-2pt]\scriptsize program\\[-3pt]\scriptsize + data};
 
       % CPU: one box that contains control, computation and registers
-      \node[draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!6, minimum width=6.0cm,
+      \node[draw=nLine, very thick, rounded corners=6pt, fill=nFill!50, minimum width=6.0cm,
         minimum height=2.35cm, anchor=south, drop shadow] (cpu) at (4.0,-1.2) {};
-      \node[font=\scriptsize\bfseries, text=DeepBlue, anchor=south west] at ([shift={(0.12,0.08)}]cpu.south west) {CPU};
-      \node[module, fill=AccentOrange!18, draw=AccentOrange, minimum width=2.45cm, minimum height=0.78cm] (cu) at (2.55,0.52)
-        {\textcolor{AccentOrange}{\faCogs}\ CU\\[-2pt]\scriptsize directs operations};
-      \node[module, fill=mygreen!18, draw=mygreen, minimum width=2.45cm, minimum height=0.78cm] (alu) at (5.45,0.52)
-        {\textcolor{mygreen}{\faCalculator}\ ALU\\[-2pt]\scriptsize performs calculations};
-      \node[module, fill=yellow!25, draw=orange!80!black, minimum width=4.0cm, minimum height=0.72cm] (reg) at (4.0,-0.58)
-        {\textcolor{orange!80!black}{\faStickyNote}\ Registers\\[-2pt]\scriptsize fast working values};
+      \node[font=\scriptsize\bfseries, text=nInk, anchor=south west] at ([shift={(0.12,0.08)}]cpu.south west) {CPU};
+      \node[module, fill=nFill, minimum width=2.45cm, minimum height=0.78cm] (cu) at (2.55,0.52)
+        {\faCogs\ CU\\[-2pt]\scriptsize directs operations};
+      \node[module, fill=nFill, minimum width=2.45cm, minimum height=0.78cm] (alu) at (5.45,0.52)
+        {\faCalculator\ ALU\\[-2pt]\scriptsize performs calculations};
+      \node[module, fill=nFill, minimum width=4.0cm, minimum height=0.72cm] (reg) at (4.0,-0.58)
+        {\faStickyNote\ Registers\\[-2pt]\scriptsize fast working values};
 
       % ---------- outside world ----------
       \node[external] (input) at (-6.45,0.2) {Input\\[-2pt]\scriptsize program/data};
       \node[external] (output) at (-6.45,-0.95) {Output\\[-2pt]\scriptsize results};
 
       % ---------- system bus ----------
-      \node[fill=DeepBlue!75, minimum width=10.8cm, minimum height=0.22cm, inner sep=0pt] (bus) at (0.55,-1.6) {};
+      \node[fill=nLine, minimum width=10.8cm, minimum height=0.22cm, inner sep=0pt] (bus) at (0.55,-1.6) {};
       \node[font=\tiny\bfseries, text=white] at (1.8,-1.6) {SYSTEM BUS};
 
       % ---------- connections ----------
@@ -924,8 +956,8 @@
       \draw[inside] (alu.south) -- (alu.south |- reg.north);
 
       % ---------- the whole computer ----------
-      \node[draw=DeepBlue, very thick, rounded corners=8pt, inner sep=0.2cm, fit=(io)(memory)(cpu)(bus),
-        label={[font=\small\bfseries, text=DeepBlue]above:COMPUTER}] (computer) {};
+      \node[draw=nLine, very thick, rounded corners=8pt, inner sep=0.2cm, fit=(io)(memory)(cpu)(bus),
+        label={[font=\small\bfseries, text=nInk]above:COMPUTER}] (computer) {};
     \end{tikzpicture}
   \end{center}
   \vspace{0.02cm}
@@ -947,7 +979,7 @@
   \begin{columns}[T,onlytextwidth]
     \column{0.31\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.11cm,wd=\linewidth]{block body example}
-        \centering\small\textcolor{StorageBlue}{\large\faDatabase}\\[-1mm]
+        \centering\small\textcolor{nInk}{\large\faDatabase}\\[-1mm]
         \textbf{Memory organisation}\\[0.04cm]
         \raggedright\footnotesize
         \textbf{Harvard architecture}\\
@@ -955,7 +987,7 @@
       \end{beamercolorbox}
     \column{0.31\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.11cm,wd=\linewidth]{block body}
-        \centering\small\textcolor{mygreen}{\large\faCalculator}\\[-1mm]
+        \centering\small\textcolor{nInk}{\large\faCalculator}\\[-1mm]
         \textbf{Data processing}\\[0.04cm]
         \raggedright\footnotesize
         \textbf{SIMD architecture}\\
@@ -964,7 +996,7 @@
       \end{beamercolorbox}
     \column{0.31\textwidth}
       \begin{beamercolorbox}[rounded=true,sep=0.11cm,wd=\linewidth]{block body example}
-        \centering\small\textcolor{AccentOrange}{\large\faCogs}\\[-1mm]
+        \centering\small\textcolor{nInk}{\large\faCogs}\\[-1mm]
         \textbf{Execution control}\\[0.04cm]
         \raggedright\footnotesize
         \textbf{Dataflow architecture}\\
@@ -1014,15 +1046,15 @@
       \centering
       \resizebox{\linewidth}{!}{%
       \begin{tikzpicture}[>=Stealth,
-        proc/.style={draw=DeepBlue, very thick, rounded corners=6pt, fill=DeepBlue!8,
+        proc/.style={draw=nLine, very thick, rounded corners=6pt, fill=nFill, text=nInk,
           minimum width=2.6cm, minimum height=1.4cm, align=center, font=\bfseries, drop shadow},
-        io/.style={draw=DeepBlue, very thick, rounded corners=4pt, fill=LightGray,
+        io/.style={draw=nLine, very thick, rounded corners=4pt, fill=nFill, text=nInk,
           minimum width=2.1cm, minimum height=0.7cm, align=center, font=\small\bfseries, drop shadow},
-        flow/.style={-{Stealth}, very thick, DeepBlue}]
+        flow/.style={-{Stealth}, very thick, nInk}]
         \node[proc] (p) {PROCESSOR};
-        \node[io, above=0.6cm of p] (ins) {\textcolor{AccentOrange}{\faDownload}\ Instructions};
-        \node[io, below=0.6cm of p] (dat) {\textcolor{StorageBlue}{\faDownload}\ Data};
-        \node[io, right=1.1cm of p] (res) {\textcolor{mygreen}{\faUpload}\ Results};
+        \node[io, above=0.6cm of p] (ins) {\textcolor{sViolet}{\faDownload}\ Instructions};
+        \node[io, below=0.6cm of p] (dat) {\textcolor{sPinkText}{\faDownload}\ Data};
+        \node[io, right=1.1cm of p] (res) {\faUpload\ Results};
         \draw[flow] (ins) -- (p);
         \draw[flow] (dat) -- (p);
         \draw[flow] (p) -- (res);
@@ -1040,7 +1072,7 @@
   {\mempanel{-1}{0000 0000\ \ (0)}{0}
    \cpupanel{0}{}{}{}{}
    \node[font=\scriptsize, text=gray, align=center] at (cpu.center) {empty for now};
-   \draw[{Stealth}-{Stealth}, very thick, DeepBlue] (1.5,-0.2) -- node[above, font=\scriptsize\bfseries] {bus} (cpu.west |- 0,-0.2);}
+   \draw[{Stealth}-{Stealth}, very thick, nLine] (1.5,-0.2) -- node[above, font=\scriptsize\bfseries, text=nInk] {bus} (cpu.west |- 0,-0.2);}
   {\footnotesize
    The program and its data are in memory. The CPU is connected to memory by the bus
    and can do only two things with it:\par\vspace{0.1cm}
@@ -1071,7 +1103,7 @@
    \cpupanel{2}{0 $\to$ 1}{0001 0110}{}{}
    \executing{LOAD 6}
    \draw[fetcharrow] (m0.east) -- ++(0.4,0) |- (ir.west);
-   \node[steplabel, text=AccentOrange] at (1.85,0.65) {read};}
+   \node[steplabel, text=aRead] at (1.85,0.65) {read};}
   {\footnotesize
    The CPU reads the cell the PC points to: \textbf{cell 0}.
    Memory sends back \mbox{\texttt{0001 0110}}.\par\vspace{0.1cm}
@@ -1093,22 +1125,22 @@
       field/.style={very thick, minimum width=1.9cm, minimum height=0.7cm, font=\ttfamily\large},
       meaning/.style={very thick, rounded corners=4pt, minimum width=1.9cm, minimum height=0.6cm,
         font=\small\bfseries, align=center},
-      flow/.style={->, very thick, DeepBlue}]
+      flow/.style={->, very thick, nInk}]
       % the instruction in the IR
       \node[draw=orange!80!black, fill=yellow!25, very thick, rounded corners=3pt, minimum width=3.4cm,
         minimum height=0.7cm, font=\ttfamily\large] (ir) at (3.5,1.9) {0001 0110};
       \node[anchor=east, font=\small\bfseries, text=orange!80!black] at (ir.west) {IR\ \ };
       % the two parts
-      \node[field, draw=AccentOrange, fill=AccentOrange!20] (op) at (2.0,0.55) {0001};
-      \node[field, draw=StorageBlue, fill=StorageBlue!20] (ad) at (5.0,0.55) {0110};
-      \node[anchor=east, font=\scriptsize\bfseries, text=AccentOrange, align=right] at (op.west) {opcode\\[-2pt]\mdseries what to do\ };
-      \node[anchor=west, font=\scriptsize\bfseries, text=StorageBlue, align=left] at (ad.east) {\ address\\[-2pt]\mdseries\ which cell};
+      \node[field, draw=sViolet, fill=sViolet!18] (op) at (2.0,0.55) {0001};
+      \node[field, draw=sIndigo, fill=sIndigo!18] (ad) at (5.0,0.55) {0110};
+      \node[anchor=east, font=\scriptsize\bfseries, text=sViolet, align=right] at (op.west) {opcode\\[-2pt]\mdseries what to do\ };
+      \node[anchor=west, font=\scriptsize\bfseries, text=sIndigo, align=left] at (ad.east) {\ address\\[-2pt]\mdseries\ which cell};
       \draw[flow] (ir.south -| op.north) -- (op.north);
       \draw[flow] (ir.south -| ad.north) -- (ad.north);
-      \node[font=\scriptsize, text=DeepBlue, fill=white, inner sep=1pt] at (3.5,1.22) {split into two 4-bit parts};
+      \node[font=\scriptsize, text=nInk, fill=white, inner sep=1pt] at (3.5,1.22) {split into two 4-bit parts};
       % what each part means
-      \node[meaning, draw=AccentOrange, fill=AccentOrange!12] (load) at (2.0,-0.85) {\texttt{LOAD}};
-      \node[meaning, draw=StorageBlue, fill=StorageBlue!12] (cell) at (5.0,-0.85) {cell 6};
+      \node[meaning, draw=sViolet, fill=sViolet!12] (load) at (2.0,-0.85) {\texttt{LOAD}};
+      \node[meaning, draw=sIndigo, fill=sIndigo!12] (cell) at (5.0,-0.85) {cell 6};
       \draw[flow] (op) -- node[right, font=\scriptsize] {look it up} (load);
       \draw[flow] (ad) -- node[right, font=\scriptsize] {\texttt{0110} = 6} (cell);
       % opcode table
@@ -1116,7 +1148,7 @@
         \begin{tabular}{cc}
           \multicolumn{2}{c}{\textbf{Opcode table}} \\
           \toprule
-          \texttt{0001} & \cellcolor{AccentOrange!25}\texttt{LOAD} \\
+          \texttt{0001} & \cellcolor{sViolet!20}\texttt{LOAD} \\
           \texttt{0010} & \texttt{STORE} \\
           \texttt{0011} & \texttt{ADD} \\
           \texttt{0111} & \texttt{HALT} \\
@@ -1124,7 +1156,7 @@
         \end{tabular}};
       \draw[->, thick, dashed, AccentOrange] (tab.east |- load) -- (load.west);
       % the result
-      \node[draw=DeepBlue, very thick, rounded corners=5pt, fill=LightGray, minimum width=7.2cm,
+      \node[draw=nLine, very thick, rounded corners=5pt, fill=nFill, minimum width=7.2cm,
         minimum height=0.75cm, font=\small, drop shadow] (res) at (3.5,-2.25)
         {\texttt{LOAD 6} = ``bring the \textbf{contents of cell 6} into the CPU''};
       \draw[flow] (load.south) -- (load.south |- res.north);
@@ -1142,7 +1174,7 @@
    \cpupanel{3}{1}{0001 0110}{5}{}
    \executing{LOAD 6}
    \draw[dataarrow] (m6.east) -- ++(0.75,0) |- (ac.west);
-   \node[steplabel, text=StorageBlue] at (2.2,-0.62) {read};}
+   \node[steplabel, text=aRead] at (2.2,-0.62) {read};}
   {\footnotesize
    The CPU reads \textbf{cell 6}. Memory sends back \mbox{\texttt{0000 0101}} = 5.\par\vspace{0.04cm}
    \textcolor{DeepBlue}{The instruction said \textbf{6}, the value we got is \textbf{5}: 6 was the number of the cell.}\par\vspace{0.08cm}
@@ -1165,15 +1197,15 @@
     \begin{tikzpicture}[>=Stealth,
       phase/.style={very thick, rounded corners=5pt, minimum width=3.9cm, minimum height=1.5cm,
         align=center, font=\small\bfseries, drop shadow, text width=3.7cm}]
-      \node[phase, draw=AccentOrange, fill=AccentOrange!15] (f) at (0,0)
+      \node[phase, draw=sAmber, fill=sAmber!25] (f) at (0,0)
         {Fetch\\[2pt]\scriptsize\mdseries read the instruction at the address in the PC into the IR; increase the PC};
-      \node[phase, draw=ProgramPurple, fill=ProgramPurple!12] (d) at (4.7,0)
+      \node[phase, draw=sBrown, fill=sBrown!20] (d) at (4.7,0)
         {Decode\\[2pt]\scriptsize\mdseries split the IR into opcode and address; find out what to do};
-      \node[phase, draw=mygreen, fill=mygreen!12] (e) at (9.4,0)
+      \node[phase, draw=sTeal, fill=sTeal!20] (e) at (9.4,0)
         {Execute\\[2pt]\scriptsize\mdseries do it: here, bring cell 6 into the AC};
-      \draw[->, very thick, DeepBlue] (f) -- (d);
-      \draw[->, very thick, DeepBlue] (d) -- (e);
-      \draw[->, very thick, DeepBlue, rounded corners=5pt] (e.south) -- ++(0,-0.5) -| (f.south)
+      \draw[->, very thick, nInk] (f) -- (d);
+      \draw[->, very thick, nInk] (d) -- (e);
+      \draw[->, very thick, nInk, rounded corners=5pt] (e.south) -- ++(0,-0.5) -| (f.south)
         node[pos=0.25, below, font=\scriptsize] {next instruction};
     \end{tikzpicture}
   \end{center}
@@ -1189,10 +1221,10 @@
   {\mempanel{1}{0000 0000\ \ (0)}{0}
    \cpupanel{3}{1 $\to$ 2}{0011 0111}{5}{}
    \draw[fetcharrow] (m1.east) -- ++(0.4,0) |- (ir.west);
-   \node[steplabel, text=AccentOrange] at (1.85,0.45) {read};}
-  {\stepbox{\textcolor{AccentOrange}{Fetch}}{\texttt{PC = 1}: read cell 1\\
+   \node[steplabel, text=aRead] at (1.85,0.45) {read};}
+  {\stepbox{\textcolor{sAmberText}{Fetch}}{\texttt{PC = 1}: read cell 1\\
      \texttt{IR} $\leftarrow$ \mbox{\texttt{0011 0111}}\\ \texttt{PC} $\to$ 2}
-   \stepbox{\textcolor{ProgramPurple}{Decode}}{\texttt{0011} = \texttt{ADD}\\ \texttt{0111} = cell 7}
+   \stepbox{\textcolor{sBrown}{Decode}}{\texttt{0011} = \texttt{ADD}\\ \texttt{0111} = cell 7}
    \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body example}
      \footnotesize\centering
      The same steps as before, only different bits.
@@ -1207,14 +1239,14 @@
    \cpupanel{4}{2}{0011 0111}{5 $\to$ 8}{hotalu}
    \executing{ADD 7}
    % input 1: from the AC
-   \draw[-{Stealth}, very thick, mygreen!70!black]
+   \draw[-{Stealth}, very thick, nInk]
      ([yshift=4pt]ac.east) -- node[above, font=\tiny\bfseries] {5} ([yshift=4pt]alu.west);
    % result: back to the AC
-   \draw[-{Stealth}, very thick, mygreen!70!black]
+   \draw[-{Stealth}, very thick, nInk]
      ([yshift=-4pt]alu.west) -- node[below, font=\tiny\bfseries] {8} ([yshift=-4pt]ac.east);
    % input 2: from cell 7
    \draw[dataarrow] (m7.east) -- ++(0.45,0) |- (6.3,-1.85) -- (alu.south);
-   \node[font=\tiny\bfseries, text=StorageBlue, above] at (4.1,-1.85) {3 from cell 7};}
+   \node[font=\tiny\bfseries, text=aRead, above] at (4.1,-1.85) {3 from cell 7};}
   {\footnotesize
    \texttt{ADD 7} needs two numbers: \textbf{5} from the AC and \textbf{3} from cell 7.\par\vspace{0.15cm}
    \defbox{The CPU has a \textbf{specialised unit} for calculations:
@@ -1230,12 +1262,12 @@
    \cpupanel{4}{2 $\to$ 3}{0010 1000}{8}{}
    \draw[fetcharrow] (m2.east) -- ++(0.4,0) |- (ir.west);
    \draw[dataarrow] (ac.west) -- (2.2,-1.05) |- (m8.east);
-   \node[steplabel, text=AccentOrange] at (1.85,0.22) {read};
-   \node[steplabel, text=StorageBlue] at (2.2,-1.45) {write};}
-  {\stepbox{\textcolor{AccentOrange}{Fetch}}{\texttt{PC = 2}: read cell 2; \texttt{IR} $\leftarrow$ \mbox{\texttt{0010 1000}};
+   \node[steplabel, text=aRead] at (1.85,0.22) {read};
+   \node[steplabel, text=aWrite] at (2.2,-1.45) {write};}
+  {\stepbox{\textcolor{sAmberText}{Fetch}}{\texttt{PC = 2}: read cell 2; \texttt{IR} $\leftarrow$ \mbox{\texttt{0010 1000}};
      \texttt{PC} $\to$ 3}
-   \stepbox{\textcolor{ProgramPurple}{Decode}}{\texttt{0010} = \texttt{STORE}; \ \texttt{1000} = cell 8}
-   \stepbox{\textcolor{mygreen!70!black}{Execute}}{write the AC into cell 8:
+   \stepbox{\textcolor{sBrown}{Decode}}{\texttt{0010} = \texttt{STORE}; \ \texttt{1000} = cell 8}
+   \stepbox{\textcolor{sTealText}{Execute}}{write the AC into cell 8:
      data goes \textbf{from the CPU to memory}.\\
      Cell 8: \mbox{\texttt{0000 0000}} $\to$ \mbox{\texttt{0000 1000}}}
    \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body example}
@@ -1245,14 +1277,14 @@
 
 % ---------- 10. HALT ----------
 \explainframe{\texttt{HALT}: the end of the program}
-  {\mempanel{3}{0000 1000\ \ (8)}{8}
+  {\mempanel{3}{0000 1000\ \ (8)}{0}
    \cpupanel{4}{3 $\to$ 4}{0111 0000}{8}{}
    \draw[fetcharrow] (m3.east) -- ++(0.4,0) |- (ir.west);
-   \node[steplabel, text=AccentOrange] at (2.0,0.2) {read};}
-  {\stepbox{\textcolor{AccentOrange}{Fetch}}{\texttt{PC = 3}: read cell 3; \texttt{IR} $\leftarrow$ \mbox{\texttt{0111 0000}};
+   \node[steplabel, text=aRead] at (2.0,0.2) {read};}
+  {\stepbox{\textcolor{sAmberText}{Fetch}}{\texttt{PC = 3}: read cell 3; \texttt{IR} $\leftarrow$ \mbox{\texttt{0111 0000}};
      \texttt{PC} $\to$ 4}
-   \stepbox{\textcolor{ProgramPurple}{Decode}}{\texttt{0111} = \texttt{HALT}}
-   \stepbox{\textcolor{mygreen!70!black}{Execute}}{the CPU stops repeating the cycle.}
+   \stepbox{\textcolor{sBrown}{Decode}}{\texttt{0111} = \texttt{HALT}}
+   \stepbox{\textcolor{sTealText}{Execute}}{the CPU stops repeating the cycle.}
    \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body example}
      \footnotesize\centering
      \textbf{Result:} cell 8 holds \mbox{\texttt{0000 1000}} = 8 = 5 + 3.
@@ -1282,10 +1314,10 @@
         \midrule
         Which cell to read next? & PC & \colorbox{yellow!30}{Registers} \\
         Where to keep the instruction? & IR & \colorbox{yellow!30}{Registers} \\
-        What do the bits mean? & decoding & \colorbox{AccentOrange!20}{CU} \\
+        What do the bits mean? & decoding & \textbf{CU} \\
         Where to keep the working value? & AC & \colorbox{yellow!30}{Registers} \\
-        Who calculates? & ALU & \colorbox{mygreen!20}{ALU} \\
-        Who runs the whole sequence? & CU & \colorbox{AccentOrange!20}{CU} \\
+        Who calculates? & ALU & \textbf{ALU} \\
+        Who runs the whole sequence? & CU & \textbf{CU} \\
         \bottomrule
       \end{tabular}
   \end{columns}
@@ -1322,15 +1354,15 @@
     \begin{tikzpicture}[>=Stealth, scale=0.9, every node/.append style={transform shape},
       phase/.style={very thick, rounded corners=5pt, minimum width=3.6cm, minimum height=1.0cm,
         align=center, font=\small\bfseries, drop shadow}]
-      \node[phase, draw=AccentOrange, fill=AccentOrange!15] (f) at (0,0)
+      \node[phase, draw=sAmber, fill=sAmber!25] (f) at (0,0)
         {1. Fetch\\[-1pt]\scriptsize\mdseries $\mathsf{IR}\leftarrow \mathsf{M}[\mathsf{PC}]$,\ \ $\mathsf{PC}\leftarrow\mathsf{PC}+1$};
-      \node[phase, draw=ProgramPurple, fill=ProgramPurple!12] (d) at (4.6,0)
+      \node[phase, draw=sBrown, fill=sBrown!20] (d) at (4.6,0)
         {2. Decode\\[-1pt]\scriptsize\mdseries split IR: opcode $|$ address};
-      \node[phase, draw=mygreen, fill=mygreen!12] (e) at (9.2,0)
+      \node[phase, draw=sTeal, fill=sTeal!20] (e) at (9.2,0)
         {3. Execute\\[-1pt]\scriptsize\mdseries do what the opcode says};
-      \draw[->, very thick, DeepBlue] (f) -- (d);
-      \draw[->, very thick, DeepBlue] (d) -- (e);
-      \draw[->, very thick, DeepBlue, rounded corners=5pt] (e.south) -- ++(0,-0.35) -| (f.south)
+      \draw[->, very thick, nInk] (f) -- (d);
+      \draw[->, very thick, nInk] (d) -- (e);
+      \draw[->, very thick, nInk, rounded corners=5pt] (e.south) -- ++(0,-0.35) -| (f.south)
         node[pos=0.25, below, font=\scriptsize] {next instruction (the PC already points to it)};
     \end{tikzpicture}
   \end{center}
@@ -1510,7 +1542,7 @@
     \centering\small
     \textbf{MARIE} is a small CPU simulator designed for teaching. It has memory, registers,
     an accumulator, and the same fetch--decode--execute cycle we have just followed.\\[0.05cm]
-    \textcolor{AccentOrange}{\faLaptop}\ \ \textbf{\url{https://marie.js.org}}\ \ (runs in the browser, nothing to install)
+    \textcolor{DeepBlue}{\faLaptop}\ \ \textbf{\url{https://marie.js.org}}\ \ (runs in the browser, nothing to install)
   \end{beamercolorbox}
   \vspace{0.3cm}
   \begin{columns}[T,onlytextwidth]
@@ -1520,12 +1552,12 @@
       \texttt{Load X}\\[0.08cm]
       $\Downarrow$\\[0.08cm]
       \begin{tikzpicture}
-        \node[draw=AccentOrange, fill=AccentOrange!20, thick, minimum width=1.1cm, minimum height=0.55cm,
+        \node[draw=sViolet, fill=sViolet!18, thick, minimum width=1.1cm, minimum height=0.55cm,
           font=\ttfamily\small] (op) {1};
-        \node[draw=StorageBlue, fill=StorageBlue!20, thick, minimum width=1.5cm, minimum height=0.55cm,
+        \node[draw=sIndigo, fill=sIndigo!18, thick, minimum width=1.5cm, minimum height=0.55cm,
           font=\ttfamily\small, right=0pt of op] (addr) {004};
-        \node[font=\tiny, text=AccentOrange, below=2pt of op] {opcode};
-        \node[font=\tiny, text=StorageBlue, below=2pt of addr] {address of X};
+        \node[font=\tiny, text=sViolet, below=2pt of op] {opcode};
+        \node[font=\tiny, text=sIndigo, below=2pt of addr] {address of X};
       \end{tikzpicture}\\[0.15cm]
       \texttt{1004}
     \column{0.52\textwidth}
