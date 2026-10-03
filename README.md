@@ -62,12 +62,18 @@ The course is divided into eight lectures:
 
 ## Simulators
 
-The following interactive simulators were created for this course. They run in the browser,
-nothing to install:
+All interactive simulators created for this course are collected on one page:
+**[ksawerym.github.io/ComputerHardwareSimulators](https://ksawerym.github.io/ComputerHardwareSimulators/)**. They run in the browser, in Polish and English,
+nothing to install. Direct links to each topic:
 
-- [**PipelineSimulator**](https://ksawerym.github.io/PipelineSimulator): the RISC-V pipeline, stage by stage
-- [**CacheSimulator**](https://ksawerym.github.io/CacheSimulator): lines, tags, hits and misses in a direct-mapped cache
-- [**DeviceSimulator**](https://ksawerym.github.io/DeviceSimulator): input and output with I2C, interrupts and DMA
+| Lecture | Simulators |
+|---------|------------|
+| 3 | [RISC-V pipeline](https://ksawerym.github.io/ComputerHardwareSimulators/#pipeline): stalls, forwarding and flushes, cycle by cycle |
+| 4 | [Direct-mapped cache](https://ksawerym.github.io/ComputerHardwareSimulators/#cache): blocks, lines, tags, hits and misses |
+| 5 | [I2C](https://ksawerym.github.io/ComputerHardwareSimulators/#io-i2c), [device registers](https://ksawerym.github.io/ComputerHardwareSimulators/#io-mmio), [GPIO controller](https://ksawerym.github.io/ComputerHardwareSimulators/#io-gpio) |
+| 6 | [Polling vs interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-poll), [interrupt step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-irq), [timer and tick](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-tick), [time slice](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-slice), [context switch](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-ctx), [states and priorities](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-states), [shared counter](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-shared) |
+| 7 | [Race step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-race), [mutex](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-mutex) |
+| 8 | [Deadlock](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-dead), [producer-consumer](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-pc) |
 
 The course also uses these tools:
 

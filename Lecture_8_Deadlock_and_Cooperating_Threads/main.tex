@@ -1365,10 +1365,26 @@
 \newcommand{\projCircuit}{\textbf{Circuit}}       % the circuit from Lecture 5
 \newcommand{\projLeds}{\textbf{Three LEDs}}       % the circuit with LEDs on GPIO 4, 7 and 3
 \newcommand{\projRace}{\textbf{Race}}             % starter code for Task 5
-\newcommand{\simname}{\textbf{ConcurrencySimulator}}
-\newcommand{\simurl}{\texttt{ksawerym.github.io/ConcurrencySimulator}}
-% a topic (tab) of the simulator
-\newcommand{\simtab}[1]{\textcolor{ProgramPurple}{\textbf{#1}}}
+\newcommand{\simname}{\textbf{ComputerHardwareSimulators}}
+\newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
+\newcommand{\simurl}{\href{\simbase}{\texttt{ksawerym.github.io/ComputerHardwareSimulators}}}
+% a topic of the simulator: the name links to its section of the page
+\expandafter\def\csname simhash@Polling vs interrupt\endcsname{cc-poll}
+\expandafter\def\csname simhash@Interrupt step by step\endcsname{cc-irq}
+\expandafter\def\csname simhash@Timer and tick\endcsname{cc-tick}
+\expandafter\def\csname simhash@Time slice\endcsname{cc-slice}
+\expandafter\def\csname simhash@Context switch\endcsname{cc-ctx}
+\expandafter\def\csname simhash@States and priorities\endcsname{cc-states}
+\expandafter\def\csname simhash@Shared counter\endcsname{cc-shared}
+\expandafter\def\csname simhash@Race step by step\endcsname{cc-race}
+\expandafter\def\csname simhash@Mutex\endcsname{cc-mutex}
+\expandafter\def\csname simhash@Deadlock\endcsname{cc-dead}
+\expandafter\def\csname simhash@Producer--consumer\endcsname{cc-pc}
+\newcommand{\simhash}[1]{\csname simhash@#1\endcsname}
+\newcommand{\simtab}[1]{\href{\simbase\#\simhash{#1}}{\textcolor{ProgramPurple}{\textbf{#1}}}}
+% the address of a topic, shown at the bottom of a simulator task
+\newcommand{\simaddr}[1]{\href{\simbase\#\simhash{#1}}{\texttt{ksawerym.github.io/ComputerHardwareSimulators/\#\simhash{#1}}}}
+\newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
 
 % ---------- colours used all day ----------
 \colorlet{cTaskA}{StorageBlue}
@@ -2430,6 +2446,7 @@
     \item Find an order that finishes \textbf{without} a deadlock.
     \item Switch thread B to \emph{X then Y}. Can you still make a deadlock?
   \end{enumerate}
+  \simfoot{\simaddr{Deadlock}}
 \end{frame}
 
 \begin{frame}{Solution: Simulator 10}
@@ -2817,6 +2834,7 @@ cv.notify_one();      // wake up one thread
     \item Same speed, with \emph{random short pauses} on. Change the buffer size from \textbf{1} to \textbf{8}.
       What does a bigger buffer give?
   \end{enumerate}
+  \simfoot{\simaddr{Producer--consumer}}
 \end{frame}
 
 \begin{frame}{Solution: Simulator 11}
