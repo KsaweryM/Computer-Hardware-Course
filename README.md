@@ -79,9 +79,7 @@ The course also uses these tools:
 
 - [**MARIE.js**](https://marie.js.org): a simple teaching CPU for the first assembly programs
 - [**Ripes**](https://ripes.dk): a RISC-V processor simulator with pipeline and cache views, in the browser
-- [**Wokwi**](https://wokwi.com): an online simulator of the ESP32-C3 with LEDs, buttons and an LCD;
-  the circuit from Lecture 5, used again in Lecture 6, is in [`Lecture_6_A_Brief_History_of_Concurrency/Circuit`](Lecture_6_A_Brief_History_of_Concurrency/Circuit/),
-  and the template for Task 1 of Lecture 6 in [`Lecture_6_A_Brief_History_of_Concurrency/Task1`](Lecture_6_A_Brief_History_of_Concurrency/Task1/)
+- [**Wokwi**](https://wokwi.com): an online simulator of the ESP32-C3 with LEDs, buttons and an LCD
 - [**Compiler Explorer**](https://godbolt.org): to see the assembly that the compiler produces from C++
 
 ---
@@ -101,6 +99,19 @@ Ready-to-use presentation slides are available in the [`builded_presentation/`](
 
 ---
 
+## Tasks
+
+The starter files of the tasks are in the folder of each lecture, one folder per task
+(for example [`Lecture_7_Threads_and_Synchronisation/Task3`](Lecture_7_Threads_and_Synchronisation/Task3/)).
+Every folder has a `Makefile` and a `README.md` with the instructions:
+
+- **Lecture 6** (ESP32-C3 in Wokwi): `Circuit` (the circuit from Lecture 5) and `Task1` to `Task5`.
+  Each one is a Wokwi project for the VS Code extension: `make` compiles it with `arduino-cli`,
+  then **Wokwi: Start Simulator** runs it.
+- **Lectures 7 and 8** (C++ on your laptop): `make` compiles every `.cpp` file into `build/`, `make run` also runs them.
+
+---
+
 ## Building the presentations yourself
 
 Requirements:
@@ -115,6 +126,9 @@ make
 make 4
 make Lecture_4_Memory_and_Cache
 
+# Build one lecture from scratch, even if nothing changed
+make rebuild-4
+
 # List the available lectures
 make list
 
@@ -123,6 +137,15 @@ make clean
 ```
 
 The Makefile automatically places the resulting PDFs in `builded_presentation/`.
+
+To keep the PDFs up to date automatically, turn on the pre-commit hook once:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Then every commit that changes a `Lecture_*/main.tex` rebuilds the changed presentations
+and adds the new PDFs to the same commit (skip it once with `git commit --no-verify`).
 
 ---
 

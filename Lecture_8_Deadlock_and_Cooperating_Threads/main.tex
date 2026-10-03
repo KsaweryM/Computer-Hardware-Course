@@ -1912,7 +1912,7 @@
 %  Day 7 helpers
 % =====================================================================
 
-% ---------- names that may still change: starter files on the course page ----------
+% ---------- the names of the starter files (on GitHub) ----------
 \newcommand{\fileRace}{\texttt{race.cpp}}
 \newcommand{\fileBank}{\texttt{bank.cpp}}
 
@@ -2110,7 +2110,7 @@
 %  Day 8 helpers
 % =====================================================================
 
-% ---------- names that may still change: starter files on the course page ----------
+% ---------- the names of the starter files (on GitHub) ----------
 \newcommand{\filePhil}{\texttt{philosophers.cpp}}
 \newcommand{\fileWait}{\texttt{waiting.cpp}}
 \newcommand{\fileBuffer}{\texttt{buffer.cpp}}
@@ -2319,6 +2319,9 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the starter files of the tasks, on GitHub: \ghlink{Task1} ----------
+\newcommand{\ghlink}[1]{\href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_8_Deadlock_and_Cooperating_Threads/#1}{\textcolor{DeepBlue}{\textbf{GitHub}}}}
+
 \begin{document}
 
 \begin{frame}
@@ -2361,9 +2364,9 @@
 \end{frame}
 
 % NOTE: 3 minutes. Everybody should have a hanging program in front of them and a working compiler.
-%   Students who did not finish step 3 on Tuesday download bank.cpp (step 3) from the course page.
+%   Students who did not finish step 3 on Tuesday download bank.cpp (step 3) from GitHub (Task0).
 \begin{frame}{Task 0: one more time}
-  \taskhead{Task}{Run your \fileBank\ from step 3 three times, with 4 threads.}
+  \taskhead{Task}{Run your \fileBank\ from step 3 (or the one from \ghlink{Task0}) three times, with 4 threads.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
     \item How many runs finish?
@@ -2529,7 +2532,7 @@ void philosopher(int i) {
 // main(): start 5 philosophers, join, print meals
 \end{lstlisting}
     \column{0.41\textwidth}
-      \taskhead{Task}{Download \filePhil. Compile it with \texttt{-O0}.}
+      \taskhead{Task}{Download \filePhil\ from \ghlink{Task1}. Compile it with \texttt{-O0}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
         \item Run it 5 times. Does it ever hang?
@@ -2623,7 +2626,7 @@ balance[to]   += x;
 \begin{frame}[fragile]{Task 2: fix the philosophers and the bank}
   \begin{columns}[T,onlytextwidth]
     \column{0.52\textwidth}
-      \taskhead{Task}{Fix both programs.}
+      \taskhead{Task}{Fix both programs. Both are on \ghlink{Task2}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item \textbf{Philosophers} (with the pause): take the forks in increasing order. Do they always finish?
@@ -2751,7 +2754,7 @@ cv.notify_one();      // wake up one thread
 %   Version 1 (busy waiting with std::atomic<bool> ready) is given. On the test machine the condition variable
 %   reacted after about 0.3 ms.
 \begin{frame}{Task 3: three ways to wait}
-  \taskhead{Task}{Download \fileWait. \texttt{main} prepares the data for 3 seconds, then sets \texttt{ready}.
+  \taskhead{Task}{Download \fileWait\ from \ghlink{Task3}. \texttt{main} prepares the data for 3 seconds, then sets \texttt{ready}.
     The worker waits for it and prints how late it reacted. Version 1 is ready.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{5pt}
@@ -2882,7 +2885,7 @@ void producer() {
 \end{frame}
 
 \begin{frame}{Task 4: the bounded buffer}
-  \taskhead{Task}{Download \fileBuffer. It has the producer from the slide before. Write \texttt{consumer()}.}
+  \taskhead{Task}{Download \fileBuffer\ from \ghlink{Task4}. It has the producer from the slide before. Write \texttt{consumer()}.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{5pt}
     \item The consumer takes \texttt{ITEMS} numbers from the buffer and adds them up.
@@ -2989,7 +2992,7 @@ freeSlots.release();          // one more place
 % CHECK: <semaphore> needs g++ 11+, MSVC 2019 16.10+, and on macOS a recent Xcode. Plan B: skip question 1 for those
 %   students, they do the semaphore with a mutex and a condition variable.
 \begin{frame}{Task 5: a semaphore}
-  \taskhead{Task}{A print room with \textbf{2} printers.}
+  \taskhead{Task}{A print room with \textbf{2} printers. Template: \ghlink{Task5}.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{5pt}
     \item Start \textbf{8} threads. Each one prints a document: \texttt{sleep\_for(500ms)}.
@@ -3103,7 +3106,7 @@ std::atomic<int> primes{0};
 }   // the destructor waits for all tasks
 \end{lstlisting}
     \column{0.44\textwidth}
-      \taskhead{Task}{Download \filePool. Write \texttt{work()} and the destructor. Compile with \texttt{-O2}.}
+      \taskhead{Task}{Download \filePool\ from \ghlink{Task6}. Write \texttt{work()} and the destructor. Compile with \texttt{-O2}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{3pt}
         \item \texttt{work()}: wait for a task \textbf{or} for \texttt{stop}; take the task, \textbf{unlock}, run it.

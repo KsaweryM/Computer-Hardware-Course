@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = "build/Task3.ino.merged.bin"
+elf = "build/Task3.ino.elf"

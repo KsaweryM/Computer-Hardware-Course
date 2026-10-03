@@ -1363,8 +1363,6 @@
 
 % ---------- names that may still change: Wokwi projects and the simulator ----------
 \newcommand{\projCircuit}{\textbf{Circuit}}       % the circuit from Lecture 5
-\newcommand{\projLeds}{\textbf{Three LEDs}}       % the circuit with LEDs on GPIO 4, 7 and 3
-\newcommand{\projRace}{\textbf{Race}}             % starter code for Task 5
 \newcommand{\simname}{\textbf{ComputerHardwareSimulators}}
 \newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
 \newcommand{\simurl}{\href{\simbase}{\texttt{ksawerym.github.io/ComputerHardwareSimulators}}}
@@ -1950,6 +1948,9 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the starter files of the tasks, on GitHub: \ghlink{Task1} ----------
+\newcommand{\ghlink}[1]{\href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_6_A_Brief_History_of_Concurrency/#1}{\textcolor{DeepBlue}{\textbf{GitHub}}}}
+
 \begin{document}
 
 \begin{frame}
@@ -2391,6 +2392,65 @@ void setup() {
   \keymsg{After this line the CPU never calls \texttt{onButtonA} itself: the interrupt does.}
 \end{frame}
 
+\begin{frame}{Interrupts in the code: \texttt{FALLING}}
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+      \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.2,1.0) {GPIO 5};
+      \node[anchor=east, text=gray] at (-0.2,1.5) {1};
+      \node[anchor=east, text=gray] at (-0.2,0.3) {0};
+      \draw[cWork, line width=2.2pt] (0,1.5) -- (3,1.5) -- (3,0.3) -- (7,0.3) -- (7,1.5) -- (10,1.5);
+      \node[anchor=south, text=DeepBlue] at (1.5,1.6) {not pressed};
+      \node[anchor=north, text=DeepBlue] at (5,0.2) {pressed (held)};
+      \node[anchor=south, text=DeepBlue] at (8.5,1.6) {released};
+      \draw[->, very thick, cISR] (3,2.6) -- (3,1.65);
+      \node[anchor=south, font=\scriptsize\bfseries, text=cISR] at (3,2.6) {\texttt{FALLING}: from 1 to 0, the ISR runs here};
+      \node[anchor=south, text=gray] at (7,2.6) {nothing happens here};
+      \draw[->, thick, gray] (7,2.6) -- (7,1.65);
+      \draw[->, thick, DeepBlue] (0,-0.5) -- (10.3,-0.5) node[right, font=\tiny] {time};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.1cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Why 1 and 0?}{\texttt{INPUT\_PULLUP}: the pin reads \textbf{1} when the button is free.
+        A press connects it to GND: \textbf{0}.}
+    \column{0.48\textwidth}
+      \stepbox{An edge, not a level}{The ISR runs \textbf{once}, at the moment the level falls.
+        Holding the button longer does not count again.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Interrupts in the code: the other modes}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.6\textwidth}
+      \centering
+      \begin{tikzpicture}[>=Stealth, font=\scriptsize, x=0.52cm]
+        \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.2,0.45) {GPIO 5};
+        \draw[cWork, line width=2pt] (0,0.8) -- (3,0.8) -- (3,0.1) -- (7,0.1) -- (7,0.8) -- (10,0.8);
+        \node[font=\tiny, text=gray] at (5,0.35) {pressed};
+        \foreach \m/\y in {FALLING/-0.5, RISING/-1.1, CHANGE/-1.7, ONLOW/-2.3, ONHIGH/-2.9} {
+          \node[anchor=east, font=\ttfamily\scriptsize] at (-0.2,\y) {\m};
+          \draw[gray!40] (0,\y) -- (10,\y);
+        }
+        \fill[cISR] (3,-0.5) circle (0.12);
+        \fill[cISR] (7,-1.1) circle (0.12);
+        \fill[cISR] (3,-1.7) circle (0.12);  \fill[cISR] (7,-1.7) circle (0.12);
+        \foreach \x in {3.2,3.8,...,6.8} \fill[cISR] (\x,-2.3) circle (0.08);
+        \foreach \x in {0.2,0.8,...,2.8} \fill[cISR] (\x,-2.9) circle (0.08);
+        \foreach \x in {7.2,7.8,...,9.8} \fill[cISR] (\x,-2.9) circle (0.08);
+        \draw[gray, dashed] (3,0.95) -- (3,-3.1);  \draw[gray, dashed] (7,0.95) -- (7,-3.1);
+        \node[anchor=west, font=\tiny, text=cISR] at (10.2,-0.5) {\faCircle\ = the ISR runs};
+      \end{tikzpicture}
+    \column{0.37\textwidth}
+      \stepbox{Edges}{\texttt{FALLING}: 1 $\to$ 0, the press.\\ \texttt{RISING}: 0 $\to$ 1, the release.\\
+        \texttt{CHANGE}: both, so one click gives \textbf{two} interrupts.}
+      \stepbox{Levels}{\texttt{ONLOW}, \texttt{ONHIGH}: the ISR runs \textbf{again and again} while the pin
+        stays 0 (or 1).}
+  \end{columns}
+  \vfill
+  \keymsg{For a button we want \textbf{one} interrupt per press: \texttt{FALLING}.}
+\end{frame}
+
 \begin{frame}[fragile]{Interrupts in the code: \texttt{digitalPinToInterrupt}}
   \begin{columns}[c,onlytextwidth]
     \column{0.52\textwidth}
@@ -2481,14 +2541,14 @@ void setup() {
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-const int BUTTON_A = 5;
+const int BUTTON_A = 5, BUTTON_B = 6;
 volatile int presses = 0;
-// TODO: the ISR
+// TODO: the ISRs of A and B
 
 void setup() {
   Wire.begin(8, 9);
   lcd.init();  lcd.backlight();
-  // TODO: the pin and the interrupt
+  // TODO: the pins and the interrupts
 }
 
 void loop() {
@@ -2496,35 +2556,33 @@ void loop() {
 }
 \end{lstlisting}
     \column{0.47\textwidth}
-      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5 (button A on GPIO 5, LCD on GPIO 8/9),
-        or the template from GitHub: \href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_6_A_Brief_History_of_Concurrency/Task1}{folder \texttt{Lecture\_6\_\ldots/Task1}}.}
+      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5 or the template from \ghlink{Task1}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Count the presses of button A \textbf{with an interrupt}.
         \item Show the number on the LCD: \texttt{Presses: N}.
+        \item Give button \textbf{B} (GPIO 6) its own interrupt: its ISR sets the counter back to \texttt{0}.
         \item Add \texttt{delay(2000)} to \texttt{loop()}, as in Task 7 of Lecture 5.
           Do you still lose any presses? Why not?
       \end{enumerate}
-      \vspace{0.1cm}
-      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
-        \scriptsize\textbf{If you finish early:} give button B (GPIO 6) its own interrupt that sets the counter
-        back to 0.
-      \end{beamercolorbox}
   \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Solution: count the presses}
   \begin{columns}[T,onlytextwidth]
     \column{0.55\textwidth}
-\begin{lstlisting}[style=rtos]
+\begin{lstlisting}[style=rtos, basicstyle=\color{VSText}\ttfamily\fontsize{6.4}{7.2}\selectfont]
 void IRAM_ATTR onButtonA() { presses++; }
-
+void IRAM_ATTR onButtonB() { presses = 0; }
 void setup() {
   Wire.begin(8, 9);
   lcd.init();  lcd.backlight();
   pinMode(BUTTON_A, INPUT_PULLUP);
+  pinMode(BUTTON_B, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BUTTON_A),
                   onButtonA, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_B),
+                  onButtonB, FALLING);
 }
 
 void loop() {
@@ -2536,24 +2594,153 @@ void loop() {
 }
 \end{lstlisting}
     \column{0.42\textwidth}
-      \stepbox{Question 3}{\textbf{No} press is lost. The interrupt counts it even while \texttt{loop()} waits.
+      \stepbox{Question 3}{A second ISR, \texttt{onButtonB}, sets \texttt{presses = 0}. It is attached to pin 6
+        with \texttt{FALLING}, like button A.}
+      \stepbox{Question 4}{\textbf{No} press is lost. The interrupt counts it even while \texttt{loop()} waits.
         The LCD just shows the new number up to 2 s later.}
       \stepbox{Compare with Task 7}{The same \texttt{delay(2000)}, but now nothing is missed.}
-      \stepbox{If you finished early}{\texttt{onButtonB()} sets \texttt{presses = 0}. Attach it to pin 6
-        with \texttt{FALLING}, like button A.}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Rules for an ISR}
+\begin{frame}{Two buttons at the same moment?}
   \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \stepbox{\badge{1}\ Keep it short}{While the ISR runs, the main program waits.}
-    \column{0.31\textwidth}
-      \stepbox{\badge{2}\ No slow work inside}{No \texttt{delay()}, no printing to the LCD or to Serial.}
-    \column{0.31\textwidth}
-      \stepbox{\badge{3}\ Share data through \texttt{volatile} variables}{The ISR changes them, the main program reads them.}
+    \column{0.48\textwidth}
+      \stepbox{\textcolor{mygreen}{\faCheck}\ On our ESP32-C3: safe}{It has \textbf{one} core, and an ISR is not
+        interrupted by another button. If A and B are pressed together, one ISR runs, then the other.
+        Both presses are handled.}
+    \column{0.48\textwidth}
+      \stepbox{\textcolor{mygreen}{\faCheck}\ Our Task 1: safe}{\texttt{loop()} only \textbf{reads} \texttt{presses}.
+        Only the ISRs change it.}
+  \end{columns}
+  \vfill
+  \keymsg{But what if the processor had \textbf{two} cores?}
+\end{frame}
+
+\begin{frame}{What if we had two cores?}
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+      \node[lbox, draw=DeepBlue, fill=DeepBlue!5, minimum width=3.2cm, minimum height=1.5cm] (c1) at (0,0)
+        {Core 1\\[-1pt]{\mdseries ISR of button A}\\[1pt]{\ttfamily\mdseries presses++;}};
+      \node[lbox, draw=DeepBlue, fill=DeepBlue!5, minimum width=3.2cm, minimum height=1.5cm] (c2) at (8,0)
+        {Core 2\\[-1pt]{\mdseries ISR of button B}\\[1pt]{\ttfamily\mdseries presses++;}};
+      \node[lbox, draw=StorageBlue, fill=StorageBlue!10, minimum width=2.4cm, minimum height=1.1cm] (mem) at (4,0)
+        {memory\\[-1pt]{\ttfamily\mdseries presses = 5}};
+      \draw[<->, very thick, DeepBlue] (c1.east) -- (mem.west);
+      \draw[<->, very thick, DeepBlue] (c2.west) -- (mem.east);
+      \node[font=\scriptsize\bfseries, text=cISR] at (4,1.35) {\faBolt\ both buttons at the same moment};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.2cm}
+  \stepbox{Suppose}{Both buttons now count presses, and each ISR runs on \textbf{its own core}.
+    Both buttons are pressed at the same moment, so both ISRs run \textbf{at the same time}.}
+  \vfill
+  \keymsg{\texttt{presses} was 5. Two presses. What should it be after both ISRs?}
+\end{frame}
+
+\begin{frame}{Two cores: a press is lost}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.44\textwidth}
+      \centering\small
+      \renewcommand{\arraystretch}{1.3}
+      \begin{tabular}{lc}
+        \toprule
+        & \texttt{presses} \\
+        \midrule
+        before & 5 \\
+        expected & \textbf{7} \\
+        sometimes we get & \textcolor{MissRed}{\textbf{6}} \\
+        \bottomrule
+      \end{tabular}
+    \column{0.52\textwidth}
+      \probbox{One press is lost}{Two cores ran \texttt{presses++} at the same moment, and the counter grew by
+        \textbf{one}, not by two. Not every time: only when the timing is unlucky.}
   \end{columns}
   \vspace{0.3cm}
+  \begin{center}
+    \large\textbf{How can one line of code lose a press?}
+  \end{center}
+  \vfill
+  \keymsg{Keep this question. We meet it again at the end of today, and answer it on Tuesday.}
+\end{frame}
+
+\begin{frame}[fragile]{The real danger: an ISR and \texttt{loop()} change one variable}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.46\textwidth}
+      {\scriptsize\textbf{\texttt{loop()} takes the presses and resets the counter:}\par}
+\begin{lstlisting}[style=rtos]
+int n = presses;   // read
+presses = 0;       // reset
+\end{lstlisting}
+    \column{0.5\textwidth}
+      \probbox{A press between these two lines}{The ISR adds 1 to \texttt{presses}. Then \texttt{loop()} sets \texttt{0}
+        over it. The press is \textbf{lost}, even on one core.}
+  \end{columns}
+  \vfill
+  \keymsg{Two pieces of code change one variable: a \textbf{race}. We meet it again at the end of today,
+    and solve it on Tuesday.}
+\end{frame}
+
+\begin{frame}{Rules for an ISR: 1. keep it short}
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+      \node[anchor=east, font=\scriptsize\bfseries, text=mygreen] at (-0.2,0.6) {short ISR};
+      \fill[cWork] (0,0.4) rectangle (4.4,0.8);  \fill[cISR] (4.4,0.4) rectangle (4.6,0.8);  \fill[cWork] (4.6,0.4) rectangle (10,0.8);
+      \node[font=\tiny\bfseries, text=white] at (2.2,0.6) {main program};
+      \node[font=\tiny\bfseries, text=white] at (7.3,0.6) {main program};
+      \node[anchor=east, font=\scriptsize\bfseries, text=MissRed] at (-0.2,-0.6) {long ISR};
+      \fill[cWork] (0,-0.8) rectangle (4.4,-0.4);  \fill[cISR] (4.4,-0.8) rectangle (8.2,-0.4);  \fill[cWork] (8.2,-0.8) rectangle (10,-0.4);
+      \node[font=\tiny\bfseries, text=white] at (2.2,-0.6) {main program};
+      \node[font=\tiny\bfseries, text=white] at (6.3,-0.6) {ISR};
+      \draw[<->, thick, MissRed] (4.4,-1.05) -- node[below, font=\tiny\bfseries] {the main program waits} (8.2,-1.05);
+      \draw[->, thick, DeepBlue] (0,-1.7) -- (10.3,-1.7) node[right, font=\tiny] {time};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.1cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{While the ISR runs}{The main program is \textbf{suspended}. A long ISR stops the whole program.}
+    \column{0.48\textwidth}
+      \stepbox{Other interrupts wait too}{A second press that comes during a long ISR is handled only \textbf{after} it.}
+  \end{columns}
+  \vfill
+  \keymsg{A good ISR takes \textbf{microseconds}: \texttt{presses++} and nothing more.}
+\end{frame}
+
+\begin{frame}[fragile]{Rules for an ISR: 2. some things are not allowed}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      {\scriptsize\textbf{\textcolor{MissRed}{\faTimes}\ Not allowed: the ESP32 crashes and restarts}\par}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onButtonA() {
+  presses++;
+  delay(100);          // waits
+  Serial.println(presses);  // waits
+  lcd.print(presses);  // waits
+}
+\end{lstlisting}
+    \column{0.48\textwidth}
+      {\scriptsize\textbf{\textcolor{mygreen}{\faCheck}\ Allowed}\par}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onButtonA() {
+  presses++;           // only record it
+}
+// loop() prints presses on the LCD
+\end{lstlisting}
+  \end{columns}
+  \vspace{0.15cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{These functions wait inside}{\texttt{delay()} waits for the time to pass. \texttt{Serial} and the LCD wait
+        until the previous data has been sent. To wait, they ask the system to put the code to sleep and come back later.}
+    \column{0.48\textwidth}
+      \stepbox{An ISR must never wait}{An ISR cannot be put to sleep: there is nothing to come back to it.
+        On the ESP32 the program \textbf{crashes} and the board restarts.}
+  \end{columns}
+  \vfill
+  \keymsg{Rule 1 is about \textbf{time}: be short. Rule 2 is about \textbf{what}: never call a function that waits.}
+\end{frame}
+
+\begin{frame}{Rules for an ISR: 3. share data through \texttt{volatile} variables}
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
       \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.4cm, minimum height=0.9cm] (isr) at (0,0)
@@ -2563,6 +2750,14 @@ void loop() {
       \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\scriptsize\ttfamily] {volatile presses} (main);
     \end{tikzpicture}
   \end{center}
+  \vspace{0.2cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{The ISR writes}{It only changes a variable: \texttt{presses++}.}
+    \column{0.48\textwidth}
+      \stepbox{\texttt{loop()} reads}{It shows the value on the LCD, sends it, does the slow work.
+        \texttt{volatile}: it reads the \textbf{fresh} value every time.}
+  \end{columns}
   \vfill
   \keymsg{The ISR only \textbf{records} what happened. The main program \textbf{does the work}.}
 \end{frame}
@@ -2805,7 +3000,7 @@ void IRAM_ATTR onTick() {        // every 100 ms
       \centering
       \resizebox{\linewidth}{!}{\figthreeleds}
     \column{0.47\textwidth}
-      \taskhead{Task}{Use the circuit with three LEDs (or the project \projLeds\ from the course page).}
+      \taskhead{Task}{Use your circuit with three LEDs or the template from \ghlink{Task2}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Make LED 1 blink every 500 ms \textbf{with a timer interrupt}, as on the slide ``A timer in the code''.
@@ -3244,7 +3439,7 @@ void loop() {
 }
 \end{lstlisting}
     \column{0.47\textwidth}
-      \taskhead{Task}{Any Wokwi project: replace \texttt{setup()} and \texttt{loop()} with this code.
+      \taskhead{Task}{Any Wokwi project: replace \texttt{setup()} and \texttt{loop()} with this code (also on \ghlink{Task3}).
         Run it and open the \textbf{Serial Monitor}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
@@ -3312,7 +3507,7 @@ void setup() {
 \begin{frame}[fragile]{Task 4: three LEDs as three tasks}
   \begin{columns}[T,onlytextwidth]
     \column{0.52\textwidth}
-      \taskhead{Task}{The same three LEDs as in Task 2, but now \textbf{without the timer}.}
+      \taskhead{Task}{The same three LEDs as in Task 2, but now \textbf{without the timer}. Template: \ghlink{Task4}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Remove the timer. Create \textbf{three tasks} with \texttt{xTaskCreate}: LED 1 changes every 300 ms,
@@ -3519,7 +3714,7 @@ void incTask(void *param) {
 }
 \end{lstlisting}
     \column{0.45\textwidth}
-      \taskhead{Task}{Open the project \projRace. Two tasks increase \textbf{one shared counter}.}
+      \taskhead{Task}{Open the template from \ghlink{Task5}. Two tasks increase \textbf{one shared counter}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Start \textbf{two} \texttt{incTask} tasks with the same priority, with \texttt{\&doneA} and
@@ -3570,11 +3765,11 @@ void loop() {
   \begin{center}
     \racetimeline
   \end{center}
-  \vspace{0.1cm}
+  \vspace{-0.2cm}
   \defbox{This is a \textbf{race condition}: the result depends on \textbf{when} the scheduler switches the tasks.}
-  \vspace{0.05cm}
-  \stepbox{We saw it twice}{Simulator 6: six additions, but the counter showed 4 or 5.
-    \quad Task 5: two million additions, but the counter got less.}
+  \stepbox{We saw it three times}{Two cores: two presses, \texttt{presses} grew by one.
+    \quad Simulator 6: 6 additions, counter 4 or 5.
+    \quad Task 5: two million additions, the counter got less.}
   \vfill
   \begin{alertblock}{The question}
     \small Why? \texttt{counter++} is \textbf{one line}. How can a switch fall \emph{in the middle} of it?

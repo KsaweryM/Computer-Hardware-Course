@@ -1912,7 +1912,7 @@
 %  Day 7 helpers
 % =====================================================================
 
-% ---------- names that may still change: starter files on the course page ----------
+% ---------- the names of the starter files (on GitHub) ----------
 \newcommand{\fileRace}{\texttt{race.cpp}}
 \newcommand{\fileBank}{\texttt{bank.cpp}}
 
@@ -2111,6 +2111,9 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the starter files of the tasks, on GitHub: \ghlink{Task1} ----------
+\newcommand{\ghlink}[1]{\href{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_7_Threads_and_Synchronisation/#1}{\textcolor{DeepBlue}{\textbf{GitHub}}}}
+
 \begin{document}
 
 \begin{frame}
@@ -2161,7 +2164,7 @@
 \begin{frame}[fragile]{Task 0: C++ on your laptop}
   \begin{columns}[T,onlytextwidth]
     \column{0.5\textwidth}
-      \taskhead{Task}{Compile and run \texttt{hello.cpp} from Monday's last slide.}
+      \taskhead{Task}{Compile and run \texttt{hello.cpp} (on \ghlink{Task0}).}
 \begin{lstlisting}[style=cpp]
 #include <iostream>
 #include <thread>
@@ -2237,7 +2240,7 @@ int main() {
 }
 \end{lstlisting}
     \column{0.46\textwidth}
-      \taskhead{Task}{Compile and run the program.}
+      \taskhead{Task}{Compile and run the program (also on \ghlink{Task1}).}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
         \item How many threads can your laptop run \textbf{at the same moment}?
@@ -2320,7 +2323,7 @@ std::thread t(addTo, std::ref(total), 5);
 \end{frame}
 
 \begin{frame}{Task 2: four threads say hello}
-  \taskhead{Task}{Write a program that starts \textbf{4 threads}. Thread \texttt{i} prints \texttt{Hello from thread i}.}
+  \taskhead{Task}{Write a program that starts \textbf{4 threads}. Thread \texttt{i} prints \texttt{Hello from thread i}. Template: \ghlink{Task2}.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
     \item Run it \textbf{5 times}. Is the order of the lines always the same?
@@ -2389,7 +2392,7 @@ int main() {
 }
 \end{lstlisting}
     \column{0.44\textwidth}
-      \taskhead{Task}{Download \fileRace\ from the course page. Compile it with \texttt{-O0}.}
+      \taskhead{Task}{Download \fileRace\ from \ghlink{Task3}. Compile it with \texttt{-O0}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
         \item Run it \textbf{5 times}. Write down the results.
@@ -2641,7 +2644,7 @@ std::cout << ms.count() << " ms\n";
 \end{lstlisting}
       \probbox{Not \texttt{clock()} from Lecture 4}{It adds up the CPU time of \textbf{all} threads.}
     \column{0.44\textwidth}
-      \taskhead{Task}{Start from Task 3 (\texttt{-O0}).}
+      \taskhead{Task}{Start from Task 3 (\texttt{-O0}), or the template from \ghlink{Task4}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
         \item Add a mutex. Is the result correct now?
@@ -2726,7 +2729,7 @@ amoadd.w zero, t0, (a0)   # counter += 1
 \begin{frame}{Task 5: atomic, and a better idea}
   \begin{columns}[T,onlytextwidth]
     \column{0.52\textwidth}
-      \taskhead{Task}{Two more versions of the counter. Measure the time of each.}
+      \taskhead{Task}{Two more versions of the counter. Measure the time of each. Template: \ghlink{Task5}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{5pt}
         \item \textbf{Atomic}: \texttt{std::atomic<int> counter}, without the mutex.
@@ -2861,7 +2864,7 @@ void transfers(int id) {
     \column{0.4\textwidth}
       \stepbox{\fileBank: \texttt{main()}}{Not shown here. Sets every balance to 1000, starts \texttt{THREADS} threads, joins them,
         and prints the \textbf{sum} and the \textbf{time}.}
-      \taskhead{Task}{Download \fileBank. Compile it with \texttt{-O0}.}
+      \taskhead{Task}{Download \fileBank\ from \ghlink{Bank}. Compile it with \texttt{-O0}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Run it several times. What is the sum?
