@@ -4,18 +4,30 @@
 
 A hands-on course on **how a processor is built and how software talks to hardware**.
 
-The course starts with the building blocks of a CPU (registers, the ALU, the bus and the control
-unit) and **assembly programming**, first on the simple teaching machine **MARIE** and then on
-a real instruction set, **RISC-V**. It then shows what makes modern processors fast:
-**pipelining** and the **cache**.
+The course starts with the building blocks of a CPU and **assembly programming**, first on the
+simple teaching machine **MARIE** and then on a real instruction set, **RISC-V**. It shows what
+makes modern processors fast (**pipelining** and the **cache**), moves to a real microcontroller,
+the **ESP32-C3**, to talk to other devices, and ends with concurrency: interrupts, schedulers and
+threads.
 
-Next, the course moves to a real microcontroller, the **ESP32-C3** (simulated in Wokwi). We
-connect LEDs, buttons and an LCD, learn how the processor talks to other devices through
-**GPIO** and the **I2C** bus, and control the GPIO controller **directly through its registers**
-(memory-mapped I/O) instead of library calls.
-
-The last three lectures tell the story of concurrency, from a single button to a thread pool:
-
+- **Lecture 1** builds a computer from scratch: what a computer has to do, the design decisions
+  behind the von Neumann model, and how a CPU works inside (registers, ALU, control unit and the
+  fetch-decode-execute cycle). It ends with the first **assembly programs in MARIE**: input and
+  output, jumps and loops.
+- **Lecture 2** looks closer at the processor: **addressing modes** (direct, indirect, immediate)
+  and arrays in MARIE, how the CPU talks to memory through MAR, MBR and the bus, how the
+  **control unit** generates its signals (hardwired or microprogrammed), and the **RISC vs. CISC**
+  debate.
+- **Lecture 3** asks what "fast" means: execution time, CPI, the iron law of performance, the
+  megahertz myth and benchmarks. It then moves from MARIE to **RISC-V** in the Ripes simulator
+  and shows how a **pipeline** runs several instructions at once, and what branches do to it.
+- **Lecture 4** hits the **memory wall**: why memory cannot be both fast and cheap, how
+  **locality** makes a cache work, lines and tags, direct-mapped and set-associative caches,
+  hits, misses and AMAT, measured in Ripes and on your own laptop.
+- **Lecture 5** moves to the **ESP32-C3** (simulated in Wokwi). We connect LEDs, buttons and an
+  LCD, learn how the processor talks to other devices through **GPIO** and the **I2C** bus, and
+  control the GPIO controller **directly through its registers** (memory-mapped I/O) instead of
+  library calls. It ends with **polling** and why it misses events and wastes the CPU.
 - **Lecture 6** replaces polling with **interrupts** (from a button and a timer), shows how a
   **scheduler** lets one processor run several tasks with time slices and context switches, and
   runs a real scheduler, **FreeRTOS**, on the ESP32-C3.
