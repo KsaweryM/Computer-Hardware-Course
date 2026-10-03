@@ -844,6 +844,12 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the course simulators: ksawerym.github.io/ComputerHardwareSimulators ----------
+\newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
+\newcommand{\simlink}[1]{\href{\simbase\##1}{\texttt{ksawerym.github.io/ComputerHardwareSimulators/\##1}}}
+% the address of a simulator topic, shown at the bottom of a slide
+\newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
+
 \begin{document}
 
 \begin{frame}
@@ -1313,6 +1319,7 @@ for (j = 0; j < 100; j++)
   \end{columns}
   \vfill
   \keymsg{Direct-mapped cache: every block has exactly \textbf{one} line, so there is only one place to look.}
+  \simfoot{\simlink{cache}}
 \end{frame}
 
 \begin{frame}{How does the cache know which block it holds?}
@@ -1372,6 +1379,7 @@ for (j = 0; j < 100; j++)
       \raggedright
       Is each access a \textbf{hit} or a \textbf{miss}? Block \textbf{9}, block \textbf{13}, block \textbf{6}, block \textbf{7}.
   \end{columns}
+  \simfoot{\simlink{cache}}
 \end{frame}
 
 \begin{frame}{Solution: line and tag}
@@ -1465,6 +1473,7 @@ for (j = 0; j < 100; j++)
         \item What is the \textbf{hit rate} of each?
       \end{enumerate}
   \end{columns}
+  \simfoot{\simlink{cache}}
 \end{frame}
 
 \begin{frame}{Solution: hits and misses by hand}

@@ -683,6 +683,12 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the course simulators: ksawerym.github.io/ComputerHardwareSimulators ----------
+\newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
+\newcommand{\simlink}[1]{\href{\simbase\##1}{\texttt{ksawerym.github.io/ComputerHardwareSimulators/\##1}}}
+% the address of a simulator topic, shown at the bottom of a slide
+\newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
+
 \begin{document}
 
 \begin{frame}
@@ -1645,6 +1651,7 @@ done: sw   x7, Z, x28
   \end{center}
   \vfill
   \keymsg{After the pipeline fills up, \textbf{one instruction finishes every cycle}.}
+  \simfoot{\simlink{pipeline}}
 \end{frame}
 
 % ---------- Exercise 7 ----------
@@ -1671,6 +1678,7 @@ addi x9, x0, 5
         \item How many cycles and instructions does Ripes count?
       \end{enumerate}
   \end{columns}
+  \simfoot{\simlink{pipeline}}
 \end{frame}
 
 \begin{frame}{Solution: watch the pipeline}
@@ -1768,6 +1776,7 @@ loop: addi x11, x11, -1    # counter - 1
         \item How many times does the loop jump back?
       \end{enumerate}
   \end{columns}
+  \simfoot{\simlink{pipeline}}
 \end{frame}
 
 \begin{frame}{Solution: catch the flush}

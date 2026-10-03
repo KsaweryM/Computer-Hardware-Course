@@ -1361,6 +1361,14 @@
 \author{Ksawery Możdżyński}
 \date{}
 
+% ---------- the course simulators: ksawerym.github.io/ComputerHardwareSimulators ----------
+\newcommand{\simbase}{https://ksawerym.github.io/ComputerHardwareSimulators/}
+\newcommand{\simlink}[1]{\href{\simbase\##1}{\texttt{ksawerym.github.io/ComputerHardwareSimulators/\##1}}}
+% the address of a simulator topic, shown at the bottom of a slide
+\newcommand{\simfoot}[1]{\par\vfill{\hfill\scriptsize\textcolor{gray}{\faLink\ #1}\par}}
+% the same, in the title bar (for slides that are already full)
+\newcommand{\simtop}[1]{\begin{tikzpicture}[remember picture,overlay]\node[anchor=east,inner sep=0pt,font=\scriptsize,text=white!80!DeepBlue] at ([xshift=-0.35cm,yshift=-1.32cm]current page.north east) {\faLink\ #1};\end{tikzpicture}}
+
 \begin{document}
 
 \begin{frame}
@@ -1752,7 +1760,7 @@ void loop() {
   \end{columns}
 \end{frame}
 
-\begin{frame}{One I2C message, step by step}
+\begin{frame}{One I2C message, step by step\simtop{\simlink{io-i2c}}}
   \begin{center}
     \resizebox{\textwidth}{!}{%
       \only<1>{\itwoctiming{1}}%
@@ -1875,7 +1883,7 @@ lcd.print(digitalRead(BTN_B));
   \keymsg{The internal bus is \textbf{inside the chip}. The CPU talks only to \textbf{controllers}; they drive the pins.}
 \end{frame}
 
-\begin{frame}{One store to a device, step by step}
+\begin{frame}{One store to a device, step by step\simtop{\simlink{io-mmio}}}
   \begin{center}
     \resizebox{!}{0.52\textheight}{%
       \only<1>{\chipbus{1}}%
@@ -1930,6 +1938,7 @@ lcd.print(digitalRead(BTN_B));
   \end{columns}
   \vfill
   \keymsg{The same \texttt{sw} and \texttt{lw} from Ripes: the \textbf{address} decides whether it goes to memory or to a device.}
+  \simfoot{\simlink{io-mmio}}
 \end{frame}
 
 \begin{frame}{The registers of the GPIO controller}
@@ -1955,6 +1964,7 @@ lcd.print(digitalRead(BTN_B));
     \column{0.48\textwidth}
       \stepbox{Why W1TS and W1TC?}{To change \textbf{one} pin with one \texttt{sw}. A write to \texttt{OUT} would change all 32 pins at once.}
   \end{columns}
+  \simfoot{\simlink{io-gpio}}
 \end{frame}
 
 % GPIO register addresses checked in the ESP-IDF headers (soc/gpio_reg.h): W1TS 0x08, W1TC 0x0C, IN 0x3C.
@@ -1985,6 +1995,7 @@ void loop() {
       \texttt{0x6000400C}: write 1 to a bit $\rightarrow$ that pin goes \textbf{off}.\\[0.1cm]
       Does the LED blink as in Task 1?
   \end{columns}
+  \simfoot{\simlink{io-gpio}}
 \end{frame}
 
 \begin{frame}[fragile]{Solution: an LED without \texttt{digitalWrite}}
@@ -2035,6 +2046,7 @@ void loop() {
       Press A. Do \texttt{reg} and \texttt{dR} (\texttt{digitalRead}) always show the same value?\\[0.1cm]
       \scriptsize Hint: \texttt{(x >> n) \& 1} gives bit $n$ of \texttt{x}.
   \end{columns}
+  \simfoot{\simlink{io-gpio}}
 \end{frame}
 
 \begin{frame}[fragile]{Solution: read the button from its register}
@@ -2109,6 +2121,7 @@ void loop() {
         \item Write down the number on the LCD.
       \end{enumerate}
   \end{columns}
+  \simfoot{\simlink{cc-poll}}
 \end{frame}
 
 \begin{frame}{Solution: polling can miss events}
@@ -2167,6 +2180,7 @@ void loop() {
         \item Compute: what percentage of the checks found a new press?
       \end{enumerate}
   \end{columns}
+  \simfoot{\simlink{cc-poll}}
 \end{frame}
 
 \begin{frame}{Solution: polling wastes the CPU}
