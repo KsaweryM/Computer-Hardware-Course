@@ -168,7 +168,7 @@
 
 \newcommand{\diagDecimal}{\begin{tikzpicture}
   \node[draw=AccentOrange, fill=AccentOrange!12, rounded corners=3pt, font=\ttfamily\scriptsize, minimum height=0.4cm,
-    minimum width=2.3cm] at (0,0.28) {digits 0--9};
+    minimum width=2.3cm] at (0,0.28) {digits 0 to 9};
   \node[draw=ProgramPurple, fill=ProgramPurple!12, rounded corners=3pt, font=\scriptsize, minimum height=0.4cm,
     minimum width=2.3cm] at (0,-0.22) {instructions: other code};
 \end{tikzpicture}}
@@ -1378,7 +1378,7 @@
 \expandafter\def\csname simhash@Race step by step\endcsname{cc-race}
 \expandafter\def\csname simhash@Mutex\endcsname{cc-mutex}
 \expandafter\def\csname simhash@Deadlock\endcsname{cc-dead}
-\expandafter\def\csname simhash@Producer--consumer\endcsname{cc-pc}
+\expandafter\def\csname simhash@Producer-consumer\endcsname{cc-pc}
 \newcommand{\simhash}[1]{\csname simhash@#1\endcsname}
 \newcommand{\simtab}[1]{\href{\simbase\#\simhash{#1}}{\textcolor{DeepBlue}{\textbf{#1}}}}
 % the address of a topic, shown at the bottom of a simulator task
@@ -1437,50 +1437,187 @@
 
 % ---------- inside the processor: one interrupt in 4 steps ----------
 % #1 = step (1 signal, 2 save and jump, 3 the ISR runs, 4 return)
-\newcommand{\irqsteps}[1]{%
+% ---------- the stack, for the slides that introduce it ----------
+\newcommand{\stackonly}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      hotinstr/.style={instr, fill=AccentOrange!35, draw=AccentOrange, very thick}]
-    \useasboundingbox (-1.75,-1.1) rectangle (7.65,2.65);
-    % the main program
-    \node[font=\scriptsize\bfseries, text=DeepBlue] at (1.6,2.4) {main program};
+      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=2.2cm, minimum height=0.5cm, font=\ttfamily\scriptsize}]
+    \node[font=\tiny\bfseries, text=StorageBlue] at (1.1,3.15) {the stack (memory)};
+    \foreach \ad/\y in {0x1FF4/2.6, 0x1FF8/2.05, 0x1FFC/1.5, 0x2000/0.95, 0x2004/0.4}
+      \node[addr, font=\ttfamily\tiny, anchor=east] at (-0.05,\y) {\ad};
+    \foreach \y in {2.6, 2.05, 1.5} \node[mcell, dashed, draw=StorageBlue!50] at (1.1,\y) {free};
+    \foreach \y in {0.95, 0.4} \node[mcell, fill=cWork!12] at (1.1,\y) {in use};
+    \draw[<-, very thick, DeepBlue] (2.25,0.95) -- (2.8,0.95) node[right, font=\tiny\bfseries] {sp: the top};
+    \draw[->, thick, gray] (-1.3,0.4) -- (-1.3,2.6) node[above, font=\tiny, align=center] {it grows\\this way};
+  \end{tikzpicture}}
+
+% ---------- one interrupt inside the CPU, from the signal to mret ----------
+% #1 = step: 1 signal, 2 finish addi, 3 mepc, 4 jump, 5-7 prologue, 8-11 body, 12-14 epilogue, 15 mret
+\newcommand{\irqpass}[1]{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      mainstr/.style={instr, draw=cWork, fill=cWork!8},
+      runm/.style={instr, fill=AccentOrange!45, draw=AccentOrange, very thick},
+      runi/.style={isrinstr, fill=AccentOrange!45, draw=AccentOrange, very thick},
+      preg/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, minimum width=2.0cm,
+        minimum height=0.4cm, font=\ttfamily\scriptsize},
+      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=1.9cm, minimum height=0.38cm, font=\ttfamily\scriptsize},
+      free/.style={mcell, dashed, draw=StorageBlue!50},
+      wr/.style={draw=WriteRed, line width=1.8pt, rounded corners=2pt},
+      rd/.style={draw=ReadBlue, line width=1.8pt, rounded corners=2pt},
+      flow/.style={->, very thick, DeepBlue}]
+    \ifnum#1<5 \useasboundingbox (-2.1,-0.95) rectangle (14.75,3.55);
+    \else \useasboundingbox (1.35,-0.95) rectangle (14.75,3.55); \fi
+    % which instruction runs
+    \ifnum#1<3 \def\runm{1}\else \def\runm{99}\fi
+    \ifnum#1<5 \def\runi{99}\else\ifnum#1>15 \def\runi{99}\else \pgfmathtruncatemacro{\runi}{#1-5}\fi\fi
+    % the main program: in full until the jump, then folded into one small box
+    \ifnum#1<5
+    \node[font=\scriptsize\bfseries, text=cWork] at (1.3,3.35) {main program};
     \foreach \a/\t [count=\k from 0] in {0x0100/{li\ \ \ t0, 0}, 0x0104/{addi t0, t0, 1},
         0x0108/{sw\ \ \ t0, 0(a0)}, 0x010C/{j\ \ \ \ 0x0104}} {
-      \node[addr, font=\ttfamily\tiny, anchor=east] at (0.45,{1.95-0.45*\k}) {\a};
-      \node[instr, minimum width=2.2cm] (m\k) at (1.6,{1.95-0.45*\k}) {\t};
+      \ifnum\k=\runm \tikzset{cur/.style={runm}}\else \tikzset{cur/.style={mainstr}}\fi
+      \node[addr, font=\ttfamily\tiny, anchor=east] at (0.15,{2.9-0.42*\k}) {\a};
+      \node[cur, minimum width=2.2cm] (m\k) at (1.3,{2.9-0.42*\k}) {\t};
     }
-    % the ISR
-    \node[font=\scriptsize\bfseries, text=cISR] at (5.75,2.4) {ISR: \texttt{onButtonA}};
-    \foreach \a/\t [count=\k from 0] in {0x0200/{save t0}, 0x0204/{presses++}, 0x0208/{restore t0},
-        0x020C/{return}} {
-      \node[addr, font=\ttfamily\tiny, anchor=west] at (6.9,{1.95-0.45*\k}) {\a};
-      \node[isrinstr, minimum width=2.2cm] (i\k) at (5.75,{1.95-0.45*\k}) {\t};
-    }
-    % highlighted instructions
-    \ifnum#1=1 \node[hotinstr, minimum width=2.2cm] at (m1) {addi t0, t0, 1}; \fi
-    \ifnum#1=3
-      \foreach \k in {0,...,3} \draw[cISR, line width=1.6pt] (i\k.south west) rectangle (i\k.north east);
+    \else
+    \node[draw=cWork, thick, fill=cWork!8, rounded corners=3pt, align=center, font=\tiny, inner sep=3pt] (mp) at (2.35,2.6)
+      {\textcolor{cWork}{\textbf{main program}}\\ \ifnum#1<15 paused\else continues\fi\\ at \texttt{0x0108}};
     \fi
-    \ifnum#1=4 \node[hotinstr, minimum width=2.2cm] at (m2) {sw\ \ \ t0, 0(a0)}; \fi
-    % the signal
+    % the ISR in three parts
+    \node[font=\scriptsize\bfseries, text=cISR] at (4.9,3.35) {ISR: \texttt{onButtonA}};
+    \foreach \a/\t [count=\k from 0] in {0x0200/{addi sp, sp, -16}, 0x0204/{sw\ \ \ t0, 12(sp)}, 0x0208/{sw\ \ \ t1, 8(sp)},
+        0x020C/{la\ \ \ t0, presses}, 0x0214/{lw\ \ \ t1, 0(t0)}, 0x0218/{addi t1, t1, 1}, 0x021C/{sw\ \ \ t1, 0(t0)},
+        0x0220/{lw\ \ \ t1, 8(sp)}, 0x0224/{lw\ \ \ t0, 12(sp)}, 0x0228/{addi sp, sp, 16}, 0x022C/{mret}} {
+      \ifnum\k=\runi \tikzset{cur/.style={runi}}\else \tikzset{cur/.style={isrinstr}}\fi
+      \node[cur, minimum width=2.3cm, minimum height=0.3cm] (i\k) at (4.9,{3.0-0.3*\k}) {\t};
+      \node[addr, font=\ttfamily\tiny, anchor=west] at (6.1,{3.0-0.3*\k}) {\a};
+    }
+    \ifnum#1<5 \def\part{0}\else\ifnum#1<8 \def\part{1}\else\ifnum#1<12 \def\part{2}\else \def\part{3}\fi\fi\fi
+    \foreach \f/\l/\n/\q in {0/2/prologue/1, 3/6/body/2, 7/10/epilogue/3} {
+      \ifnum\q=\part \def\pc{cISR}\def\pf{\bfseries}\else \def\pc{gray}\def\pf{}\fi
+      \draw[\pc, thick] ([xshift=1.0cm]i\f.north east) -- ++(0.12,0) |- ([xshift=1.0cm]i\l.south east);
+      \node[anchor=west, font=\scriptsize\pf, text=\pc] at ($([xshift=1.2cm]i\f.north east)!0.5!([xshift=1.2cm]i\l.south east)$) {\n};
+    }
+    % values after the step: PC, mepc, t0, t1, sp, stack at 8(sp) and 12(sp), presses
+    \ifcase#1 \or \def\pcv{0x0104}\def\mev{-}\def\tz{0}\def\to{5}\def\spv{0x2000}\def\sa{}\def\sb{}\def\pr{2}%
+      \or \def\pcv{0x0104}\def\mev{-}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{}\def\sb{}\def\pr{2}%
+      \or \def\pcv{0x0104}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{}\def\sb{}\def\pr{2}%
+      \or \def\pcv{0x0200}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{}\def\sb{}\def\pr{2}%
+      \or \def\pcv{0x0200}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x1FF0}\def\sa{?}\def\sb{?}\def\pr{2}%
+      \or \def\pcv{0x0204}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x1FF0}\def\sa{1}\def\sb{?}\def\pr{2}%
+      \or \def\pcv{0x0208}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{2}%
+      \or \def\pcv{0x020C}\def\mev{0x0108}\def\tz{0x1004}\def\to{5}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{2}%
+      \or \def\pcv{0x0214}\def\mev{0x0108}\def\tz{0x1004}\def\to{2}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{2}%
+      \or \def\pcv{0x0218}\def\mev{0x0108}\def\tz{0x1004}\def\to{3}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{2}%
+      \or \def\pcv{0x021C}\def\mev{0x0108}\def\tz{0x1004}\def\to{3}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{3}%
+      \or \def\pcv{0x0220}\def\mev{0x0108}\def\tz{0x1004}\def\to{5}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{3}%
+      \or \def\pcv{0x0224}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x1FF0}\def\sa{1}\def\sb{5}\def\pr{3}%
+      \or \def\pcv{0x0228}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{1}\def\sb{5}\def\pr{3}%
+      \or \def\pcv{0x0108}\def\mev{0x0108}\def\tz{1}\def\to{5}\def\spv{0x2000}\def\sa{1}\def\sb{5}\def\pr{3}\fi
+    % the CPU registers
+    \draw[DeepBlue, thick, rounded corners=4pt, fill=DeepBlue!4] (8.75,0.3) rectangle (11.15,3.5);
+    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (8.8,3.47) {CPU registers};
+    \node[preg] (pc) at (9.95,2.9) {\textbf{PC}\ \ \pcv};
+    \node[preg] (me) at (9.95,2.42) {\textbf{mepc}\ \ \mev};
+    \node[preg] (t0) at (9.95,1.79) {\textbf{t0}\ \ \tz};
+    \node[preg] (t1) at (9.95,1.31) {\textbf{t1}\ \ \to};
+    \node[preg] (sp) at (9.95,0.68) {\textbf{sp}\ \ \spv};
+    % the memory
+    \node[font=\tiny\bfseries, text=StorageBlue, anchor=west] at (11.65,3.35) {memory};
+    \node[addr, font=\ttfamily\tiny, anchor=east] at (12.15,2.95) {0x1004};
+    \node[mcell] (pres) at (13.15,2.95) {presses = \pr};
+    \node[font=\tiny\bfseries, text=StorageBlue, anchor=west] at (11.65,2.5) {the stack};
+    \ifnum#1<5 \tikzset{st/.style={free}}\else\ifnum#1<14 \tikzset{st/.style={mcell, fill=cISR!12}}\else \tikzset{st/.style={free, text=gray}}\fi\fi
+    \foreach \ad/\y in {0x1FF0/2.1, 0x1FF4/1.72, 0x1FF8/1.34, 0x1FFC/0.96, 0x2000/0.58}
+      \node[addr, font=\ttfamily\tiny, anchor=east] at (12.15,\y) {\ad};
+    \node[st] at (13.15,2.1) {};
+    \node[st] at (13.15,1.72) {};
+    \ifnum#1<7 \node[st] (sb) at (13.15,1.34) {\sb}; \else \node[st] (sb) at (13.15,1.34) {\sb\ (t1)}; \fi
+    \ifnum#1<6 \node[st] (sa) at (13.15,0.96) {\sa}; \else \node[st] (sa) at (13.15,0.96) {\sa\ (t0)}; \fi
+    \node[mcell, fill=cWork!12] at (13.15,0.58) {main's data};
+    \ifnum#1<5 \def\topy{0.58}\else\ifnum#1<14 \def\topy{2.1}\else \def\topy{0.58}\fi\fi
+    \draw[<-, very thick, DeepBlue] (14.15,\topy) -- (14.6,\topy) node[above, font=\tiny\bfseries] {sp};
+    \ifnum#1>4 \ifnum#1<14
+      \draw[cISR, thick, decorate, decoration={brace, amplitude=3pt}] (14.2,2.29) -- (14.2,0.77)
+        node[midway, right=3pt, font=\tiny, text=cISR, align=left] {16\\bytes};
+    \fi\fi
+    % signal, jump, return
     \ifnum#1=1
-      \node[font=\scriptsize\bfseries, text=cIO, align=center] (sig) at (-1.05,1.5) {\faDotCircle\\interrupt!};
-      \draw[->, very thick, cIO] (sig.east) -- ([xshift=-0.75cm]m1.west);
+      \node[font=\scriptsize\bfseries, text=cIO, align=center] (sig) at (-1.4,2.9) {\faDotCircle\\interrupt!};
+      \draw[flow, cIO] (sig.south) |- ([xshift=-0.95cm]m1.west);
     \fi
-    % jump and return
-    \ifnum#1=2 \draw[->, very thick, DeepBlue] (m1.east) to[out=0, in=180] node[pos=0.3, above, font=\tiny\bfseries] {jump} (i0.west); \fi
-    \ifnum#1=4 \draw[->, very thick, DeepBlue] (i3.west) to[out=180, in=0] node[pos=0.75, below, font=\tiny\bfseries] {return} (m2.east); \fi
-    % registers
-    \ifcase#1 \or \def\pcv{0x0104}\def\spcv{--}%
-      \or \def\pcv{0x0200}\def\spcv{0x0108}%
-      \or \def\pcv{0x0204}\def\spcv{0x0108}%
-      \or \def\pcv{0x0108}\def\spcv{0x0108}\fi
-    \node[reg, minimum width=2.2cm] (pc) at (1.6,-0.55) {\textbf{PC}\ \ \pcv};
-    \node[reg, minimum width=2.2cm, fill=gray!10, draw=gray] (spc) at (5.75,-0.55) {\textbf{saved PC}\ \ \spcv};
-    \ifnum#1=2 \draw[WriteRed, line width=1.6pt, rounded corners=2pt] (spc.south west) rectangle (spc.north east); \fi
-    \ifnum#1=4
-      \draw[ReadBlue, line width=1.6pt, rounded corners=2pt] (spc.south west) rectangle (spc.north east);
-      \draw[->, very thick, DeepBlue] (spc.west) -- (pc.east);
-    \fi
+    \ifnum#1=2 \node[font=\tiny\bfseries, text=DeepBlue, anchor=west] at ([xshift=2pt]m1.east) {\faCheck\ finished}; \fi
+    \ifnum#1=3 \node[font=\tiny\bfseries, text=WriteRed, anchor=north] at ([yshift=-2pt]m3.south) {$\uparrow$ \texttt{sw}: the next instruction}; \fi
+    \ifnum#1=4 \draw[flow] (m1.east) to[out=0, in=180] node[pos=0.35, above, font=\tiny\bfseries] {jump} (i0.west); \fi
+    \ifnum#1=15 \draw[flow] (i10.west) to[out=180, in=-90] node[pos=0.55, left, font=\tiny\bfseries] {return} (mp.south); \fi
+    % what is read and written
+    \ifnum#1=3 \draw[wr] (me.south west) rectangle (me.north east); \fi
+    \ifnum#1=4 \draw[wr] (pc.south west) rectangle (pc.north east); \fi
+    \ifnum#1=5 \draw[wr] (sp.south west) rectangle (sp.north east); \fi
+    \ifnum#1=6 \draw[rd] (t0.south west) rectangle (t0.north east); \draw[wr] (sa.south west) rectangle (sa.north east); \fi
+    \ifnum#1=7 \draw[rd] (t1.south west) rectangle (t1.north east); \draw[wr] (sb.south west) rectangle (sb.north east); \fi
+    \ifnum#1=8 \draw[wr] (t0.south west) rectangle (t0.north east); \fi
+    \ifnum#1=9 \draw[rd] (pres.south west) rectangle (pres.north east); \draw[wr] (t1.south west) rectangle (t1.north east); \fi
+    \ifnum#1=10 \draw[wr] (t1.south west) rectangle (t1.north east); \fi
+    \ifnum#1=11 \draw[rd] (t1.south west) rectangle (t1.north east); \draw[wr] (pres.south west) rectangle (pres.north east); \fi
+    \ifnum#1=12 \draw[rd] (sb.south west) rectangle (sb.north east); \draw[wr] (t1.south west) rectangle (t1.north east); \fi
+    \ifnum#1=13 \draw[rd] (sa.south west) rectangle (sa.north east); \draw[wr] (t0.south west) rectangle (t0.north east); \fi
+    \ifnum#1=14 \draw[wr] (sp.south west) rectangle (sp.north east); \fi
+    \ifnum#1=15 \draw[rd] (me.south west) rectangle (me.north east); \draw[wr] (pc.south west) rectangle (pc.north east); \fi
+    % legend
+    \node[font=\tiny] at (6.3,-0.7) {\textcolor{AccentOrange}{\rule{0.25cm}{0.2cm}}\ the instruction that runs
+      \quad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written\quad\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read};
+  \end{tikzpicture}}
+
+% ---------- a C function and its stack, step by step ----------
+% #1 = 0 before, 1 make room, 2 store a, 3 compute with a, 4 free the room
+\newcommand{\cstack}[1]{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      ins/.style={instr, draw=DeepBlue!50, fill=white, minimum width=2.4cm, anchor=west},
+      run/.style={ins, fill=AccentOrange!45, draw=AccentOrange, very thick},
+      mcell/.style={draw=StorageBlue, thick, fill=white, minimum width=2.0cm, minimum height=0.45cm, font=\ttfamily\scriptsize},
+      preg/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, minimum width=1.9cm,
+        minimum height=0.45cm, font=\ttfamily\scriptsize},
+      wr/.style={draw=WriteRed, line width=1.8pt, rounded corners=2pt},
+      rd/.style={draw=ReadBlue, line width=1.8pt, rounded corners=2pt}]
+    \useasboundingbox (-0.2,-0.9) rectangle (10.6,3.4);
+    \ifcase#1 \def\ra{0}\def\rb{0}\or\def\ra{1}\def\rb{1}\or\def\ra{2}\def\rb{3}\or\def\ra{4}\def\rb{6}\or\def\ra{7}\def\rb{8}\fi
+    \foreach \t/\c [count=\k from 1] in {{addi sp, sp, -16}/{make room}, {li\ \ \ a5, 7}/{}, {sw\ \ \ a5, 12(sp)}/{a = 7},
+        {lw\ \ \ a5, 12(sp)}/{}, {addi a5, a5, 1}/{}, {mv\ \ \ a0, a5}/{return value}, {addi sp, sp, 16}/{free the room},
+        {jr\ \ \ ra}/{return}} {
+      \ifnum\k<\ra \tikzset{cur/.style={ins}}\else\ifnum\k>\rb \tikzset{cur/.style={ins}}\else \tikzset{cur/.style={run}}\fi\fi
+      \node[cur] (k\k) at (0,{3.0-0.42*(\k-1)}) {\t};
+      \node[font=\tiny, text=gray, anchor=west] at (2.5,{3.0-0.42*(\k-1)}) {\c};
+    }
+    \ifcase#1 \def\spv{0x2000}\def\topy{0.9}\def\av{}\def\afive{?}%
+      \or\def\spv{0x1FF0}\def\topy{2.55}\def\av{}\def\afive{?}%
+      \or\def\spv{0x1FF0}\def\topy{2.55}\def\av{7}\def\afive{7}%
+      \or\def\spv{0x1FF0}\def\topy{2.55}\def\av{7}\def\afive{8}%
+      \or\def\spv{0x2000}\def\topy{0.9}\def\av{7}\def\afive{8}\fi
+    \draw[DeepBlue, thick, rounded corners=4pt, fill=DeepBlue!4] (3.6,1.45) rectangle (5.85,3.25);
+    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (3.65,3.22) {CPU registers};
+    \node[preg] (sp) at (4.72,2.45) {\textbf{sp}\ \ \spv};
+    \node[preg] (a5) at (4.72,1.85) {\textbf{a5}\ \ \afive};
+    \node[font=\tiny\bfseries, text=StorageBlue] at (8.6,3.2) {the stack};
+    \foreach \ad/\y in {0x1FF0/2.55, 0x1FF4/2.1, 0x1FF8/1.65, 0x1FFC/1.2, 0x2000/0.75}
+      \node[addr, font=\ttfamily\tiny, anchor=east] at (7.5,\y) {\ad};
+    \ifnum#1=0 \tikzset{fr/.style={mcell, dashed, draw=StorageBlue!50}}\else\ifnum#1=4 \tikzset{fr/.style={mcell, dashed, draw=StorageBlue!50}}\else \tikzset{fr/.style={mcell, fill=cISR!10}}\fi\fi
+    \node[fr] at (8.6,2.55) {}; \node[fr] at (8.6,2.1) {}; \node[fr] at (8.6,1.65) {};
+    \ifnum#1>1 \ifnum#1<4 \node[mcell, fill=cISR!25] (va) at (8.6,1.2) {a = \av};
+      \else \node[mcell, dashed, draw=StorageBlue!50, text=gray] (va) at (8.6,1.2) {7 (free)}; \fi
+    \else \node[fr] (va) at (8.6,1.2) {}; \fi
+    \node[mcell, fill=cWork!12] at (8.6,0.75) {in use};
+    \ifnum#1=0 \def\topy{0.75}\else\ifnum#1=4 \def\topy{0.75}\else \def\topy{2.55}\fi\fi
+    \draw[<-, very thick, DeepBlue] (9.65,\topy) -- (10.15,\topy) node[right, font=\tiny\bfseries] {sp};
+    \ifnum#1>0 \ifnum#1<4
+      \draw[cISR, thick, decorate, decoration={brace, amplitude=4pt, mirror}] (6.8,2.8) -- (6.8,0.98)
+        node[midway, left=4pt, font=\tiny, text=cISR] {16 bytes};
+    \fi\fi
+    \ifnum#1=1 \draw[wr] (sp.south west) rectangle (sp.north east); \fi
+    \ifnum#1=2 \draw[wr] (a5.south west) rectangle (a5.north east); \draw[wr] (va.south west) rectangle (va.north east); \fi
+    \ifnum#1=3 \draw[rd] (va.south west) rectangle (va.north east); \draw[wr] (a5.south west) rectangle (a5.north east); \fi
+    \ifnum#1=4 \draw[wr] (sp.south west) rectangle (sp.north east); \fi
+    \node[font=\tiny] at (5.3,-0.6) {\textcolor{AccentOrange}{\rule{0.25cm}{0.2cm}}\ the instructions that run
+      \quad\textcolor{WriteRed}{\rule{0.25cm}{0.2cm}}\ written\quad\textcolor{ReadBlue}{\rule{0.25cm}{0.2cm}}\ read};
   \end{tikzpicture}}
 
 % ---------- the button with an interrupt (figure 1 of the course plan) ----------
@@ -1516,6 +1653,98 @@
       \node[font=\tiny, text=DeepBlue] at ({2.4*\k},-0.45) {\the\numexpr 500*\k\relax\,ms};
     }
     \draw[->, thick, DeepBlue] (0,-0.75) -- (10.6,-0.75) node[right, font=\tiny] {time};
+  \end{tikzpicture}}
+
+% ---------- a compiled C ISR overwrites a register of the main program ----------
+\newcommand{\ctrouble}{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      prog/.style={very thick, rounded corners=4pt, minimum width=3.0cm, minimum height=1.9cm},
+      rv/.style={draw=DeepBlue, very thick, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=3pt}]
+    \node[prog, draw=cWork, fill=cWork!8] (m1) at (0,0) {};
+    \node[font=\scriptsize\bfseries, text=cWork, anchor=north] at (m1.north) {main program};
+    \node[font=\ttfamily\tiny, align=left] at (0,0.05) {li\ \ \ a5, 42\\\textcolor{gray}{\ldots}};
+    \node[rv] at (0,-0.6) {a5 = 42};
+    \node[prog, draw=cISR, fill=cISR!12] (isr) at (4.4,0) {};
+    \node[font=\scriptsize\bfseries, text=cISR, anchor=north] at (isr.north) {\texttt{onButtonA}, compiled};
+    \node[font=\ttfamily\tiny, align=left] at (4.4,0.05) {lw\ \ \ a5, 0(a4)\\addi a5, a5, 1};
+    \node[rv, draw=WriteRed] at (4.4,-0.6) {a5 = 3};
+    \node[prog, draw=cWork, fill=cWork!8] (m2) at (8.8,0) {};
+    \node[font=\scriptsize\bfseries, text=cWork, anchor=north] at (m2.north) {main program again};
+    \node[font=\ttfamily\tiny, align=left] at (8.8,0.05) {add\ \ a0, a0, a5\\\textcolor{gray}{\ldots}};
+    \node[rv, draw=WriteRed] at (8.8,-0.6) {a5 = 3 \textcolor{WriteRed}{\faTimes}};
+    \draw[->, very thick, DeepBlue] (m1) -- node[above, font=\tiny\bfseries] {interrupt} (isr);
+    \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\tiny\bfseries] {return} (m2);
+    \node[font=\tiny\bfseries, text=WriteRed, anchor=north] at (8.8,-1.1) {it expected 42};
+  \end{tikzpicture}}
+
+% ---------- a timer is a stopwatch with an alarm ----------
+\newcommand{\timerblock}{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      blk/.style={draw=DeepBlue, very thick, rounded corners=4pt, fill=white, align=center, minimum height=1.45cm,
+        inner sep=4pt}]
+    \node[blk, minimum width=2.3cm] (clk) at (0,0) {\textbf{clock}\\[2pt]{\normalsize 1\,MHz}\\[1pt]{\tiny a pulse every 1\,$\mu$s}};
+    \node[blk, minimum width=2.7cm] (cnt) at (3.5,0) {\textbf{counter}\\[2pt]{\ttfamily\normalsize 499\,998}\\[1pt]{\tiny +1 at every pulse}};
+    \node[blk, draw=cISR, minimum width=2.7cm] (cmp) at (7.1,0) {\textbf{alarm?}\\[2pt]counter =\\{\ttfamily 500\,000}};
+    \node[blk, fill=DeepBlue!6, minimum width=2.0cm] (cpu) at (10.6,0) {\faMicrochip\ \textbf{CPU}\\[2pt]runs\\\texttt{onTimer}};
+    \node[font=\Large, text=DeepBlue] at (3.5,1.15) {\faStopwatch};
+    \node[font=\Large, text=cISR] at (7.1,1.15) {\faBell};
+    \draw[->, very thick, DeepBlue] (clk) -- node[above, font=\tiny] {pulses} (cnt);
+    \draw[->, very thick, DeepBlue] (cnt) -- node[above, font=\tiny] {value} (cmp);
+    \draw[->, very thick, cISR] (cmp) -- node[above, font=\tiny\bfseries] {interrupt!} (cpu);
+    \draw[->, thick, cISR] (cmp.south) -- ++(0,-0.45) -| node[pos=0.25, below, font=\tiny] {and the counter starts again from 0} (cnt.south);
+  \end{tikzpicture}}
+
+% ---------- the counter of the timer over time ----------
+\newcommand{\timersaw}{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+    \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue, align=right] at (-0.15,0.75) {counter};
+    \draw[gray, dashed] (0,1.5) -- (9.9,1.5) node[right, font=\tiny, text=cISR] {alarm: 500\,000};
+    \node[anchor=east, font=\tiny, text=gray] at (-0.1,0) {0};
+    \foreach \k in {0,...,3} {
+      \draw[DeepBlue, very thick] ({2.4*\k},0) -- ({2.4*(\k+1)},1.5);
+      \draw[DeepBlue, thick, dotted] ({2.4*(\k+1)},1.5) -- ({2.4*(\k+1)},0);
+      \fill[cISR] ({2.4*(\k+1)},1.5) circle (0.09);
+      \draw[->, cISR, thick] ({2.4*(\k+1)},-0.05) -- ({2.4*(\k+1)},-0.75);
+    }
+    \node[anchor=east, font=\scriptsize\bfseries, text=DeepBlue] at (-0.15,-1.0) {CPU};
+    \fill[cWork] (0,-1.21) rectangle (10.0,-0.79);
+    \node[font=\tiny\bfseries, text=white] at (1.2,-1.0) {main program};
+    \foreach \k in {1,...,4} {
+      \fill[cISR] ({2.4*\k-0.08},-1.21) rectangle ({2.4*\k+0.08},-0.79);
+      \node[font=\tiny, text=DeepBlue] at ({2.4*\k},-1.42) {\the\numexpr 500*\k\relax\,ms};
+    }
+    \draw[->, thick, DeepBlue] (0,-1.7) -- (10.2,-1.7) node[right, font=\tiny] {time};
+    \node[anchor=west, font=\tiny] at (0,-2.05) {\textcolor{cISR}{\faCircle}\ the counter reaches the alarm: an interrupt, and the ISR runs
+      \quad\textcolor{cWork}{\rule{0.25cm}{0.2cm}}\ the main program};
+  \end{tikzpicture}}
+
+% ---------- where a timer can be ----------
+\newcommand{\timerwhere}{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+    % the board
+    \draw[gray, very thick, rounded corners=6pt, fill=gray!6] (0,0) rectangle (8.2,3.4);
+    \node[anchor=north west, font=\tiny\bfseries, text=gray!70!black] at (0.1,3.35) {the board};
+    % the chip
+    \draw[DeepBlue, very thick, rounded corners=5pt, fill=DeepBlue!5] (0.4,0.3) rectangle (6.6,3.0);
+    \node[anchor=north west, font=\tiny\bfseries, text=DeepBlue] at (0.5,2.95) {\faMicrochip\ the microcontroller (ESP32-C3)};
+    % the core
+    \draw[DeepBlue, thick, rounded corners=3pt, fill=white] (0.7,0.55) rectangle (2.9,2.45);
+    \node[font=\tiny\bfseries, text=DeepBlue] at (1.8,2.2) {CPU core};
+    \node[font=\large, text=cISR] at (1.8,1.45) {\faStopwatch};
+    \node at (1.8,0.85) {\badge{1}};
+    % peripherals
+    \draw[DeepBlue, thick, rounded corners=3pt, fill=white] (3.2,0.55) rectangle (6.3,2.45);
+    \node[font=\tiny\bfseries, text=DeepBlue] at (4.75,2.2) {next to the core};
+    \node[font=\large, text=cISR] at (3.85,1.45) {\faStopwatch};
+    \node[font=\large, text=cISR] at (4.55,1.45) {\faStopwatch};
+    \node[draw=DeepBlue!60, font=\tiny, inner sep=2pt] (gpio) at (5.6,1.45) {GPIO};
+    \node at (4.2,0.85) {\badge{2}};
+    % outside
+    \draw[ProgramPurple, very thick, rounded corners=4pt, fill=ProgramPurple!6] (9.3,0.9) rectangle (11.5,2.6);
+    \node[font=\tiny\bfseries, text=ProgramPurple, align=center] at (10.4,2.25) {another chip};
+    \node[font=\large, text=cISR] at (10.4,1.6) {\faStopwatch};
+    \node at (10.4,1.1) {\badge{3}};
+    \draw[->, very thick, ProgramPurple] (9.3,1.6) -- node[above, font=\tiny] {a wire} (gpio.east);
   \end{tikzpicture}}
 
 % ---------- one tick, three LEDs: #1 = number of ticks ----------
@@ -1654,6 +1883,16 @@
 
 % a highlighted piece of code inside a listing: (*\hlcode{...}*)
 \newcommand{\hlcode}[1]{{\setlength{\fboxsep}{1pt}\colorbox{AccentOrange}{\textcolor{white}{\bfseries #1}}}}
+% the end of the highlighted line, inside a listing: (*\eol*)
+\newcommand{\eol}{\tikz[remember picture, overlay]\coordinate (eol) at (0,0.08);}
+% one note with an arrow to the line that ends with \eol; #1 = vertical shift, #2 = title, #3 = text
+\newcommand{\codenote}[3][0pt]{%
+  \begin{tikzpicture}[remember picture, overlay, >=Stealth]
+    \node[draw=AccentOrange, very thick, fill=AccentOrange!6, rounded corners=4pt, text width=0.33\paperwidth,
+      align=left, inner sep=6pt, font=\footnotesize, anchor=west] (cal)
+      at ([yshift=#1]eol -| {$(current page.west)!0.6!(current page.east)$}) {\textbf{\textcolor{AccentOrange}{#2}}\\[3pt]#3};
+    \draw[->, very thick, AccentOrange] (eol -| cal.west) -- ([xshift=4pt]eol);
+  \end{tikzpicture}}
 
 % ---------- three ways to keep a rhythm: #1 = 1 delay(), 2 millis() in loop(), 3 timer interrupt ----------
 \newcommand{\rhythm}[1]{%
@@ -1811,7 +2050,7 @@
     % ----- the table of saved stack pointers -----
     \node[draw=DeepBlue, fill=DeepBlue, text=white, font=\tiny\bfseries, minimum width=2.6cm, minimum height=0.42cm]
       at (10.7,3.0) {saved sp};
-    \ifnum#1>1 \def\valA{top of A}\else \def\valA{--}\fi
+    \ifnum#1>1 \def\valA{top of A}\else \def\valA{-}\fi
     \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskA] at (9.85,2.55) {task A};
     \node[tcell, minimum width=1.7cm, font=\ttfamily\tiny] (va) at (11.15,2.55) {\valA};
     \node[tcell, minimum width=0.9cm, font=\tiny\bfseries, text=cTaskB] at (9.85,2.1) {task B};
@@ -2061,6 +2300,7 @@
 \end{frame}
 
 \begin{frame}{How often should the CPU check the button?}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \qcard{\faClock}{\textbf{From time to time}\\[3pt]
@@ -2179,6 +2419,7 @@ void loop() {
 \end{frame}
 
 \begin{frame}{Neither way is good}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \qcard{\faClock}{\textbf{From time to time}\\[3pt]
@@ -2341,6 +2582,10 @@ void loop() {
   \keymsg{The main program \textbf{never checks} the button. It only shows how many presses the ISR counted.}
 \end{frame}
 
+% =====================================================================
+\section[In the code]{Interrupts in the code}
+% =====================================================================
+
 \begin{frame}[fragile]{Interrupts in the code}
   \begin{columns}[c,onlytextwidth]
     \column{0.52\textwidth}
@@ -2366,8 +2611,7 @@ void setup() {
 \end{frame}
 
 \begin{frame}[fragile]{Interrupts in the code: \texttt{attachInterrupt}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
 \begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
 const int BUTTON_A = 5;
 volatile int presses = 0;
@@ -2378,16 +2622,12 @@ void IRAM_ATTR onButtonA() {     // the ISR
 
 void setup() {
   pinMode(BUTTON_A, INPUT_PULLUP);
-  (*\hlcode{attachInterrupt}*)(digitalPinToInterrupt(BUTTON_A),
+  (*\hlcode{attachInterrupt}*)(digitalPinToInterrupt(BUTTON_A),(*\eol*)
                   onButtonA, FALLING);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \stepbox{Fill the table}{\texttt{attachInterrupt} writes one row into the table of the interrupt controller.}
-      \stepbox{Three arguments}{\textbf{which} interrupt, \textbf{which ISR} to run (\texttt{onButtonA}),
-        and \textbf{when}.}
-      \stepbox{When?}{\texttt{FALLING}: the pin goes from 1 to 0, the button is \textbf{pressed}.}
-  \end{columns}
+  \end{minipage}
+  \codenote[0.2cm]{Fill the table}{It writes one row into the table of the interrupt controller:\\[2pt] \textbf{which} interrupt, \textbf{which ISR} (\texttt{onButtonA}) and \textbf{when} (\texttt{FALLING}: the press).}
   \vfill
   \keymsg{After this line the CPU never calls \texttt{onButtonA} itself: the interrupt does.}
 \end{frame}
@@ -2452,8 +2692,7 @@ void setup() {
 \end{frame}
 
 \begin{frame}[fragile]{Interrupts in the code: \texttt{digitalPinToInterrupt}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
 \begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
 const int BUTTON_A = 5;
 volatile int presses = 0;
@@ -2464,27 +2703,21 @@ void IRAM_ATTR onButtonA() {     // the ISR
 
 void setup() {
   pinMode(BUTTON_A, INPUT_PULLUP);
-  attachInterrupt((*\hlcode{digitalPinToInterrupt(BUTTON\_A)}*),
+  attachInterrupt((*\hlcode{digitalPinToInterrupt(BUTTON\_A)}*),(*\eol*)
                   onButtonA, FALLING);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \stepbox{A pin is not an interrupt}{\texttt{attachInterrupt} wants the \textbf{number of the interrupt},
-        not the number of the pin.}
-      \stepbox{The translation}{\texttt{digitalPinToInterrupt(5)} gives the interrupt that belongs to pin 5.}
-      \stepbox{Why bother?}{On the ESP32 both numbers are the same. On other boards they are not:
-        on an Arduino Uno, pin 2 is interrupt 0. With this function the code works everywhere.}
-  \end{columns}
+  \end{minipage}
+  \codenote[0.2cm]{A pin number $\to$ an interrupt number}{\texttt{attachInterrupt} wants the number of the \textbf{interrupt}, not of the pin. On the ESP32 both are the same; on an Arduino Uno, pin 2 is interrupt 0. With this function the code works everywhere.}
 \end{frame}
 
 \begin{frame}[fragile]{Interrupts in the code: \texttt{IRAM\_ATTR}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
 \begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
 const int BUTTON_A = 5;
 volatile int presses = 0;
 
-void (*\hlcode{IRAM\_ATTR}*) onButtonA() {     // the ISR
+void (*\hlcode{IRAM\_ATTR}*) onButtonA() {     // the ISR(*\eol*)
   presses++;
 }
 
@@ -2494,22 +2727,17 @@ void setup() {
                   onButtonA, FALLING);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \stepbox{Where is the program?}{Normally in the \textbf{flash} memory, outside the processor core: big, but slow.}
-      \stepbox{An ISR must start at once}{The flash can be busy at the moment the interrupt arrives.
-        Then the ISR could not start, and the ESP32 would crash.}
-      \stepbox{\texttt{IRAM\_ATTR}}{Put this function into \textbf{IRAM}: fast memory inside the chip, always ready.}
-  \end{columns}
+  \end{minipage}
+  \codenote[-0.6cm]{Keep the ISR in fast memory}{The program normally lives in the \textbf{flash}: big, slow, and sometimes busy. An ISR must start \textbf{at once}, so \texttt{IRAM\_ATTR} puts it into \textbf{IRAM}, fast memory inside the chip.}
   \vfill
   \keymsg{Every ISR on the ESP32 gets \texttt{IRAM\_ATTR}.}
 \end{frame}
 
 \begin{frame}[fragile]{Interrupts in the code: \texttt{volatile}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
 \begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
 const int BUTTON_A = 5;
-(*\hlcode{volatile}*) int presses = 0;
+(*\hlcode{volatile}*) int presses = 0;(*\eol*)
 
 void IRAM_ATTR onButtonA() {     // the ISR
   presses++;
@@ -2521,14 +2749,8 @@ void setup() {
                   onButtonA, FALLING);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \stepbox{The compiler is clever}{\texttt{loop()} never changes \texttt{presses}. So the compiler may read it
-        \textbf{once} into a register and never look at the memory again.}
-      \stepbox{But the ISR changes it}{The ISR writes the new value to memory, ``behind the program's back''.
-        Without \texttt{volatile}, a loop like \texttt{while (presses == 0) \{ \}} could wait \textbf{forever}.}
-      \stepbox{\texttt{volatile}}{Tells the compiler: this variable can change at any moment.
-        \textbf{Read it from memory every time.}}
-  \end{columns}
+  \end{minipage}
+  \codenote[-0.9cm]{Read it from memory every time}{\texttt{loop()} never changes \texttt{presses}, so the compiler may read it \textbf{once} into a register and never look again. But the ISR changes it behind the program's back. \texttt{volatile} forbids this shortcut.}
   \vfill
   \keymsg{Every variable that an ISR and the main program share must be \texttt{volatile}.}
 \end{frame}
@@ -2603,6 +2825,7 @@ void loop() {
 \end{frame}
 
 \begin{frame}{Two buttons at the same moment?}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \stepbox{\textcolor{mygreen}{\faCheck}\ On our ESP32-C3: safe}{It has \textbf{one} core, and an ISR is not
@@ -2638,6 +2861,7 @@ void loop() {
 \end{frame}
 
 \begin{frame}{Two cores: a press is lost}
+  \vfill
   \begin{columns}[c,onlytextwidth]
     \column{0.44\textwidth}
       \centering\small
@@ -2664,6 +2888,7 @@ void loop() {
 \end{frame}
 
 \begin{frame}[fragile]{The real danger: an ISR and \texttt{loop()} change one variable}
+  \vfill
   \begin{columns}[c,onlytextwidth]
     \column{0.46\textwidth}
       {\scriptsize\textbf{\texttt{loop()} takes the presses and resets the counter:}\par}
@@ -2741,6 +2966,7 @@ void IRAM_ATTR onButtonA() {
 \end{frame}
 
 \begin{frame}{Rules for an ISR: 3. share data through \texttt{volatile} variables}
+  \vfill
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
       \node[lbox, draw=cISR, fill=cISR!15, minimum width=3.4cm, minimum height=0.9cm] (isr) at (0,0)
@@ -2762,6 +2988,10 @@ void IRAM_ATTR onButtonA() {
   \keymsg{The ISR only \textbf{records} what happened. The main program \textbf{does the work}.}
 \end{frame}
 
+% =====================================================================
+\section[Inside the CPU]{Inside the processor}
+% =====================================================================
+
 \begin{frame}{You can use interrupts. How does the processor do it?}
   \begin{columns}[T,onlytextwidth]
     \column{0.31\textwidth}
@@ -2775,31 +3005,364 @@ void IRAM_ATTR onButtonA() {
   \keymsg{Now we look \textbf{inside the processor}: what happens there, step by step.}
 \end{frame}
 
-\begin{frame}{What happens inside the processor}
+\begin{frame}{A register has two names}
   \begin{columns}[c,onlytextwidth]
-    \column{0.56\textwidth}
-      \centering
-      \resizebox{\linewidth}{!}{%
-        \only<1>{\irqsteps{1}}%
-        \only<2>{\irqsteps{2}}%
-        \only<3>{\irqsteps{3}}%
-        \only<4>{\irqsteps{4}}%
-      }\\[0.15cm]
-      {\scriptsize\textcolor{gray}{In RISC-V the saved PC is kept in a special register, \texttt{mepc}.}\par}
-    \column{0.42\textwidth}
-      \stepbox{\badge{1}\ Signal}{Button A raises an interrupt signal while the CPU runs \texttt{addi}.}
-      \uncover<2->{\stepbox{\badge{2}\ Save and jump}{The CPU \textbf{finishes} \texttt{addi}, \textbf{saves the PC}
-        (the address of the next instruction) and jumps to the ISR.}}
-      \uncover<3->{\stepbox{\badge{3}\ The ISR runs}{It saves \texttt{t0}, does its work and restores \texttt{t0}.}}
-      \uncover<4->{\stepbox{\badge{4}\ Return}{The CPU \textbf{restores the PC}: the main program continues with \texttt{sw}.}}
+    \column{0.46\textwidth}
+      \centering\footnotesize
+      \renewcommand{\arraystretch}{1.3}
+      \begin{tabular}{lll}
+        \toprule
+        \textbf{Number} & \textbf{Name} & \textbf{Used for} \\
+        \midrule
+        \texttt{x2}  & \texttt{sp} & the stack pointer \\
+        \texttt{x5}  & \texttt{t0} & temporary values \\
+        \texttt{x6}  & \texttt{t1} & temporary values \\
+        \texttt{x10} & \texttt{a0} & arguments (addresses) \\
+        \texttt{x11} & \texttt{a1} & arguments (addresses) \\
+        \texttt{x14} & \texttt{a4} & arguments, temporary values \\
+        \texttt{x15} & \texttt{a5} & arguments, temporary values \\
+        \bottomrule
+      \end{tabular}
+    \column{0.5\textwidth}
+      \stepbox{The same register}{\texttt{t0} \textbf{is} \texttt{x5}. The processor only knows the number;
+        the name tells people what the register is for. From now on we use the names.}
   \end{columns}
   \vfill
-  \uncover<4->{\keymsg{The main program \textbf{does not know} that it was interrupted.}}
+  \keymsg{\texttt{addi t0, t0, 1} is exactly \texttt{addi x5, x5, 1}.}
+\end{frame}
+
+\begin{frame}{The stack}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.44\textwidth}
+      \centering
+      \resizebox{0.9\linewidth}{!}{\stackonly}
+    \column{0.52\textwidth}
+      \defbox{The \textbf{stack} is a part of the memory where a program keeps values \textbf{for later},
+        for example the local variables of a function.}
+      \stepbox{The top}{The register \texttt{sp} (\emph{stack pointer}) holds the address of the top.
+        From the top down: \textbf{in use}. Above it: free.}
+      \stepbox{It grows towards lower addresses}{More values: \texttt{sp} goes \textbf{down}. Fewer: \texttt{sp} goes up.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{A local variable lives on the stack}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.4\textwidth}
+      {\scriptsize\textbf{C}\par}
+\begin{lstlisting}[style=rtos]
+int f(void) {
+    int a = 7;
+    return a + 1;
+}
+\end{lstlisting}
+      \stepbox{One local variable}{\texttt{a} exists only while \texttt{f} runs. Where does it live?}
+    \column{0.56\textwidth}
+      {\scriptsize\textbf{RISC-V} (gcc \texttt{-O0 -fomit-frame-pointer})\par}
+\begin{lstlisting}[style=rv6]
+f:
+  addi sp, sp, -16   # make room
+  li   a5, 7
+  sw   a5, 12(sp)    # a = 7, on the stack
+  lw   a5, 12(sp)    # read a
+  addi a5, a5, 1
+  mv   a0, a5        # the return value
+  addi sp, sp, 16    # free the room
+  jr   ra            # return
+\end{lstlisting}
+  \end{columns}
+  \vfill
+  \keymsg{The function takes room on the stack at the start, and gives it back at the end.}
+\end{frame}
+
+\begin{frame}{A local variable lives on the stack: step by step}
+  \begin{center}
+    \resizebox{!}{0.6\textheight}{\only<1>{\cstack{0}}\only<2>{\cstack{1}}\only<3>{\cstack{2}}\only<4>{\cstack{3}}\only<5>{\cstack{4}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{Before \texttt{f}}{\texttt{sp} = 0x2000. Above it the stack is free.}}%
+  \only<2>{\stepbox{\texttt{addi sp, sp, -16}}{The stack \textbf{grows}: 16 bytes for \texttt{f}, \texttt{sp} = 0x1FF0.
+    (RISC-V keeps \texttt{sp} a multiple of 16, so 16 and not 4.)}}%
+  \only<3>{\stepbox{\texttt{li a5, 7} and \texttt{sw a5, 12(sp)}}{\texttt{a = 7} is written at \texttt{sp + 12} = 0x1FFC.}}%
+  \only<4>{\stepbox{\texttt{lw}, \texttt{addi}, \texttt{mv}}{\texttt{f} reads \texttt{a} from the stack, adds 1 and puts
+    the result (8) in \texttt{a0}.}}%
+  \only<5>{\stepbox{\texttt{addi sp, sp, 16}}{The stack \textbf{shrinks}: \texttt{sp} = 0x2000 again. \texttt{a} is gone:
+    the 7 is still in the memory, but that place is free now.}}
+\end{frame}
+
+\begin{frame}[fragile]{Task: find the stack in Compiler Explorer}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.42\textwidth}
+\begin{lstlisting}[style=rtos]
+int sum3(int a, int b, int c) {
+    int s = a + b;
+    int t = s + c;
+    return t;
+}
+\end{lstlisting}
+      \stepbox{Settings}{\texttt{godbolt.org}, language C, compiler \textbf{RISC-V (32-bits) gcc},
+        options \texttt{-O0 -fomit-frame-pointer}.}
+    \column{0.54\textwidth}
+      \taskhead{Task}{Compile the function and read its assembly.}
+      \footnotesize
+      \begin{enumerate}\setlength{\itemsep}{4pt}
+        \item Which instruction makes room on the stack? How many bytes?
+        \item \texttt{a}, \texttt{b}, \texttt{c} arrive in \texttt{a0}, \texttt{a1}, \texttt{a2}. Where on the stack are they
+          written?
+        \item Where are \texttt{s} and \texttt{t} kept?
+        \item Which instruction frees the room?
+      \end{enumerate}
+      \vspace{0.05cm}
+      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
+        \scriptsize\textbf{If you finish early:} change \texttt{-O0} to \texttt{-O2}. What happens to the stack?
+      \end{beamercolorbox}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: find the stack in Compiler Explorer}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.44\textwidth}
+\begin{lstlisting}[style=rv6]
+sum3:
+  addi sp, sp, -32
+  sw   a0, 12(sp)    # a
+  sw   a1, 8(sp)     # b
+  sw   a2, 4(sp)     # c
+  lw   a4, 12(sp)
+  lw   a5, 8(sp)
+  add  a5, a4, a5
+  sw   a5, 28(sp)    # s
+  lw   a4, 28(sp)
+  lw   a5, 4(sp)
+  add  a5, a4, a5
+  sw   a5, 24(sp)    # t
+  lw   a5, 24(sp)
+  mv   a0, a5
+  addi sp, sp, 32
+  jr   ra
+\end{lstlisting}
+    \column{0.52\textwidth}
+      \stepbox{Questions 1 and 4}{\texttt{addi sp, sp, -32} makes room for \textbf{32 bytes};
+        \texttt{addi sp, sp, 32} frees it.}
+      {\centering\footnotesize\textbf{Questions 2 and 3}\\[2pt]
+        \renewcommand{\arraystretch}{1.15}
+        \begin{tabular}{lll}
+          \toprule
+          \textbf{Variable} & \textbf{Comes from} & \textbf{On the stack} \\
+          \midrule
+          \texttt{a} & \texttt{a0} & \texttt{12(sp)} \\
+          \texttt{b} & \texttt{a1} & \texttt{8(sp)} \\
+          \texttt{c} & \texttt{a2} & \texttt{4(sp)} \\
+          \texttt{s} & \texttt{a + b} & \texttt{28(sp)} \\
+          \texttt{t} & \texttt{s + c} & \texttt{24(sp)} \\
+          \bottomrule
+        \end{tabular}\par}
+      {\centering\tiny\textcolor{gray}{Your offsets may differ a little.}\par}
+      \stepbox{If you finished early}{With \texttt{-O2}: \texttt{add a0, a0, a1}, \texttt{add a0, a0, a2}, \texttt{ret}.
+        No stack at all: the values stay in registers.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Inside the CPU: 1. the interrupt arrives}
+  \begin{center}
+    \resizebox{\textwidth}{!}{\only<1>{\irqpass{1}}\only<2>{\irqpass{2}}\only<3>{\irqpass{3}}\only<4>{\irqpass{4}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{\badge{1}\ The signal}{Button A raises an interrupt signal while the CPU runs \texttt{addi} at 0x0104.}}%
+  \only<2>{\stepbox{\badge{2}\ Finish the instruction}{The CPU does not stop in the middle: it first \textbf{finishes} \texttt{addi}. Now \texttt{t0} = 1.}}%
+  \only<3>{\stepbox{\badge{3}\ Remember the way back}{The CPU writes into \texttt{mepc} the address of the \textbf{next} instruction, \texttt{sw}, at 0x0108. The instruction \texttt{addi} has already been executed.}}%
+  \only<4>{\stepbox{\badge{4}\ Jump}{The PC gets the address of the ISR: 0x0200. The ISR starts with its \textbf{prologue}.}}
+\end{frame}
+
+\begin{frame}{Inside the CPU: 2. the prologue}
+  \begin{center}
+    \resizebox{!}{0.63\textheight}{\only<1>{\irqpass{5}}\only<2>{\irqpass{6}}\only<3>{\irqpass{7}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{\texttt{addi sp, sp, -16}}{Make room on the stack: 16 bytes, so that \texttt{sp} stays a multiple of 16. We need only 8 of them.}}%
+  \only<2>{\stepbox{\texttt{sw t0, 12(sp)}}{Save the main program's \texttt{t0} (1): the body is about to use \texttt{t0}.}}%
+  \only<3>{\stepbox{\texttt{sw t1, 8(sp)}}{Save the main program's \texttt{t1} (5): the body uses \texttt{t1} too.}}
+\end{frame}
+
+\begin{frame}{Inside the CPU: 3. the body}
+  \begin{center}
+    \resizebox{!}{0.63\textheight}{\only<1>{\irqpass{8}}\only<2>{\irqpass{9}}\only<3>{\irqpass{10}}\only<4>{\irqpass{11}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{\texttt{la t0, presses}}{\texttt{t0} = the \textbf{address} of \texttt{presses}: 0x1004. The ISR cannot know what the main program keeps in its registers, so it gets the address itself. (\texttt{la} is two real instructions, 8 bytes: the next one is at 0x0214.)}}%
+  \only<2>{\stepbox{\texttt{lw t1, 0(t0)}}{\texttt{t1} = \texttt{presses} = 2.}}%
+  \only<3>{\stepbox{\texttt{addi t1, t1, 1}}{\texttt{t1} = 3.}}%
+  \only<4>{\stepbox{\texttt{sw t1, 0(t0)}}{\texttt{presses} = 3. These four instructions are \texttt{presses++}: the work of the ISR.}}
+\end{frame}
+
+\begin{frame}{Inside the CPU: 4. the epilogue and return}
+  \begin{center}
+    \resizebox{!}{0.63\textheight}{\only<1>{\irqpass{12}}\only<2>{\irqpass{13}}\only<3>{\irqpass{14}}\only<4>{\irqpass{15}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{\texttt{lw t1, 8(sp)}}{Restore the main program's \texttt{t1}: 5.}}%
+  \only<2>{\stepbox{\texttt{lw t0, 12(sp)}}{Restore the main program's \texttt{t0}: 1.}}%
+  \only<3>{\stepbox{\texttt{addi sp, sp, 16}}{Free the room: \texttt{sp} is 0x2000 again. The stack is as before the interrupt.}}%
+  \only<4>{\stepbox{\texttt{mret}}{PC $\leftarrow$ \texttt{mepc} = 0x0108. The main program continues with \texttt{sw}, with \texttt{t0} = 1 and \texttt{t1} = 5: it \textbf{does not know} that it was interrupted.}}
+\end{frame}
+
+\begin{frame}{The rule: save what you change}
+  \vfill
+  \defbox{The hardware saves \textbf{only the PC} (in \texttt{mepc}). Every register that the ISR changes, the ISR must
+    \textbf{save} in its prologue and \textbf{restore} in its epilogue.}
+  \vspace{0.2cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Our ISR}{Its body changes \texttt{t0} and \texttt{t1}. So the prologue saves exactly these two: that is enough.}
+    \column{0.48\textwidth}
+      \stepbox{\texttt{sp}?}{It changes too, but the epilogue moves it back by the same 16 bytes.}
+  \end{columns}
+  \vfill
+  \keymsg{Then the main program finds all its registers exactly as it left them.}
+\end{frame}
+
+\begin{frame}[fragile]{But our ISR is written in C}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.4\textwidth}
+      {\scriptsize\textbf{We write}\par}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onButtonA() {
+  presses++;
+}
+\end{lstlisting}
+      \stepbox{We write only the body}{Which registers will the compiled code use? We do not decide it,
+        and we do not see it.}
+    \column{0.56\textwidth}
+      {\scriptsize\textbf{The compiler makes} (gcc \texttt{-O2})\par}
+\begin{lstlisting}[style=rv6]
+onButtonA:
+  la   a4, presses   # the address
+  lw   a5, 0(a4)
+  addi a5, a5, 1
+  sw   a5, 0(a4)
+  ret                # a normal return
+\end{lstlisting}
+      \stepbox{A normal function}{No prologue, no epilogue. It changes \texttt{a4} and \texttt{a5} and
+        \textbf{saves neither}. And it ends with \texttt{ret}, not \texttt{mret}.}
+  \end{columns}
+  \vfill
+  \keymsg{Is that a mistake of the compiler? No. Let us see why, and why it is still a problem for an ISR.}
+\end{frame}
+
+\begin{frame}{The problem: nobody saves \texttt{a5}}
+  \vfill
+  \begin{center}
+    \ctrouble
+  \end{center}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{The rule of C}{A function \textbf{may} change \texttt{t0} to \texttt{t6} and \texttt{a0} to \texttt{a7} without saving them.
+        If the caller still needs one of them, the \textbf{caller} saves it before the call.}
+    \column{0.48\textwidth}
+      \stepbox{But nobody called the ISR}{The main program was \textbf{interrupted}, between any two instructions.
+        It had no chance to save \texttt{a5}. And the C function does not save it either.}
+  \end{columns}
+  \vfill
+  \keymsg{So somebody must save the registers \textbf{before} our C function runs, and restore them after it.}
+\end{frame}
+
+\begin{frame}{The interrupt entry code}
+  \begin{center}
+    \resizebox{0.72\textwidth}{!}{\begin{tikzpicture}[>=Stealth, font=\scriptsize,
+        part/.style={lbox, minimum height=1.05cm, text width=2.4cm}]
+      \node[part, draw=DeepBlue, fill=DeepBlue!8] (pro) at (0,0) {prologue\\[-1pt]{\mdseries save \textbf{all} registers}};
+      \node[part, draw=cISR, fill=cISR!15] (body) at (3.3,0) {body\\[-1pt]{\ttfamily\mdseries onButtonA()}};
+      \node[part, draw=DeepBlue, fill=DeepBlue!8] (epi) at (6.6,0) {epilogue\\[-1pt]{\mdseries restore all, \texttt{mret}}};
+      \draw[->, very thick, DeepBlue] (pro) -- (body);
+      \draw[->, very thick, DeepBlue] (body) -- (epi);
+      \node[font=\tiny\bfseries, text=DeepBlue] (mt) at (0,1.25) {\texttt{mtvec} points here};
+      \draw[->, thick, DeepBlue] (mt) -- (pro);
+      \draw[DeepBlue, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (-1.3,-0.7) -- (1.3,-0.7)
+        node[midway, below=5pt, font=\tiny, align=center] {the system (written in assembly)};
+      \draw[DeepBlue, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (5.3,-0.7) -- (7.9,-0.7)
+        node[midway, below=5pt, font=\tiny, align=center] {the system};
+      \draw[cISR, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (2.0,-0.7) -- (4.6,-0.7)
+        node[midway, below=5pt, font=\tiny, align=center] {our code (in C)};
+    \end{tikzpicture}}
+  \end{center}
+  \vspace{0.05cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Always all registers}{The system does not know which registers our C function will use.
+        So it \textbf{always} saves all of them, \texttt{a4} and \texttt{a5} too, for every interrupt.}
+    \column{0.48\textwidth}
+      \stepbox{The cost}{29 registers: 29 \texttt{sw} and 29 \texttt{lw}, about a third of a microsecond at 160 MHz.
+        This code also finds the right ISR in the table.}
+  \end{columns}
+  \vfill
+  \keymsg{Who saves \texttt{a5}? This code, before our ISR runs: it saves \textbf{every} register.}
+\end{frame}
+
+\begin{frame}[fragile]{The interrupt entry code: the real one}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+\begin{lstlisting}[style=rv6]
+_interrupt_handler:
+  addi sp, sp, -128   # room for 32 registers
+  sw   ra, 4(sp)
+  sw   t0, 20(sp)
+  sw   a5, 60(sp)
+  ...                 # 29 sw in total
+  csrr t0, mepc       # mepc too
+  sw   t0, 0(sp)
+  call rtos_int_enter
+  jal  _global_interrupt_handler
+  call rtos_int_exit
+  lw   ra, 4(sp)
+  ...                 # 29 lw in total
+  addi sp, sp, 128
+  mret
+\end{lstlisting}
+    \column{0.46\textwidth}
+      \stepbox{Is the picture simplified?}{Not much. This is the real code of the ESP32-C3 libraries (ESP-IDF),
+        shortened only at the dots.}
+      \stepbox{Prologue and epilogue}{All registers and \texttt{mepc} go to the stack. At the end: all back, and \texttt{mret}.}
+      \stepbox{The body}{\texttt{\_global\_interrupt\_handler} looks into the table and calls our \texttt{onButtonA}
+        with a normal call. \texttt{rtos\_int\_enter} and \texttt{exit} tell FreeRTOS that an interrupt runs.}
+  \end{columns}
+  \vfill
+  \keymsg{Remember: \textbf{all} registers of the interrupted program are on its stack. The scheduler needs this.}
+\end{frame}
+
+\begin{frame}[fragile]{Can an ISR be faster?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.44\textwidth}
+\begin{lstlisting}[style=rtos]
+void __attribute__((interrupt))
+onButtonA() {
+  presses++;
+}
+\end{lstlisting}
+      {\scriptsize\textbf{The compiler makes} (gcc \texttt{-O2})\par}
+\begin{lstlisting}[style=rv6]
+  addi sp, sp, -16
+  sw   a4, 12(sp)    # only a4
+  sw   a5, 8(sp)     # and a5
+  ...                # presses++
+  lw   a4, 12(sp)
+  lw   a5, 8(sp)
+  addi sp, sp, 16
+  mret
+\end{lstlisting}
+    \column{0.52\textwidth}
+      \stepbox{Save only what you use}{With \texttt{interrupt}, the compiler writes the prologue and the epilogue itself,
+        exactly like our ISR in assembly: 2 registers instead of 29, and \texttt{mret} at the end.
+        An ISR written by hand in assembly can do the same.}
+      \stepbox{When is it worth it?}{When interrupts come \textbf{very often}, for example 100\,000 times per second
+        to control a motor or to read sound samples. Then every saved instruction counts.}
+      \probbox{The price}{Such an ISR skips the system: it cannot use FreeRTOS functions or wake a task, and it works on one
+        chip only. The Arduino core does not even offer it: there the entry code always runs first.}
+  \end{columns}
 \end{frame}
 
 % SIMULATOR (topic "Polling vs interrupt"): the same as in DeviceSimulator, without bouncing.
 % SIMULATOR (topic "Interrupt step by step"): the main program below; the signal from button A
-%   arrives during the instruction at 0x0108; the ISR saves t0 on the stack and restores it.
+%   arrives during the instruction at 0x0108; the ISR saves t0 and t1 on the stack and restores them.
 \begin{frame}[fragile]{Simulator 1: polling and interrupts}
   \begin{columns}[T,onlytextwidth]
     \column{0.49\textwidth}
@@ -2822,7 +3385,7 @@ void IRAM_ATTR onButtonA() {
       \footnotesize
       \begin{enumerate}\setcounter{enumi}{2}\setlength{\itemsep}{4pt}
         \item \textbf{Predict} the saved PC. Then step through and check.
-        \item The ISR uses \texttt{t0}. What is \texttt{t0} in the main program after the return?
+        \item The ISR uses \texttt{t0} and \texttt{t1}. What are they in the main program after the return?
       \end{enumerate}
   \end{columns}
   \simfoot{\simaddr{Polling vs interrupt}\quad \simaddr{Interrupt step by step}}
@@ -2838,8 +3401,8 @@ void IRAM_ATTR onButtonA() {
     \column{0.48\textwidth}
       \stepbox{Question 3}{\texttt{0x010C}. The CPU first finishes \texttt{sw}, so the saved PC is the address of the
         \textbf{next} instruction.}
-      \stepbox{Question 4}{The same as before the interrupt. The ISR saved \texttt{t0} on the stack and restored it
-        before the return.}
+      \stepbox{Question 4}{The same as before the interrupt: \texttt{t0} = 1, \texttt{t1} = 5. The ISR saved both on the stack
+        and restored them before \texttt{mret}.}
   \end{columns}
   \vfill
   \keymsg{An interrupt misses nothing, costs almost no CPU time, and the main program continues
@@ -2847,15 +3410,52 @@ void IRAM_ATTR onButtonA() {
 \end{frame}
 
 
-\begin{frame}{Interrupts from a timer}
-  \defbox{A \textbf{timer} is a counter inside the processor. When it reaches a set value, it raises an interrupt:
-    again and again, at regular intervals.}
-  \vspace{0.3cm}
+% =====================================================================
+\section[Timer]{Timer interrupts}
+% =====================================================================
+
+\begin{frame}{A timer is a stopwatch with an alarm}
+  \vfill
   \begin{center}
-    \timertimeline
+    \timerblock
+  \end{center}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{It counts by itself}{A \textbf{timer} is a counter in hardware. A clock gives it pulses at a fixed rate,
+        and at every pulse it adds 1. The CPU does not have to do anything.}
+    \column{0.48\textwidth}
+      \stepbox{It rings}{When the counter reaches the set value (the \textbf{alarm}), the timer raises an
+        \textbf{interrupt}. Then it can start again from 0, and ring again.}
+  \end{columns}
+  \vfill
+\end{frame}
+
+\begin{frame}{Interrupts from a timer}
+  \vfill
+  \begin{center}
+    \timersaw
   \end{center}
   \vfill
   \keymsg{A timer interrupt lets the processor do something \textbf{regularly}, without checking the time in the main program.}
+\end{frame}
+
+\begin{frame}{Where is the timer?}
+  \begin{center}
+    \resizebox{0.82\textwidth}{!}{\timerwhere}
+  \end{center}
+  \vspace{-0.1cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.32\textwidth}
+      \stepbox{\badge{1}\ In the core}{Many processors have a timer in the core itself: every core of a PC has one,
+        and RISC-V defines one (\texttt{mtime}). The operating system takes its regular interrupt from it.}
+    \column{0.32\textwidth}
+      \stepbox{\badge{2}\ Next to the core}{A device on the same chip, like the GPIO controller. The ESP32-C3 has
+        \textbf{two} such timers for us, and one more for the system.}
+    \column{0.32\textwidth}
+      \stepbox{\badge{3}\ On another chip}{For example a real-time clock with an alarm. Its signal comes on a wire to a
+        GPIO pin: for the CPU it is a GPIO interrupt, just like button A.}
+  \end{columns}
 \end{frame}
 
 % CHECK before class: the timer API below is the one of the ESP32 core 3.x used by Wokwi.
@@ -2863,7 +3463,7 @@ void IRAM_ATTR onButtonA() {
 % timerAlarmWrite(timer, 500000, true), timerAlarmEnable(timer).
 \begin{frame}[fragile]{A timer in the code}
   \begin{columns}[c,onlytextwidth]
-    \column{0.56\textwidth}
+    \column{0.55\textwidth}
 \begin{lstlisting}[style=rtos]
 const int LED = 4;
 hw_timer_t *timer = nullptr;
@@ -2876,16 +3476,85 @@ void IRAM_ATTR onTimer() {        // the ISR
 
 void setup() {
   pinMode(LED, OUTPUT);
-  timer = timerBegin(1000000);          // 1 step = 1 us
+  timer = timerBegin(1000000);
   timerAttachInterrupt(timer, &onTimer);
-  timerAlarm(timer, 500000, true, 0);   // every 500 ms
+  timerAlarm(timer, 500000, true, 0);
 }
 \end{lstlisting}
-    \column{0.41\textwidth}
-      \stepbox{\texttt{timerBegin(1000000)}}{The timer counts at 1 MHz: one step every 1\,$\mu$s.}
-      \stepbox{\texttt{timerAttachInterrupt}}{When the alarm goes off, call \texttt{onTimer}.}
-      \stepbox{\texttt{timerAlarm}}{Alarm after 500\,000 steps = 500 ms, and \textbf{repeat} it (\texttt{true}).}
+    \column{0.42\textwidth}
+      \stepbox{The whole program}{The ISR \texttt{onTimer} switches the LED. \texttt{setup()} starts a timer and connects it to \texttt{onTimer}.}
+      \stepbox{Three new things}{\texttt{timerBegin}, \texttt{timerAttachInterrupt} and \texttt{timerAlarm}:
+        the clock, the ISR and the alarm of our stopwatch. One by one.}
   \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{A timer in the code: \texttt{timerBegin}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int LED = 4;
+hw_timer_t *timer = nullptr;
+volatile bool ledOn = false;
+
+void IRAM_ATTR onTimer() {        // the ISR
+  ledOn = !ledOn;
+  digitalWrite(LED, ledOn);
+}
+
+void setup() {
+  pinMode(LED, OUTPUT);
+  timer = (*\hlcode{timerBegin(1000000)}*);(*\eol*)
+  timerAttachInterrupt(timer, &onTimer);
+  timerAlarm(timer, 500000, true, 0);
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.3cm]{Take a timer and set its clock}{It takes a free hardware timer and sets its clock to \textbf{1\,000\,000} pulses per second: the counter grows by 1 every 1\,$\mu$s.\\[3pt] It returns the timer. We keep it in \texttt{timer}, of the type \texttt{hw\_timer\_t *}.}
+\end{frame}
+
+\begin{frame}[fragile]{A timer in the code: \texttt{timerAttachInterrupt}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int LED = 4;
+hw_timer_t *timer = nullptr;
+volatile bool ledOn = false;
+
+void IRAM_ATTR onTimer() {        // the ISR
+  ledOn = !ledOn;
+  digitalWrite(LED, ledOn);
+}
+
+void setup() {
+  pinMode(LED, OUTPUT);
+  timer = timerBegin(1000000);
+  (*\hlcode{timerAttachInterrupt}*)(timer, &onTimer);(*\eol*)
+  timerAlarm(timer, 500000, true, 0);
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.3cm]{Which ISR?}{Just like \texttt{attachInterrupt} for the button: it writes \texttt{onTimer} into the table, for the interrupt of \textbf{this} timer.\\[3pt] No pin and no mode: a timer has only one event, the alarm.}
+\end{frame}
+
+\begin{frame}[fragile]{A timer in the code: \texttt{timerAlarm}}
+  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int LED = 4;
+hw_timer_t *timer = nullptr;
+volatile bool ledOn = false;
+
+void IRAM_ATTR onTimer() {        // the ISR
+  ledOn = !ledOn;
+  digitalWrite(LED, ledOn);
+}
+
+void setup() {
+  pinMode(LED, OUTPUT);
+  timer = timerBegin(1000000);
+  timerAttachInterrupt(timer, &onTimer);
+  (*\hlcode{timerAlarm}*)(timer, 500000, true, 0);(*\eol*)
+}
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.3cm]{When does it ring?}{\texttt{500000}: when the counter reaches 500\,000 steps of 1\,$\mu$s, so after \textbf{500 ms}.\\[2pt] \texttt{true}: then start again from 0.\\[2pt] \texttt{0}: and repeat without a limit.}
   \vfill
   \keymsg{The LED blinks with \textbf{no code in} \texttt{loop()}: the timer calls \texttt{onTimer} every 500 ms.}
 \end{frame}
@@ -2965,9 +3634,9 @@ void IRAM_ATTR onTick() {        // every 100 ms
         \toprule
         & \textbf{LED 1} & \textbf{LED 2} & \textbf{LED 3} \\
         \midrule
-        changes at tick 15 & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} & -- \\
-        changes at tick 21 & \textcolor{HitGreen}{\faCheck} & -- & \textcolor{HitGreen}{\faCheck} \\
-        changes at tick 35 & -- & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} \\
+        changes at tick 15 & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} & - \\
+        changes at tick 21 & \textcolor{HitGreen}{\faCheck} & - & \textcolor{HitGreen}{\faCheck} \\
+        changes at tick 35 & - & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} \\
         on after tick 10 & \textbf{on} & off & \textbf{on} \\
         \bottomrule
       \end{tabular}
@@ -3576,7 +4245,7 @@ xTaskCreate(blinkTask, "led3", 2048, &b3, 1, NULL);
       Who counts the ticks & you, in the ISR & the scheduler \\
       The code of one LED & mixed into one ISR & its own simple loop \\
       A fourth LED & change the ISR & one more \texttt{xTaskCreate} \\
-      Waiting & -- & \texttt{vTaskDelay}: Blocked, no CPU \\
+      Waiting & - & \texttt{vTaskDelay}: Blocked, no CPU \\
       Cost & nothing extra & one stack per task (RAM) \\
       \bottomrule
     \end{tabular}
@@ -3824,7 +4493,7 @@ void loop() {
     \item Why does a task that waits with \texttt{vTaskDelay} not waste CPU time, while a busy loop does?
   \end{enumerate}
   \vfill
-  \keymsg{Try to answer each question in \textbf{2--3 sentences}.}
+  \keymsg{Try to answer each question in \textbf{2 or 3 sentences}.}
 \end{frame}
 
 \begin{frame}[fragile]{Before Tuesday}
