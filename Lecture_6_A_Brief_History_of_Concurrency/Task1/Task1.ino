@@ -1,7 +1,8 @@
 // Task 1: count the presses of button A with an interrupt.
-// 1. Count the presses of button A with an interrupt.
-// 2. Show the number on the LCD: "Presses: N".
-// 3. Give button B its own interrupt: its ISR sets the counter back to 0.
+// Write the code for points 1 to 3 in place of the TODO lines.
+// 1. Write the ISR of button A: it adds 1 to presses. In setup(), attach it to button A with attachInterrupt.
+// 2. In loop(), show the number on the LCD: "Presses: N".
+// 3. Write a second ISR for button B (GPIO 6): it sets presses back to 0. Attach it to button B.
 // 4. Add delay(2000) to loop(). Do you still lose any presses? Why not?
 // The circuit: button A on GPIO 5, button B on GPIO 6, the LCD on I2C (SDA = GPIO 8, SCL = GPIO 9).
 #include <Wire.h>

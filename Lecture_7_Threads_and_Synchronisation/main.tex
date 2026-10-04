@@ -2244,6 +2244,36 @@
   \titlepage
 \end{frame}
 
+% ---------- work in progress: yellow-black warning slide ----------
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    % white background
+    \fill[white] (current page.south west) rectangle (current page.north east);
+    % yellow-black stripes at the top and at the bottom
+    \foreach \y in {north, south} {
+      \begin{scope}
+        \ifdefstring{\y}{north}
+          {\clip ([yshift=-1.1cm]current page.north west) rectangle (current page.north east);}
+          {\clip (current page.south west) rectangle ([yshift=1.1cm]current page.south east);}
+        \fill[sAmber] (current page.south west) rectangle (current page.north east);
+        \foreach \x in {-12,-11.2,...,18} {
+          \fill[black] ([xshift=\x cm]current page.south west) -- ++(0.4,0) -- ++(10,10) -- ++(-0.4,0) -- cycle;
+        }
+      \end{scope}
+    }
+    % the warning
+    \node[anchor=center] at ([yshift=1.0cm]current page.center)
+      {\fontsize{60}{60}\selectfont\textcolor{sAmber}{\faExclamationTriangle}};
+    \node[anchor=center] at ([yshift=-0.6cm]current page.center)
+      {\fontsize{34}{34}\selectfont\bfseries WORK IN PROGRESS};
+    \node[anchor=center, align=center] at ([yshift=-1.9cm]current page.center)
+      {\large Warning: this presentation is still under construction.\\[2pt]
+       \large It has not been run and tested yet.};
+    \node[anchor=center] at ([yshift=-3.0cm]current page.center)
+      {\Large\textcolor{nInk}{\faHardHat\quad\faTools\quad\faHardHat}};
+  \end{tikzpicture}
+\end{frame}
+
 \begin{frame}{Agenda For Today}
   \begin{columns}[T,onlytextwidth]
     \column{0.5\textwidth}
@@ -2277,78 +2307,58 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{From Monday: two cores, a press is lost}
+\begin{frame}{From Monday: interrupts}
+  \vfill
   \begin{center}
     \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-      \node[lbox, draw=nInk, fill=nFill, minimum width=3.2cm, minimum height=1.5cm] (c1) at (0,0)
-        {Core 1\\[-1pt]{\mdseries ISR of button A}\\[1pt]{\ttfamily\mdseries presses++;}};
-      \node[lbox, draw=nInk, fill=nFill, minimum width=3.2cm, minimum height=1.5cm] (c2) at (8,0)
-        {Core 2\\[-1pt]{\mdseries ISR of button B}\\[1pt]{\ttfamily\mdseries presses++;}};
-      \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.4cm, minimum height=1.1cm] (mem) at (4,0)
-        {memory\\[-1pt]{\ttfamily\mdseries presses = 5}};
-      \draw[<->, very thick, DeepBlue] (c1.east) -- (mem.west);
-      \draw[<->, very thick, DeepBlue] (c2.west) -- (mem.east);
-      \node[font=\scriptsize\bfseries, text=cISR] at (4,1.35) {\faBolt\ both buttons at the same moment};
+      \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=1.3cm] (dev) at (0,0)
+        {device\\[-1pt]{\mdseries the pin changes}};
+      \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=1.3cm] (ic) at (4,0)
+        {interrupt controller\\[-1pt]{\mdseries which ISR?}};
+      \node[lbox, draw=cISR, fill=cISR!12, minimum width=3.0cm, minimum height=1.3cm] (cpu) at (8.4,0)
+        {CPU runs the ISR\\[-1pt]{\mdseries prologue: save registers}\\[-2pt]{\mdseries body}\\[-2pt]{\mdseries epilogue: restore}};
+      \draw[->, very thick, DeepBlue] (dev.east) -- (ic.west) node[midway, above, font=\tiny] {signal};
+      \draw[->, very thick, DeepBlue] (ic.east) -- (cpu.west);
+      \draw[->, very thick, DeepBlue, rounded corners=4pt] (cpu.south) |- (-1.3,-1.25)
+        node[pos=0.75, below, font=\tiny] {back to the program, as if nothing happened};
     \end{tikzpicture}
   \end{center}
   \vfill
-  \begin{columns}[c,onlytextwidth]
-    \column{0.4\textwidth}
-      \centering\small
-      \renewcommand{\arraystretch}{1.3}
-      \begin{tabular}{lc}
-        \toprule
-        & \texttt{presses} \\
-        \midrule
-        before & 5 \\
-        expected & \textbf{7} \\
-        sometimes we get & \textcolor{MissRed}{\textbf{6}} \\
-        \bottomrule
-      \end{tabular}
-    \column{0.56\textwidth}
-      \probbox{One press is lost}{In Lecture 6 we imagined an ESP32 with \textbf{two} cores. Both ISRs ran
-        \texttt{presses++} at the same moment, and the counter grew by \textbf{one}, not by two.}
-  \end{columns}
+  \stepbox{Rules for an ISR}{\textbf{1.}~keep it short \qquad \textbf{2.}~never wait \qquad
+    \textbf{3.}~share data carefully (\texttt{volatile})}
   \vfill
+  \keymsg{The CPU saves what the ISR changes, so the program never notices the interruption.}
 \end{frame}
 
-\begin{frame}{From Monday: Simulator 6}
+\begin{frame}{From Monday: the scheduler}
+  \vfill
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth, font=\scriptsize]
+      \node[anchor=east, font=\scriptsize\bfseries, text=nInk] at (-0.15,0) {one core};
+      \foreach \t/\ink [count=\k from 0] in {A/white,B/black,A/white,C/white,B/black,A/white,C/white,B/black} {
+        \fill[cTask\t] ({1.1*\k},-0.22) rectangle ({1.1*\k+1.1},0.22);
+        \node[font=\tiny\bfseries, text=\ink] at ({1.1*\k+0.55},0) {\t};
+      }
+      \foreach \k in {1,...,7} {
+        \draw[cSched, very thick] ({1.1*\k},-0.32) -- ({1.1*\k},0.32);
+      }
+      \node[font=\tiny\bfseries, text=cSched, anchor=south] at (4.4,0.4)
+        {\faBolt\ timer tick $\rightarrow$ scheduler $\rightarrow$ context switch};
+      \draw[->, thick, DeepBlue] (0,-0.5) -- (9.0,-0.5) node[right, font=\tiny] {time};
+      \node[font=\tiny, anchor=north] at (4.4,-0.6) {each piece is a time slice};
+    \end{tikzpicture}
+  \end{center}
   \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{Topic \simtab{Shared counter}}{Two tasks on \textbf{one} core. Each task adds 1 to \texttt{counter}
-        three times. The counter starts at 0.}
+      \stepbox{Context switch}{Save the registers of task A on \textbf{A's own stack}, then restore the registers of
+        task B. B continues where it stopped.}
     \column{0.48\textwidth}
-      \stepbox{The result}{We expected \textbf{6}. Some runs gave \textbf{4} or \textbf{5}, and the result changed
-        from run to run.}
+      \stepbox{Choosing the next task}{Each task is \textbf{running}, \textbf{ready} or \textbf{blocked}.
+        The ready task with the \textbf{highest priority} runs.}
   \end{columns}
   \vfill
-  \keymsg{No second core this time: the scheduler switched the tasks, and some additions were still lost.}
-  \simfoot{\simaddr{Shared counter}}
-\end{frame}
-
-\begin{frame}[fragile]{From Monday: Task 5}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.52\textwidth}
-\begin{lstlisting}[style=rtos]
-const int N = 1000000;
-volatile int counter = 0;
-
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
-    counter++;
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
-}
-\end{lstlisting}
-    \column{0.44\textwidth}
-      \stepbox{Two tasks, one counter}{Two \texttt{incTask} tasks with the same priority. Together they run
-        \texttt{counter++} two million times.}
-      \stepbox{The LCD}{\texttt{Goal: 2000000}, but \texttt{Got:} was \textbf{less}, and a different number every time.}
-  \end{columns}
-  \vfill
-  \keymsg{The same bug as in Simulator 6, only bigger.}
+  \keymsg{FreeRTOS does this on the ESP32-C3 all the time: even \texttt{loop()} is a task.}
 \end{frame}
 
 \begin{frame}{From Monday: a race condition}
@@ -2357,8 +2367,15 @@ void incTask(void *param) {
     \racetimeline
   \end{center}
   \vfill
-  \defbox{On Monday we gave it a name: a \textbf{race condition}. The result depends on \textbf{when} the scheduler
-    switches the tasks.}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \probbox{Two cores}{Two ISRs run \texttt{presses++} at the \textbf{same moment}. One press is lost.}
+    \column{0.48\textwidth}
+      \probbox{One core and a scheduler}{A switch falls between two tasks that both run \texttt{counter++}.
+        Some additions are lost.}
+  \end{columns}
+  \vfill
+  \defbox{A \textbf{race condition}: the result depends on \textbf{when} the tasks touch the shared data.}
   \vfill
 \end{frame}
 

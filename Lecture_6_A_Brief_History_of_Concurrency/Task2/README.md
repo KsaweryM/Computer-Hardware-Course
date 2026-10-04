@@ -1,8 +1,10 @@
 # Task2: three LEDs
 
-The template for Task 2 of Lecture 6: three LEDs with one timer interrupt. Fill in the `TODO` parts of `Task2.ino`.
+The template for Task 2 of Lecture 6: three LEDs that change every 300, 500 and 700 ms, with one timer interrupt
+(a tick every 100 ms). Fill in the `TODO` parts of `Task2.ino`, run it, and compare with Simulator 2.
 
-The circuit: the circuit from Lecture 5 with two more LEDs: LED 1 on GPIO 4, LED 2 on GPIO 7, LED 3 on GPIO 3, button A on GPIO 5, button B on GPIO 6 and a 16×2 LCD on I2C (SDA = GPIO 8, SCL = GPIO 9).
+The circuit: the circuit from Lecture 5 with two more LEDs: LED 1 on GPIO 4, LED 2 on GPIO 7, LED 3 on GPIO 3. The buttons and
+the LCD are still in the circuit, but this task does not use them.
 
 ## In VS Code (Wokwi extension)
 

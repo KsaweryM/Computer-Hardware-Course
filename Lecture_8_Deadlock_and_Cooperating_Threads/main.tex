@@ -2096,28 +2096,6 @@
     \fi
   \end{tikzpicture}}
 
-% ---------- the bank: 10 accounts and random transfers ----------
-\newcommand{\bankpic}{%
-  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
-      acc/.style={draw=nLine, fill=nFill, text=nInk, thick, rounded corners=3pt, minimum width=1.25cm,
-        minimum height=0.8cm, align=center, inner sep=1pt, font=\scriptsize}]
-    \foreach \i in {0,...,9} {
-      \pgfmathsetmacro{\xx}{1.55*mod(\i,5)}
-      \pgfmathsetmacro{\yy}{\i<5 ? 1.6 : 0}
-      \node[acc] (a\i) at (\xx,\yy) {{\tiny account \i}\\[1pt]\textbf{1000}};
-    }
-    \draw[->, very thick, cTaskA] (a0.south) -- node[left, font=\tiny\bfseries, pos=0.4] {50} (a6.north west);
-    \draw[->, very thick, cTaskB] (a7.north) -- node[right, font=\tiny\bfseries] {20} (a2.south);
-    \draw[->, very thick, cTaskC] (a3.south) -- node[right, font=\tiny\bfseries] {75} (a8.north);
-    \draw[->, very thick, cTaskH] (a9.north) -- node[right, font=\tiny\bfseries] {10} (a4.south);
-    \node[lbox, draw=nInk, fill=nFill, text=nInk, minimum width=2.1cm, minimum height=1.1cm] at (9.0,0.8)
-      {sum of all\\[3pt]{\large 10\,000}};
-    \node[font=\tiny, anchor=north] at (3.1,-0.55) {\textcolor{cTaskA}{\rule{0.25cm}{0.2cm}}\ thread 0
-      \quad\textcolor{cTaskB}{\rule{0.25cm}{0.2cm}}\ thread 1
-      \quad\textcolor{cTaskC}{\rule{0.25cm}{0.2cm}}\ thread 2
-      \quad\textcolor{cTaskH}{\rule{0.25cm}{0.2cm}}\ thread 3};
-  \end{tikzpicture}}
-
 % ---------- deadlock: two threads, two accounts ----------
 \newcommand{\deadlockpic}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
@@ -2183,21 +2161,6 @@
       align=left, inner sep=6pt, font=\footnotesize, anchor=west] (cal)
       at ([yshift=#1]eol -| {$(current page.west)!0.6!(current page.east)$}) {\textbf{\textcolor{AccentOrange}{#2}}\\[3pt]#3};
     \draw[->, very thick, AccentOrange] (eol -| cal.west) -- ([xshift=4pt]eol);
-  \end{tikzpicture}}
-
-% ---------- counter++ as read, add, write ----------
-\newcommand{\rwpic}{%
-  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=2.6cm, minimum height=1.2cm] (mem) at (0,0)
-      {memory\\[2pt]{\ttfamily\mdseries counter = 5}};
-    \node[lbox, draw=nInk, fill=nFill, minimum width=2.6cm, minimum height=1.2cm] (reg) at (7,0)
-      {register\\[2pt]{\ttfamily\mdseries t1}};
-    \draw[->, very thick, aRead, dash pattern=on 4pt off 2pt] ([yshift=0.3cm]mem.east) -- node[above, font=\scriptsize] {1. \texttt{lw}: read, \texttt{t1} = 5}
-      ([yshift=0.3cm]reg.west);
-    \draw[->, very thick, DeepBlue] ([xshift=-0.6cm]reg.north) to[out=90, in=90, looseness=1.8]
-      node[above, font=\scriptsize] {2. \texttt{addi}: add, \texttt{t1} = 6} ([xshift=0.6cm]reg.north);
-    \draw[->, line width=2.4pt, aWrite] ([yshift=-0.3cm]reg.west) -- node[below, font=\scriptsize] {3. \texttt{sw}: write, \texttt{counter} = 6}
-      ([yshift=-0.3cm]mem.east);
   \end{tikzpicture}}
 
 % ---------- a wait-for graph with two threads and two locks ----------
@@ -2398,6 +2361,36 @@
   \titlepage
 \end{frame}
 
+% ---------- work in progress: yellow-black warning slide ----------
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    % white background
+    \fill[white] (current page.south west) rectangle (current page.north east);
+    % yellow-black stripes at the top and at the bottom
+    \foreach \y in {north, south} {
+      \begin{scope}
+        \ifdefstring{\y}{north}
+          {\clip ([yshift=-1.1cm]current page.north west) rectangle (current page.north east);}
+          {\clip (current page.south west) rectangle ([yshift=1.1cm]current page.south east);}
+        \fill[sAmber] (current page.south west) rectangle (current page.north east);
+        \foreach \x in {-12,-11.2,...,18} {
+          \fill[black] ([xshift=\x cm]current page.south west) -- ++(0.4,0) -- ++(10,10) -- ++(-0.4,0) -- cycle;
+        }
+      \end{scope}
+    }
+    % the warning
+    \node[anchor=center] at ([yshift=1.0cm]current page.center)
+      {\fontsize{60}{60}\selectfont\textcolor{sAmber}{\faExclamationTriangle}};
+    \node[anchor=center] at ([yshift=-0.6cm]current page.center)
+      {\fontsize{34}{34}\selectfont\bfseries WORK IN PROGRESS};
+    \node[anchor=center, align=center] at ([yshift=-1.9cm]current page.center)
+      {\large Warning: this presentation is still under construction.\\[2pt]
+       \large It has not been run and tested yet.};
+    \node[anchor=center] at ([yshift=-3.0cm]current page.center)
+      {\Large\textcolor{nInk}{\faHardHat\quad\faTools\quad\faHardHat}};
+  \end{tikzpicture}
+\end{frame}
+
 \begin{frame}{Agenda For Today}
   \begin{columns}[T,onlytextwidth]
     \column{0.5\textwidth}
@@ -2431,42 +2424,48 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{From Tuesday: \texttt{counter++} loses updates}
+\begin{frame}{From Tuesday: threads and the race}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Threads}{A process has its own memory and one or more threads. The threads \textbf{share} the memory;
+        each one has its own stack and registers. \texttt{std::thread} starts a thread, \texttt{join} waits for it.}
+    \column{0.48\textwidth}
+      \probbox{Race condition}{Two threads change shared data at the same time. The result depends on \textbf{when}
+        each one runs, and some updates are lost.}
+  \end{columns}
   \vfill
   \begin{center}
-    \rwpic
+    \lockthreads
   \end{center}
   \vfill
-  \stepbox{Read, add, write}{\texttt{counter++} is three instructions: \texttt{lw}, \texttt{addi}, \texttt{sw}.
-    If two threads run them at the same time, both read the same value, and one addition is lost.}
-  \vfill
-  \keymsg{The fix: a \textbf{mutex}. Only one thread at a time may run the three instructions.}
+  \defbox{A \textbf{critical section}: code that only \textbf{one thread at a time} may run.}
 \end{frame}
 
-\begin{frame}{From Tuesday: the bank}
-  \begin{center}
-    \bankpic
-  \end{center}
+\begin{frame}{From Tuesday: making it correct}
   \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{Step 1: no synchronisation}{Several threads move money between 10 accounts. The sum was wrong:
-        the same lost updates as \texttt{counter++}.}
+      \stepbox{Mutex}{\texttt{lock}: one thread goes in, the others are \textbf{Blocked} and use no CPU.
+        \texttt{std::lock\_guard} unlocks at the end of the block, even after an early \texttt{return}.
+        On the ESP32 the same: \texttt{xSemaphoreTake}, \texttt{xSemaphoreGive}.}
     \column{0.48\textwidth}
-      \stepbox{Step 2: one mutex for the bank}{Correct, but a queue: only one transfer at a time.}
+      \stepbox{Atomics and sharing less}{\texttt{std::atomic}: the CPU does read, add, write as \textbf{one} step.
+        Local sum: each thread works on its own data, and the results are put together once, at the end.}
   \end{columns}
+  \vfill
+  \keymsg{Being correct costs time: every lock is a small queue. Share less, lock less.}
   \vfill
 \end{frame}
 
-\begin{frame}{From Tuesday: step 3, one mutex per account}
+\begin{frame}{From Tuesday: lock granularity and deadlock}
   \begin{columns}[c,onlytextwidth]
     \column{0.5\textwidth}
       \centering
       \deadlockpic
     \column{0.46\textwidth}
-      \stepbox{The idea}{A transfer locks only its \textbf{two} accounts. Transfers on other accounts can run at the same time.}
-      \probbox{The program stopped}{It \textbf{hangs}: the messages stop, and the CPU usage drops to 0\%.
-        On Tuesday we called it a \textbf{deadlock}.}
+      \stepbox{One big lock}{Simple and correct, but only one thread at a time: a queue.}
+      \stepbox{Many small locks}{More threads work at the same time. But a thread may need \textbf{two} locks\ldots}
+      \probbox{Deadlock}{Threads wait for each other \textbf{forever}. The program hangs, and the CPU usage drops to 0\%.}
   \end{columns}
 \end{frame}
 

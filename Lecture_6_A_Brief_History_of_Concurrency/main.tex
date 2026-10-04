@@ -83,6 +83,8 @@
 \setbeamercolor{vscodelisting}{bg=VSDarkBg}
 \setbeamertemplate{blocks}[rounded][shadow=true]
 \setbeamertemplate{navigation symbols}{}
+% about 120 slides: slightly smaller dots, so that the navigation bar fits the page width
+\setbeamersize{mini frame size=.095cm,mini frame offset=.05cm}
 \setbeamertemplate{itemize items}[circle]
 \setbeamertemplate{enumerate items}[default]
 \setbeamercolor{enumerate item}{fg=DeepBlue}
@@ -1577,14 +1579,15 @@
     \tikzset{scell/.style={minimum height=0.34cm}}
     \node[free, scell] at (13.15,2.1) {};
     \node[free, scell] at (13.15,1.74) {};
-    \node[st, scell] at (13.15,1.38) {};
-    \node[st, scell] at (13.15,1.02) {};
+    \ifnum#1<5 \def\sq{}\else \def\sq{?}\fi
+    \node[st, scell] at (13.15,1.38) {\sq};
+    \node[st, scell] at (13.15,1.02) {\sq};
     \ifnum#1<7 \node[st, scell] (sb) at (13.15,0.66) {\sb}; \else \node[st, scell] (sb) at (13.15,0.66) {\sb\ (t1)}; \fi
     \ifnum#1<6 \node[st, scell] (sa) at (13.15,0.30) {\sa}; \else \node[st, scell] (sa) at (13.15,0.30) {\sa\ (t0)}; \fi
     \node[mcell, scell, fill=nUsed] at (13.15,-0.06) {main's data};
     \ifnum#1>4 \ifnum#1<14
-      \draw[nText, thick, decorate, decoration={brace, amplitude=3pt}] (14.2,1.55) -- (14.2,0.13)
-        node[midway, right=3pt, font=\tiny, text=nText, align=left] {16\\bytes};
+      \draw[nText, thick] (14.15,1.55) -- ++(0.12,0) |- (14.15,0.13);
+      \node[anchor=west, font=\tiny, text=nText, align=left] at (14.3,0.84) {16\\bytes};
     \fi\fi
     % signal, jump, return
     \ifnum#1=1
@@ -1712,7 +1715,7 @@
     \node[rv] at (0,-0.6) {a5 = 42};
     \node[prog] (isr) at (4.4,0) {};
     \node[font=\scriptsize\bfseries, text=nText, anchor=north] at (isr.north) {\texttt{onButtonA}, compiled};
-    \node[font=\ttfamily\tiny, align=left] at (4.4,0.05) {lw\ \ \ a5, 0(a4)\\addi a5, a5, 1};
+    \node[font=\ttfamily\tiny, align=left] at (4.4,0.05) {lw\ \ \ a5, 4(a4)\\addi a5, a5, 1};
     \node[rv, awrite] at (4.4,-0.6) {a5 = 3};
     \node[prog] (m2) at (8.8,0) {};
     \node[font=\scriptsize\bfseries, text=nText, anchor=north] at (m2.north) {main program again};
@@ -1767,31 +1770,44 @@
 
 % ---------- where a timer can be ----------
 \newcommand{\timerwhere}{%
-  \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    % the board
-    \draw[gray, very thick, rounded corners=6pt, fill=gray!6] (0,0) rectangle (8.2,3.4);
-    \node[anchor=north west, font=\tiny\bfseries, text=gray!70!black] at (0.1,3.35) {the board};
-    % the chip
-    \draw[nInk, very thick, rounded corners=5pt, fill=nFill] (0.4,0.3) rectangle (6.6,3.0);
-    \node[anchor=north west, font=\tiny\bfseries, text=nInk] at (0.5,2.95) {\faMicrochip\ the microcontroller (ESP32-C3)};
-    % the core
-    \draw[nInk, thick, rounded corners=3pt, fill=white] (0.7,0.55) rectangle (2.9,2.45);
-    \node[font=\tiny\bfseries, text=nInk] at (1.8,2.2) {CPU core};
-    \node[font=\large, text=nInk] at (1.8,1.45) {\faStopwatch};
-    \node at (1.8,0.85) {\badge{1}};
-    % peripherals
-    \draw[nInk, thick, rounded corners=3pt, fill=white] (3.2,0.55) rectangle (6.3,2.45);
-    \node[font=\tiny\bfseries, text=nInk] at (4.75,2.2) {next to the core};
-    \node[font=\large, text=nInk] at (3.85,1.45) {\faStopwatch};
-    \node[font=\large, text=nInk] at (4.55,1.45) {\faStopwatch};
-    \node[draw=nLine, font=\tiny, inner sep=2pt] (gpio) at (5.6,1.45) {GPIO};
-    \node at (4.2,0.85) {\badge{2}};
-    % outside
-    \draw[nLine, very thick, rounded corners=4pt, fill=nFill] (9.3,0.9) rectangle (11.5,2.6);
-    \node[font=\tiny\bfseries, text=nInk, align=center] at (10.4,2.25) {another chip};
-    \node[font=\large, text=nInk] at (10.4,1.6) {\faStopwatch};
-    \node at (10.4,1.1) {\badge{3}};
-    \draw[->, very thick, nInk] (9.3,1.6) -- node[above, font=\tiny] {a wire} (gpio.east);
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      dev/.style={draw=nInk, thick, fill=white, rounded corners=2pt, minimum width=2.4cm, minimum height=0.55cm,
+        font=\scriptsize, align=center}]
+    % the board, as in Wokwi
+    \pic (esp) at (0,0) {esp32c3};
+    \node[font=\scriptsize\bfseries, text=nInk, anchor=south] at (1.35,5.45) {the board (as in Wokwi)};
+    % the silver cover: the chip is under it
+    \draw[nInk, very thick, dashed, rounded corners=1pt] (0.56,2.9) rectangle (2.14,5.36);
+    % zoom
+    \draw[nInk!60, thick] (2.14,5.36) -- (4.2,5.4);
+    \draw[nInk!60, thick] (2.14,2.9) -- (4.2,0.3);
+    % inside the chip
+    \draw[nInk, very thick, rounded corners=5pt, fill=nFill] (4.2,0.3) rectangle (11.6,5.4);
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (4.3,5.35) {inside the ESP32-C3 chip (under the silver cover)};
+    \node[draw=nInk, very thick, fill=white, rounded corners=3pt, minimum width=1.3cm, minimum height=3.6cm,
+      font=\scriptsize\bfseries, text=nInk, align=center] (core) at (5.1,2.55) {CPU\\core};
+    % the interrupt controller with its table
+    \node[draw=nInk, very thick, fill=white, rounded corners=3pt, inner sep=4pt, align=center] (ic) at (7.85,2.65)
+      {\textbf{interrupt controller}\\[3pt]
+       {\footnotesize\renewcommand{\arraystretch}{1.15}\begin{tabular}{|l|l|}\hline
+         \badge{1}\ timer 0 & \texttt{onTimer} \\\hline
+         \badge{2}\ GPIO 10 & \texttt{onAlarm} \\\hline
+       \end{tabular}}};
+    % the devices
+    \node[dev] (tm) at (7.85,4.45) {timer 0\ \ \faStopwatch\quad timer 1\ \ \faStopwatch};
+    \node[dev] (gp) at (7.85,0.85) {GPIO controller};
+    \draw[->, very thick, nInk] (tm.south) -- (ic.north);
+    \draw[->, very thick, nInk] (gp.north) -- (ic.south);
+    \draw[->, very thick, nInk] (ic.west) -- (core.east |- ic.west);
+    \node[font=\tiny, text=nInk, anchor=west] at (tm.east) {for us: \texttt{timerBegin}};
+    \draw[<-, thick, nInk] (gp.east) -- ++(0.6,0) node[right, font=\tiny] {from the pins};
+    % another chip, on a wire to GPIO 10 of the board
+    \node[draw=nLine, very thick, fill=nFill, rounded corners=4pt, minimum width=1.7cm, minimum height=1.1cm,
+      align=center, font=\scriptsize\bfseries, text=nInk] (rtc) at (-3.0,1.5) {another chip\\[-1pt]\faStopwatch};
+    \node[font=\tiny, text=nInk, anchor=north] at (rtc.south) {e.g.\ a real-time clock};
+    \node at (-3.0,2.35) {\badge{2}};
+    \draw[very thick, WireGreen] (rtc.east) -- (esp-L10);
+    \node[font=\tiny, text=nInk, anchor=south] at (-1.05,1.52) {a wire to GPIO 10};
   \end{tikzpicture}}
 
 % ---------- one tick, three LEDs: #1 = number of ticks ----------
@@ -1982,7 +1998,7 @@
 % ---------- one core, three tasks ----------
 \newcommand{\oneprocessor}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \foreach \n/\c/\w/\y in {A/cTaskA/blink the LEDs/1.3, B/cTaskB/count on the LCD/0, C/cTaskC/read the buttons/-1.3} {
+    \foreach \n/\c/\w/\y in {A/cTaskA/drive the motors/1.3, B/cTaskB/look for obstacles/0, C/cTaskC/update the screen/-1.3} {
       \node[lbox, draw=\c, fill=\c!12, minimum width=3.6cm, minimum height=0.95cm, anchor=west] (t\n) at (0,\y)
         {Task \n: {\mdseries \w}\\[-1pt]{\ttfamily\mdseries for (;;) \{ \ldots\ \}}};
       \draw[->, very thick, DeepBlue] (t\n.east) -- (5.6,0) node[pos=0.45, fill=white, font=\small\bfseries,
@@ -2240,19 +2256,36 @@
 \end{frame}
 
 \begin{frame}{Agenda For Today}
-  \Large
-  \begin{itemize}
-    \item[\textcolor{DeepBlue}{\faBolt}] \textbf{1. Interrupts} \\
-    \textcolor{gray}{\small The device tells the processor that something happened}
-    \vspace{0.3cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+      \large
+      \begin{itemize}
+        \item[\textcolor{DeepBlue}{\faBolt}] \textbf{1. Interrupts} \\
+        \textcolor{gray}{\small The device tells the processor that something happened}
+        \vspace{0.3cm}
 
-    \item[\textcolor{DeepBlue}{\faRandom}] \textbf{2. The scheduler} \\
-    \textcolor{gray}{\small One processor, several tasks}
-    \vspace{0.3cm}
+        \item[\textcolor{DeepBlue}{\faCode}] \textbf{2. Interrupts in the code} \\
+        \textcolor{gray}{\small \texttt{attachInterrupt}, \texttt{IRAM\_ATTR}, \texttt{volatile}}
+        \vspace{0.3cm}
 
-    \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{3. FreeRTOS} \\
-    \textcolor{gray}{\small A real scheduler on the ESP32-C3}
-  \end{itemize}
+        \item[\textcolor{DeepBlue}{\faMemory}] \textbf{3. Interrupts inside the processor} \\
+        \textcolor{gray}{\small Registers, the stack, \texttt{mepc}: what the CPU saves}
+      \end{itemize}
+    \column{0.5\textwidth}
+      \large
+      \begin{itemize}
+        \item[\textcolor{DeepBlue}{\faStopwatch}] \textbf{4. Timer interrupts} \\
+        \textcolor{gray}{\small A stopwatch with an alarm, a regular tick}
+        \vspace{0.3cm}
+
+        \item[\textcolor{DeepBlue}{\faRandom}] \textbf{5. The scheduler} \\
+        \textcolor{gray}{\small One processor, several tasks}
+        \vspace{0.3cm}
+
+        \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{6. FreeRTOS} \\
+        \textcolor{gray}{\small A real scheduler on the ESP32-C3}
+      \end{itemize}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Today you will need}
@@ -2626,7 +2659,7 @@ void loop() {
 \end{frame}
 
 % =====================================================================
-\section[In the code]{Interrupts in the code}
+\section{Interrupts in the code}
 % =====================================================================
 
 \begin{frame}[fragile]{Interrupts in the code}
@@ -2821,12 +2854,15 @@ void loop() {
 }
 \end{lstlisting}
     \column{0.47\textwidth}
-      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5 or the template from \ghlink{Task1}.}
+      \taskhead{Task}{Open your project \projCircuit\ from Lecture 5 or the template from \ghlink{Task1}.
+        Write the code for points 1 to 3 in place of the \texttt{TODO} lines.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Count the presses of button A \textbf{with an interrupt}.
-        \item Show the number on the LCD: \texttt{Presses: N}.
-        \item Give button \textbf{B} (GPIO 6) its own interrupt: its ISR sets the counter back to \texttt{0}.
+        \item Write the ISR of button A: it adds 1 to \texttt{presses}. In \texttt{setup()}, attach it to
+          button A with \texttt{attachInterrupt}.
+        \item In \texttt{loop()}, show the number on the LCD: \texttt{Presses: N}.
+        \item Write a second ISR for button \textbf{B} (GPIO 6): it sets \texttt{presses} back to \texttt{0}.
+          Attach it to button B.
         \item Add \texttt{delay(2000)} to \texttt{loop()}, as in Task 7 of Lecture 5.
           Do you still lose any presses? Why not?
       \end{enumerate}
@@ -2930,24 +2966,6 @@ void loop() {
   \keymsg{Keep this question. We meet it again at the end of today, and answer it on Tuesday.}
 \end{frame}
 
-\begin{frame}[fragile]{The real danger: an ISR and \texttt{loop()} change one variable}
-  \vfill
-  \begin{columns}[c,onlytextwidth]
-    \column{0.46\textwidth}
-      {\scriptsize\textbf{\texttt{loop()} takes the presses and resets the counter:}\par}
-\begin{lstlisting}[style=rtos]
-int n = presses;   // read
-presses = 0;       // reset
-\end{lstlisting}
-    \column{0.5\textwidth}
-      \probbox{A press between these two lines}{The ISR adds 1 to \texttt{presses}. Then \texttt{loop()} sets \texttt{0}
-        over it. The press is \textbf{lost}, even on one core.}
-  \end{columns}
-  \vfill
-  \keymsg{Two pieces of code change one variable: a \textbf{race}. We meet it again at the end of today,
-    and solve it on Tuesday.}
-\end{frame}
-
 \begin{frame}{Rules for an ISR: 1. keep it short}
   \begin{center}
     \begin{tikzpicture}[>=Stealth, font=\scriptsize]
@@ -2974,41 +2992,54 @@ presses = 0;       // reset
   \keymsg{A good ISR takes \textbf{microseconds}: \texttt{presses++} and nothing more.}
 \end{frame}
 
-\begin{frame}[fragile]{Rules for an ISR: 2. some things are not allowed}
+\begin{frame}[fragile]{Rules for an ISR: 2. never wait}
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      {\scriptsize\textbf{\textcolor{MissRed}{\faTimes}\ Not allowed: the ESP32 crashes and restarts}\par}
+      {\scriptsize\textbf{\textcolor{MissRed}{\faTimes}\ Not allowed}\par}
 \begin{lstlisting}[style=rtos]
 void IRAM_ATTR onButtonA() {
   presses++;
-  delay(100);          // waits
-  Serial.println(presses);  // waits
-  lcd.print(presses);  // waits
+  delay(1000);       // never wait in an ISR
 }
 \end{lstlisting}
     \column{0.48\textwidth}
       {\scriptsize\textbf{\ok\ Allowed}\par}
 \begin{lstlisting}[style=rtos]
 void IRAM_ATTR onButtonA() {
-  presses++;           // only record it
+  presses++;         // only record it
 }
-// loop() prints presses on the LCD
 \end{lstlisting}
   \end{columns}
-  \vspace{0.15cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{These functions wait inside}{\texttt{delay()} waits for the time to pass. \texttt{Serial} and the LCD wait
-        until the previous data has been sent. To wait, they ask the system to put the code to sleep and come back later.}
-    \column{0.48\textwidth}
-      \stepbox{An ISR must never wait}{An ISR cannot be put to sleep: there is nothing to come back to it.
-        On the ESP32 the program \textbf{crashes} and the board restarts.}
-  \end{columns}
+  \vfill
+  \stepbox{\texttt{delay()} in an ISR}{Depending on how \texttt{delay()} is made, it may not work in an ISR.
+    On our ESP32 it does not: it does not wait at all, it stops \texttt{loop()} instead. And where it does work,
+    it breaks rule 1. We explain the ESP32 case later, after FreeRTOS.}
+  {\scriptsize\textcolor{gray}{Try it: the example \texttt{ISRRule2} on \ghlink{ISRRule2}. In Wokwi, the ISR with
+    \texttt{delay(1000)} took 17\,$\mu$s, and \texttt{loop()} stopped for 1\,s.}\par}
   \vfill
   \keymsg{Rule 1 is about \textbf{time}: be short. Rule 2 is about \textbf{what}: never call a function that waits.}
 \end{frame}
 
-\begin{frame}{Rules for an ISR: 3. share data through \texttt{volatile} variables}
+\begin{frame}[fragile]{Rules for an ISR: 2. watch out for hidden waiting}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.48\textwidth}
+      {\scriptsize\textbf{\textcolor{MissRed}{\faTimes}\ Not allowed either}\par}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onButtonA() {
+  presses++;
+  lcd.print(presses);       // waits inside
+  Serial.println(presses);  // waits inside
+}
+\end{lstlisting}
+    \column{0.48\textwidth}
+      \stepbox{They wait, but you do not see it}{\texttt{lcd.print()} waits with \texttt{delayMicroseconds()}
+        and for the I2C bus.\\ \texttt{Serial.println()} waits until the serial port is free.}
+  \end{columns}
+  \vfill
+  \keymsg{Be careful with library functions in an ISR.}
+\end{frame}
+
+\begin{frame}{Rules for an ISR: 3. share data carefully: \texttt{volatile}}
   \vfill
   \begin{center}
     \begin{tikzpicture}[>=Stealth]
@@ -3031,8 +3062,59 @@ void IRAM_ATTR onButtonA() {
   \keymsg{The ISR only \textbf{records} what happened. The main program \textbf{does the work}.}
 \end{frame}
 
+\begin{frame}[fragile]{Rules for an ISR: 3. share data carefully: counting presses}
+  \vfill
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+\begin{lstlisting}[style=rtos]
+volatile int presses = 0;   // the ISR adds 1
+unsigned long counted = 0;  // all presses so far
+
+void loop() {
+  counted += presses;   // take the new presses
+  presses = 0;          // start again from 0
+  // ... the slow work ...
+}
+\end{lstlisting}
+    \column{0.46\textwidth}
+      \stepbox{The idea}{The ISR only counts the new presses in \texttt{presses}. \texttt{loop()} adds them to
+        \texttt{counted}, the number of all presses so far, and sets \texttt{presses} back to 0.}
+      \stepbox{In theory}{Every press goes into \texttt{presses}, and from there into \texttt{counted}.
+        No press is lost.}
+  \end{columns}
+  \vfill
+  \keymsg{Now both the ISR and \texttt{loop()} \textbf{change} \texttt{presses}. What can go wrong?}
+\end{frame}
+
+\begin{frame}[fragile]{Rules for an ISR: 3. share data carefully: a race}
+  \begin{center}
+    \footnotesize
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{c l l c c c}
+      \toprule
+      \textbf{Step} & \textbf{Who} & \textbf{Runs} & \texttt{presses} & \texttt{counted} & \textbf{real presses} \\
+      \midrule
+      & start & & 2 & 10 & 12 \\
+      \rowcolor{cWork!15}
+      1 & main program & \texttt{counted += presses;} & 2 & 12 & 12 \\
+      \rowcolor{cISR!18}
+      2 & ISR & \texttt{presses++;} (a new press) & 3 & 12 & 13 \\
+      \rowcolor{cWork!15}
+      3 & main program & \texttt{presses = 0;} & \textcolor{MissRed}{\textbf{0}} & \textcolor{MissRed}{\textbf{12}} & \textcolor{MissRed}{\textbf{13}} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \vfill
+  \probbox{A press between these two lines}{The ISR came after \texttt{counted += presses}, but before
+    \texttt{presses = 0}. \texttt{counted} is 12, but there were 13 presses: one is \textbf{lost}, even on one core.
+    \texttt{volatile} does not help: it cannot stop the ISR between two lines. This is a \textbf{race}: we solve it on Tuesday.}
+  {\scriptsize\textcolor{gray}{Try it: the example \texttt{ISRRule3} on \ghlink{ISRRule3}. A timer makes 10\,000
+    ``presses'' per second. How many are lost?}\par}
+  \vfill
+\end{frame}
+
 % =====================================================================
-\section[Inside the CPU]{Inside the processor}
+\section{Interrupts inside the processor}
 % =====================================================================
 
 \begin{frame}{You can use interrupts. How does the processor do it?}
@@ -3045,7 +3127,8 @@ void IRAM_ATTR onButtonA() {
       \qcard{\faStepForward}{\textbf{When exactly?}\\[3pt] Does the processor stop in the middle of an instruction?}
   \end{columns}
   \vfill
-  \keymsg{Now we look \textbf{inside the processor}: what happens there, step by step.}
+  \keymsg{To answer, we first need two tools: the \textbf{names of the registers} and the \textbf{stack}.
+    Then we come back to interrupts and look inside the processor, step by step.}
 \end{frame}
 
 \begin{frame}{A register has two names}
@@ -3205,6 +3288,65 @@ sum3:
   \end{columns}
 \end{frame}
 
+\begin{frame}{Who saves which register?}
+  \defbox{When a function \texttt{f} calls a function \texttt{g}, both use the \textbf{same} registers.
+    RISC-V has a rule for it (the \emph{calling convention}): which registers \texttt{g} may change freely,
+    and which it must give back unchanged.}
+  \vspace{0.15cm}
+  \begin{center}
+    \footnotesize
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabular}{lll}
+      \toprule
+      \textbf{Registers} & \textbf{Who saves them} & \textbf{When} \\
+      \midrule
+      \texttt{t0} to \texttt{t6}, \texttt{a0} to \texttt{a7} & the \textbf{caller} \texttt{f} & before the call, only if \texttt{f} still needs them \\
+      \texttt{s0} to \texttt{s11}, \texttt{sp} & the \textbf{called function} \texttt{g} & in its prologue, only if \texttt{g} changes them \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{\texttt{g} may use \texttt{a5} freely}{\texttt{a5} is in the first group. If \texttt{f} still needs it after the call,
+        \texttt{f} saves it on its stack before the call.}
+    \column{0.48\textwidth}
+      \stepbox{\texttt{g} must give back \texttt{s1}}{If \texttt{g} wants to use \texttt{s1}, its prologue saves it and its epilogue
+        restores it.}
+  \end{columns}
+  \vfill
+  \keymsg{So a function prologue saves \textbf{only} the registers of the second group that the function changes.}
+\end{frame}
+
+\begin{frame}{Back to interrupts}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{A call is prepared}{Before \texttt{f} calls \texttt{g}, \texttt{f} knows it, and saves what it still needs.}
+    \column{0.48\textwidth}
+      \stepbox{An interrupt is not}{An interrupt can come between \textbf{any} two instructions.
+        The main program has no chance to save anything.}
+  \end{columns}
+  \vspace{0.3cm}
+  \defbox{So an ISR must save \textbf{every} register it changes, from both groups, and restore it before it returns.}
+  \vfill
+\end{frame}
+
+\begin{frame}{Inside the CPU: first a simplified ISR}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{Now: an ISR written by hand, in assembly (simplified)}{We write every instruction ourselves, and the
+        processor jumps \textbf{straight} to it: no other code runs before it. So we can follow every register,
+        step by step.}
+    \column{0.48\textwidth}
+      \stepbox{Later: our real ISR, written in C}{\texttt{onButtonA} is C code. The compiler makes its machine code,
+        and we will see what changes then.}
+  \end{columns}
+  \vfill
+  \keymsg{First the simple case, then the real one.}
+\end{frame}
+
 \begin{frame}{Inside the CPU: 1. the interrupt arrives}
   \begin{center}
     \resizebox{\textwidth}{!}{\only<1>{\irqpass{1}}\only<2>{\irqpass{2}}\only<3>{\irqpass{3}}\only<4>{\irqpass{4}}}
@@ -3213,7 +3355,7 @@ sum3:
   \only<1>{\stepbox{\badge{1}\ The signal}{Button A raises an interrupt signal while the CPU runs \texttt{addi} at 0x0104.}}%
   \only<2>{\stepbox{\badge{2}\ Finish the instruction}{The CPU does not stop in the middle: it first \textbf{finishes} \texttt{addi}. Now \texttt{t0} = 1.}}%
   \only<3>{\stepbox{\badge{3}\ Remember the way back}{The CPU writes into \texttt{mepc} the address of the \textbf{next} instruction, \texttt{sw}, at 0x0108. The instruction \texttt{addi} has already been executed.}}%
-  \only<4>{\stepbox{\badge{4}\ Jump}{The PC gets the address of the ISR: 0x0200. The ISR starts with its \textbf{prologue}.}}
+  \only<4>{\stepbox{\badge{4}\ Jump}{The PC gets the address of the ISR: 0x0200. The ISR starts with its \textbf{prologue}: it saves the registers it will change.}}
 \end{frame}
 
 \begin{frame}{Inside the CPU: 2. the prologue}
@@ -3231,7 +3373,7 @@ sum3:
     \resizebox{!}{0.63\textheight}{\only<1>{\irqpass{8}}\only<2>{\irqpass{9}}\only<3>{\irqpass{10}}\only<4>{\irqpass{11}}}
   \end{center}
   \vfill
-  \only<1>{\stepbox{\texttt{la t0, presses}}{\texttt{t0} = the \textbf{address} of \texttt{presses}: 0x1004. The ISR cannot know what the main program keeps in its registers, so it gets the address itself. (\texttt{la} is two real instructions, 8 bytes: the next one is at 0x0214.)}}%
+  \only<1>{\stepbox{\texttt{la t0, presses}}{We load the \textbf{address} of the variable \texttt{presses}: it is stored at 0x1004, so \texttt{t0} = 0x1004. (\texttt{la} is two real instructions, 8 bytes: the next one is at 0x0214.)}}%
   \only<2>{\stepbox{\texttt{lw t1, 0(t0)}}{\texttt{t1} = \texttt{presses} = 2.}}%
   \only<3>{\stepbox{\texttt{addi t1, t1, 1}}{\texttt{t1} = 3.}}%
   \only<4>{\stepbox{\texttt{sw t1, 0(t0)}}{\texttt{presses} = 3. These four instructions are \texttt{presses++}: the work of the ISR.}}
@@ -3248,6 +3390,46 @@ sum3:
   \only<4>{\stepbox{\texttt{mret}}{PC $\leftarrow$ \texttt{mepc} = 0x0108. The main program continues with \texttt{sw}, with \texttt{t0} = 1 and \texttt{t1} = 5: it \textbf{does not know} that it was interrupted.}}
 \end{frame}
 
+% SIMULATOR (topic "Interrupt step by step"): the main program below; the signal from button A
+%   arrives during the instruction at 0x0108; the ISR saves t0 and t1 on the stack and restores them.
+\begin{frame}[fragile]{Simulator 1: an interrupt step by step}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.47\textwidth}
+      \taskhead{Simulator task}{Open \simname, topic \simtab{Interrupt step by step}. In the list
+        \emph{The signal from button A arrives during the instruction at}, choose \textbf{\texttt{0x0108}}.}
+\begin{lstlisting}[style=rv6]
+0x0100  li   t0, 0
+0x0104  addi t0, t0, 1
+0x0108  sw   t0, 0(a0)
+0x010C  j    0x0104
+\end{lstlisting}
+    \column{0.5\textwidth}
+      \footnotesize
+      \begin{enumerate}\setlength{\itemsep}{6pt}
+        \item \textbf{Predict} the saved PC (\texttt{mepc}). Then step through and check.
+        \item The ISR uses \texttt{t0} and \texttt{t1}. What are they in the main program after the return?
+        \item Choose \texttt{0x0104} in the list. What is the saved PC now? Why?
+      \end{enumerate}
+  \end{columns}
+  \simfoot{\simaddr{Interrupt step by step}}
+\end{frame}
+
+\begin{frame}{Solution: Simulator 1}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.31\textwidth}
+      \stepbox{Question 1}{\texttt{0x010C}. The CPU first finishes \texttt{sw}, so it saves the address of the
+        \textbf{next} instruction.}
+    \column{0.31\textwidth}
+      \stepbox{Question 2}{The same as before the interrupt: \texttt{t0} = 1, \texttt{t1} = 5. The ISR saved both on the stack
+        and restored them before \texttt{mret}.}
+    \column{0.31\textwidth}
+      \stepbox{Question 3}{\texttt{0x0108}: again the instruction \textbf{after} the one that was running.}
+  \end{columns}
+  \vfill
+  \keymsg{The main program continues \textbf{exactly where it stopped}, with all its registers.}
+\end{frame}
+
 \begin{frame}{The rule: save what you change}
   \vfill
   \defbox{The hardware saves \textbf{only the PC} (in \texttt{mepc}). Every register that the ISR changes, the ISR must
@@ -3255,7 +3437,8 @@ sum3:
   \vspace{0.2cm}
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{Our ISR}{Its body changes \texttt{t0} and \texttt{t1}. So the prologue saves exactly these two: that is enough.}
+      \stepbox{Our ISR}{Its body changes \texttt{t0} and \texttt{t1}. So the prologue saves exactly these two: that is enough.
+        A normal function would not save them (first group), an ISR must.}
     \column{0.48\textwidth}
       \stepbox{\texttt{sp}?}{It changes too, but the epilogue moves it back by the same 16 bytes.}
   \end{columns}
@@ -3264,6 +3447,8 @@ sum3:
 \end{frame}
 
 \begin{frame}[fragile]{But our ISR is written in C}
+  \vspace{0pt}{\footnotesize Now the real case: our ISR is written in \textbf{C}. What does the compiler make of it?\par}
+  \vspace{0.15cm}
   \begin{columns}[T,onlytextwidth]
     \column{0.4\textwidth}
       {\scriptsize\textbf{We write}\par}
@@ -3272,189 +3457,81 @@ void IRAM_ATTR onButtonA() {
   presses++;
 }
 \end{lstlisting}
-      \stepbox{We write only the body}{Which registers will the compiled code use? We do not decide it,
-        and we do not see it.}
+      \stepbox{\texttt{IRAM\_ATTR}}{Not part of C: a name from the ESP32 libraries.}
+      {\scriptsize\textcolor{gray}{Try it: the example \texttt{ISRinC} on \ghlink{ISRinC}.}\par}
     \column{0.56\textwidth}
-      {\scriptsize\textbf{The compiler makes} (gcc \texttt{-O2})\par}
+      {\scriptsize\textbf{The compiler makes} (gcc \texttt{-O2}, \texttt{presses} at 0x1004 as before)\par}
 \begin{lstlisting}[style=rv6]
 onButtonA:
-  la   a4, presses   # the address
-  lw   a5, 0(a4)
+  lui  a4, 0x1      # a4 = 0x1000
+  lw   a5, 4(a4)    # a5 = presses (0x1000 + 4)
   addi a5, a5, 1
-  sw   a5, 0(a4)
-  ret                # a normal return
+  sw   a5, 4(a4)
+  ret               # a normal return
 \end{lstlisting}
-      \stepbox{A normal function}{No prologue, no epilogue. It changes \texttt{a4} and \texttt{a5} and
-        \textbf{saves neither}. And it ends with \texttt{ret}, not \texttt{mret}.}
+      \stepbox{A normal function}{It changes \texttt{a4} and \texttt{a5} and \textbf{saves neither}. It ends with \texttt{ret}, not \texttt{mret}.}
   \end{columns}
   \vfill
-  \keymsg{Is that a mistake of the compiler? No. Let us see why, and why it is still a problem for an ISR.}
+  \keymsg{For a normal function this is correct: \texttt{a4} and \texttt{a5} are saved by the caller. But nobody \textbf{calls} an ISR.}
 \end{frame}
 
-\begin{frame}{The problem: nobody saves \texttt{a5}}
-  \vfill
+\begin{frame}{Who saves the registers?}
   \begin{center}
-    \ctrouble
-  \end{center}
-  \vfill
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{The rule of C}{A function \textbf{may} change \texttt{t0} to \texttt{t6} and \texttt{a0} to \texttt{a7} without saving them.
-        If the caller still needs one of them, the \textbf{caller} saves it before the call.}
-    \column{0.48\textwidth}
-      \stepbox{But nobody called the ISR}{The main program was \textbf{interrupted}, between any two instructions.
-        It had no chance to save \texttt{a5}. And the C function does not save it either.}
-  \end{columns}
-  \vfill
-  \keymsg{So somebody must save the registers \textbf{before} our C function runs, and restore them after it.}
-\end{frame}
-
-\begin{frame}{The interrupt entry code}
-  \begin{center}
-    \resizebox{0.72\textwidth}{!}{\begin{tikzpicture}[>=Stealth, font=\scriptsize,
-        part/.style={lbox, minimum height=1.05cm, text width=2.4cm}]
-      \node[part, draw=nInk, fill=nFill] (pro) at (0,0) {prologue\\[-1pt]{\mdseries save \textbf{all} registers}};
-      \node[part, draw=cISR, fill=cISR!15] (body) at (3.3,0) {body\\[-1pt]{\ttfamily\mdseries onButtonA()}};
-      \node[part, draw=nInk, fill=nFill] (epi) at (6.6,0) {epilogue\\[-1pt]{\mdseries restore all, \texttt{mret}}};
-      \draw[->, very thick, DeepBlue] (pro) -- (body);
-      \draw[->, very thick, DeepBlue] (body) -- (epi);
-      \node[font=\tiny\bfseries, text=nInk] (mt) at (0,1.25) {\texttt{mtvec} points here};
-      \draw[->, thick, DeepBlue] (mt) -- (pro);
-      \draw[nInk, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (-1.3,-0.7) -- (1.3,-0.7)
-        node[midway, below=5pt, font=\tiny, align=center] {the system (written in assembly)};
-      \draw[nInk, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (5.3,-0.7) -- (7.9,-0.7)
-        node[midway, below=5pt, font=\tiny, align=center] {the system};
-      \draw[cISR, thick, decorate, decoration={brace, amplitude=5pt, mirror}] (2.0,-0.7) -- (4.6,-0.7)
-        node[midway, below=5pt, font=\tiny, align=center] {our code (in C)};
+    \resizebox{\textwidth}{!}{\begin{tikzpicture}[>=Stealth, font=\scriptsize,
+        part/.style={lbox, minimum height=1.25cm, text width=3.3cm}]
+      \node[font=\scriptsize\bfseries, text=cIO, align=center] (irq) at (-2.7,0) {\faDotCircle\\interrupt};
+      \node[part, draw=nInk, fill=nFill] (sv) at (0,0) {code from the ESP32 libraries\\[2pt]
+        {\mdseries save \textbf{all} registers and \texttt{mepc} on the stack}};
+      \node[part, draw=cISR, fill=cISR!15] (isr) at (4.4,0) {\texttt{onButtonA()}\\[2pt]
+        {\mdseries our ISR:\\ a normal C function}};
+      \node[part, draw=nInk, fill=nFill] (rs) at (8.8,0) {code from the ESP32 libraries\\[2pt]
+        {\mdseries restore \textbf{all} registers, \texttt{mret}}};
+      \draw[->, very thick, DeepBlue] (irq) -- (sv);
+      \draw[->, very thick, DeepBlue] (sv) -- node[above, font=\tiny\bfseries] {call} (isr);
+      \draw[->, very thick, DeepBlue] (isr) -- node[above, font=\tiny\bfseries] {return} (rs);
+      \node[font=\tiny\bfseries, text=nInk, anchor=north] at ([yshift=-2pt]sv.south) {the CPU jumps here};
+      \node[font=\tiny\bfseries, text=cISR, anchor=north] at ([yshift=-2pt]isr.south) {saves nothing};
     \end{tikzpicture}}
   \end{center}
-  \vspace{0.05cm}
+  \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
-      \stepbox{Always all registers}{The system does not know which registers our C function will use.
-        So it \textbf{always} saves all of them, \texttt{a4} and \texttt{a5} too, for every interrupt.}
+      \stepbox{Why all registers?}{This code does not know which registers our C function will use.
+        So it saves all of them, \texttt{a4} and \texttt{a5} too.}
     \column{0.48\textwidth}
-      \stepbox{The cost}{29 registers: 29 \texttt{sw} and 29 \texttt{lw}, about a third of a microsecond at 160 MHz.
-        This code also finds the right ISR in the table.}
+      \stepbox{Simplified}{This process is a little simplified. The exact story is in the code of \textbf{ESP-IDF},
+        the ESP32 libraries: the link is on the next slide.}
   \end{columns}
   \vfill
-  \keymsg{Who saves \texttt{a5}? This code, before our ISR runs: it saves \textbf{every} register.}
+  \keymsg{\texttt{onButtonA} does not need to save anything: the code from the ESP32 libraries has already done it.}
 \end{frame}
 
-\begin{frame}[fragile]{The interrupt entry code: the real one}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-\begin{lstlisting}[style=rv6]
-_interrupt_handler:
-  addi sp, sp, -128   # room for 32 registers
-  sw   ra, 4(sp)
-  sw   t0, 20(sp)
-  sw   a5, 60(sp)
-  ...                 # 29 sw in total
-  csrr t0, mepc       # mepc too
-  sw   t0, 0(sp)
-  call rtos_int_enter
-  jal  _global_interrupt_handler
-  call rtos_int_exit
-  lw   ra, 4(sp)
-  ...                 # 29 lw in total
-  addi sp, sp, 128
-  mret
-\end{lstlisting}
-    \column{0.46\textwidth}
-      \stepbox{Is the picture simplified?}{Not much. This is the real code of the ESP32-C3 libraries (ESP-IDF),
-        shortened only at the dots.}
-      \stepbox{Prologue and epilogue}{All registers and \texttt{mepc} go to the stack. At the end: all back, and \texttt{mret}.}
-      \stepbox{The body}{\texttt{\_global\_interrupt\_handler} looks into the table and calls our \texttt{onButtonA}
-        with a normal call. \texttt{rtos\_int\_enter} and \texttt{exit} tell FreeRTOS that an interrupt runs.}
-  \end{columns}
+% The ESP32 libraries of Arduino core 3.3.12 are ESP-IDF v5.5.5 (esp32c3-libs/3.3.12/versions.txt).
+% The same code is in ~/.arduino15/packages/esp32/tools/esp32c3-libs/3.3.12/lib/libriscv.a:
+%   riscv32-esp-elf-objdump -d libriscv.a | sed -n '/<_interrupt_handler>:/,/mret/p'
+\begin{frame}{Let us look at it in the library}
+  \stepbox{\faLink\ \href{https://github.com/espressif/esp-idf/blob/v5.5.5/components/riscv/vectors.S\#L385-L514}{The code the CPU jumps to: \texttt{\_interrupt\_handler}}}{%
+    \href{https://github.com/espressif/esp-idf/blob/v5.5.5/components/riscv/vectors.S\#L385-L514}{\texttt{github.com/espressif/esp-idf/blob/v5.5.5/components/riscv/vectors.S\#L385}}}
   \vfill
-  \keymsg{Remember: \textbf{all} registers of the interrupted program are on its stack. The scheduler needs this.}
-\end{frame}
-
-\begin{frame}[fragile]{Can an ISR be faster?}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.44\textwidth}
-\begin{lstlisting}[style=rtos]
-void __attribute__((interrupt))
-onButtonA() {
-  presses++;
-}
-\end{lstlisting}
-      {\scriptsize\textbf{The compiler makes} (gcc \texttt{-O2})\par}
-\begin{lstlisting}[style=rv6]
-  addi sp, sp, -16
-  sw   a4, 12(sp)    # only a4
-  sw   a5, 8(sp)     # and a5
-  ...                # presses++
-  lw   a4, 12(sp)
-  lw   a5, 8(sp)
-  addi sp, sp, 16
-  mret
-\end{lstlisting}
-    \column{0.52\textwidth}
-      \stepbox{Save only what you use}{With \texttt{interrupt}, the compiler writes the prologue and the epilogue itself,
-        exactly like our ISR in assembly: 2 registers instead of 29, and \texttt{mret} at the end.
-        An ISR written by hand in assembly can do the same.}
-      \stepbox{When is it worth it?}{When interrupts come \textbf{very often}, for example 100\,000 times per second
-        to control a motor or to read sound samples. Then every saved instruction counts.}
-      \probbox{The price}{Such an ISR skips the system: it cannot use FreeRTOS functions or wake a task, and it works on one
-        chip only. The Arduino core does not even offer it: there the entry code always runs first.}
-  \end{columns}
-\end{frame}
-
-% SIMULATOR (topic "Polling vs interrupt"): the same as in DeviceSimulator, without bouncing.
-% SIMULATOR (topic "Interrupt step by step"): the main program below; the signal from button A
-%   arrives during the instruction at 0x0108; the ISR saves t0 and t1 on the stack and restores them.
-\begin{frame}[fragile]{Simulator 1: polling and interrupts}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.49\textwidth}
-      \taskhead{Simulator task}{Open \simname, topic \simtab{Polling vs interrupt}.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Mode \emph{2 s of work, then one check}. Click \textbf{Start}, then \textbf{5 short clicks}.
-          How many presses does polling count? And the interrupt?
-        \item Look at the row \emph{CPU: interrupts}. How much of the CPU time went to the ISR?
-      \end{enumerate}
-    \column{0.48\textwidth}
-      \taskhead{Then}{Topic \simtab{Interrupt step by step}. The signal from button A arrives
-        \textbf{during} the instruction at \texttt{0x0108}.}
-\begin{lstlisting}[style=rv6]
-0x0100  li   t0, 0
-0x0104  addi t0, t0, 1
-0x0108  sw   t0, 0(a0)
-0x010C  j    0x0104
-\end{lstlisting}
-      \footnotesize
-      \begin{enumerate}\setcounter{enumi}{2}\setlength{\itemsep}{4pt}
-        \item \textbf{Predict} the saved PC. Then step through and check.
-        \item The ISR uses \texttt{t0} and \texttt{t1}. What are they in the main program after the return?
-      \end{enumerate}
-  \end{columns}
-  \simfoot{\simaddr{Polling vs interrupt}\quad \simaddr{Interrupt step by step}}
-\end{frame}
-
-\begin{frame}{Solution: Simulator 1}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{Question 1}{Polling: usually \textbf{0 or 1}. A click counts only if it happens exactly during a check.
-        Interrupt: \textbf{5}.}
-      \stepbox{Question 2}{Almost \textbf{nothing}. Each ISR takes a few microseconds:
-        on the timeline it is only a thin orange line.}
-    \column{0.48\textwidth}
-      \stepbox{Question 3}{\texttt{0x010C}. The CPU first finishes \texttt{sw}, so the saved PC is the address of the
-        \textbf{next} instruction.}
-      \stepbox{Question 4}{The same as before the interrupt: \texttt{t0} = 1, \texttt{t1} = 5. The ISR saved both on the stack
-        and restored them before \texttt{mret}.}
-  \end{columns}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{@{}p{0.3\textwidth}p{0.66\textwidth}@{}}
+    \toprule
+    \textbf{Look for} & \textbf{What it does} \\
+    \midrule
+    \texttt{save\_general\_regs} & Makes room on the stack and saves all registers there, one \texttt{sw} for each. \\
+    \texttt{save\_xepc} & Saves \texttt{mepc}: the address where the main program will continue. \\
+    \texttt{jal \_global\_interrupt\_handler} & Finds out which interrupt it was and calls its function: in the end our \texttt{onButtonA}. \\
+    \texttt{restore\_general\_regs} & Loads all registers back from the stack. \\
+    \texttt{xret} & Here the same as \texttt{mret}: back to the main program. \\
+    \bottomrule
+  \end{tabular}
   \vfill
-  \keymsg{An interrupt misses nothing, costs almost no CPU time, and the main program continues
-    \textbf{exactly where it stopped}.}
+  {\scriptsize\textcolor{gray}{We use ESP-IDF version 5.5.5.}\par}
 \end{frame}
-
 
 % =====================================================================
-\section[Timer]{Timer interrupts}
+\section{Timer interrupts}
 % =====================================================================
 
 \begin{frame}{A timer is a stopwatch with an alarm}
@@ -3485,20 +3562,18 @@ onButtonA() {
 
 \begin{frame}{Where is the timer?}
   \begin{center}
-    \resizebox{0.82\textwidth}{!}{\timerwhere}
+    \resizebox{!}{0.55\textheight}{\timerwhere}
   \end{center}
-  \vspace{-0.1cm}
+  \vfill
   \begin{columns}[T,onlytextwidth]
-    \column{0.32\textwidth}
-      \stepbox{\badge{1}\ In the core}{Many processors have a timer in the core itself: every core of a PC has one,
-        and RISC-V defines one (\texttt{mtime}). The operating system takes its regular interrupt from it.}
-    \column{0.32\textwidth}
-      \stepbox{\badge{2}\ Next to the core}{A device on the same chip, like the GPIO controller. The ESP32-C3 has
-        \textbf{two} such timers for us, and one more for the system.}
-    \column{0.32\textwidth}
-      \stepbox{\badge{3}\ On another chip}{For example a real-time clock with an alarm. Its signal comes on a wire to a
-        GPIO pin: for the CPU it is a GPIO interrupt, just like button A.}
+    \column{0.48\textwidth}
+      \stepbox{\badge{1}\ A timer inside the chip}{It has its \textbf{own row} in the table of the interrupt controller.
+        The CPU knows at once that the timer rang. Two timers are for us (\texttt{timerBegin}).}
+    \column{0.48\textwidth}
+      \stepbox{\badge{2}\ A timer on another chip}{Its signal comes on a wire to a pin. For the CPU it is only
+        ``GPIO 10 changed'', like button A. It does not know that a clock is behind it.}
   \end{columns}
+  \vfill
 \end{frame}
 
 % CHECK before class: the timer API below is the one of the ESP32 core 3.x used by Wokwi.
@@ -3525,9 +3600,11 @@ void setup() {
 }
 \end{lstlisting}
     \column{0.42\textwidth}
-      \stepbox{The whole program}{The ISR \texttt{onTimer} switches the LED. \texttt{setup()} starts a timer and connects it to \texttt{onTimer}.}
-      \stepbox{Three new things}{\texttt{timerBegin}, \texttt{timerAttachInterrupt} and \texttt{timerAlarm}:
-        the clock, the ISR and the alarm of our stopwatch. One by one.}
+      \stepbox{The whole program}{\texttt{onTimer} is an \textbf{ISR}: it switches the LED.\\
+        \texttt{setup()} starts a timer and connects its interrupt to \texttt{onTimer}.}
+      \stepbox{Three new things, one by one}{\texttt{timerBegin}: the clock of our stopwatch.\\
+        \texttt{timerAttachInterrupt}: which ISR runs.\\
+        \texttt{timerAlarm}: when it rings.}
   \end{columns}
 \end{frame}
 
@@ -3551,7 +3628,8 @@ void setup() {
 }
 \end{lstlisting}
   \end{minipage}
-  \codenote[0.3cm]{Take a timer and set its clock}{It takes a free hardware timer and sets its clock to \textbf{1\,000\,000} pulses per second: the counter grows by 1 every 1\,$\mu$s.\\[3pt] It returns the timer. We keep it in \texttt{timer}, of the type \texttt{hw\_timer\_t *}.}
+  \codenote[0.3cm]{Take a timer and set its clock}{The ESP32-C3 has \textbf{two} timers for us. \texttt{timerBegin} takes one that nobody uses yet (\texttt{NULL} if both are taken)
+    and sets its clock to \textbf{1\,000\,000} pulses per second: the counter grows by 1 every 1\,$\mu$s.\\[3pt] It returns the timer. We keep it in \texttt{timer}, of the type \texttt{hw\_timer\_t *}.}
 \end{frame}
 
 \begin{frame}[fragile]{A timer in the code: \texttt{timerAttachInterrupt}}
@@ -3574,7 +3652,7 @@ void setup() {
 }
 \end{lstlisting}
   \end{minipage}
-  \codenote[0.3cm]{Which ISR?}{Just like \texttt{attachInterrupt} for the button: it writes \texttt{onTimer} into the table, for the interrupt of \textbf{this} timer.\\[3pt] No pin and no mode: a timer has only one event, the alarm.}
+  \codenote[0.3cm]{Which ISR?}{Just like \texttt{attachInterrupt} for the button: it writes \texttt{onTimer} into the table, for the interrupt of \textbf{this} timer.\\[3pt] For the button we also gave a pin and \texttt{FALLING}. A timer needs neither: it has no pin and only one event, the alarm.}
 \end{frame}
 
 \begin{frame}[fragile]{A timer in the code: \texttt{timerAlarm}}
@@ -3602,18 +3680,64 @@ void setup() {
   \keymsg{The LED blinks with \textbf{no code in} \texttt{loop()}: the timer calls \texttt{onTimer} every 500 ms.}
 \end{frame}
 
-\begin{frame}{Three LEDs, three rhythms, one timer}
-  \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\textwidth]{block body}
-    \centering\small Three LEDs should change every \textbf{300}, \textbf{500} and \textbf{700 ms}.
-    But the ESP32-C3 has only \textbf{two} hardware timers.
-  \end{beamercolorbox}
-  \vspace{0.15cm}
+\begin{frame}{Try it: a timer blinks the LED}
+  \taskhead{Task}{Open the example \texttt{Timer} from \ghlink{Timer} (or paste the code into your project \projCircuit).
+    Run it.}
+  \footnotesize
+  \begin{enumerate}\setlength{\itemsep}{8pt}
+    \item Does the LED on GPIO 4 change every 500 ms?
+    \item Change \texttt{500000} to \texttt{100000}. What happens?
+    \item \texttt{loop()} is empty. Who switches the LED?
+  \end{enumerate}
+  \vfill
+\end{frame}
+
+\begin{frame}{Solution: a timer blinks the LED}
+  \vfill
+  \stepbox{Question 1}{Yes: on for 500 ms, off for 500 ms.}
+  \stepbox{Question 2}{It blinks 5 times faster: the alarm rings every 100\,000\,$\mu$s = 100 ms.}
+  \stepbox{Question 3}{The ISR \texttt{onTimer}. The timer interrupt calls it every time the alarm rings.}
+  \vfill
+  \keymsg{The CPU does not check the time at all: the timer tells it when.}
+\end{frame}
+
+% CHECKED: soc_caps.h of the ESP32-C3: SOC_TIMER_GROUP_TOTAL_TIMERS = 2. timerBegin uses gptimer_new_timer
+%   (esp32-hal-timer.c), which fails with "no free timer" when both are taken; then timerBegin returns NULL.
+\begin{frame}{Two timers, three LEDs?}
+  \begin{center}
+    \begin{tikzpicture}[>=Stealth, font=\small,
+        led/.style={lbox, draw=nInk, fill=nFill, minimum width=3.4cm, minimum height=0.6cm},
+        tmr/.style={lbox, draw=nInk, fill=white, minimum width=2.4cm, minimum height=0.6cm}]
+      \foreach \n/\ms/\t/\y in {1/300/{timer 0\ \ \faStopwatch}/1.6, 2/500/{timer 1\ \ \faStopwatch}/0.8} {
+        \node[led] (l\n) at (0,\y) {LED \n: every \ms\ ms};
+        \node[tmr] (t\n) at (4.6,\y) {\t};
+        \draw[->, very thick, nInk] (t\n) -- (l\n);
+      }
+      \node[led] (l3) at (0,0) {LED 3: every 700 ms};
+      \node[tmr, dashed, draw=MissRed, text=MissRed] (t3) at (4.6,0) {\Large ?};
+      \draw[->, very thick, MissRed, dashed] (t3) -- (l3);
+    \end{tikzpicture}
+  \end{center}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{What we saw}{The ESP32-C3 has only \textbf{two} timers for us. One timer rings with one period.}
+    \column{0.48\textwidth}
+      \stepbox{The question}{Do we need a third timer, on another chip, as on the slide ``Where is the timer?''}
+  \end{columns}
+  \vfill
+  \keymsg{No. \textbf{One} timer is enough, if it rings often.}
+\end{frame}
+
+\begin{frame}{The idea: one tick, many rhythms}
+  \vfill
   \begin{center}
     \tickleds{21}
   \end{center}
-  \vspace{-0.1cm}
+  \vfill
   \defbox{One timer interrupt at a fixed rate is called a \textbf{tick}. Here: a tick every 100 ms.
     At every tick, the ISR \textbf{decides} what to do: LED 1 every 3 ticks, LED 2 every 5, LED 3 every 7.}
+  \vfill
 \end{frame}
 
 \begin{frame}[fragile]{The tick in the code}
@@ -3635,7 +3759,7 @@ void IRAM_ATTR onTick() {        // every 100 ms
       \stepbox{One timer}{\texttt{timerAlarm(timer, 100000, true, 0)}: a tick every 100 ms.}
   \end{columns}
   \vfill
-  \keymsg{Remember this idea: a \textbf{regular tick}, and a \textbf{decision} at every tick. We will need it in Part 2.}
+  \keymsg{Remember this idea: a \textbf{regular tick}, and a \textbf{decision} at every tick. We will need it in \emph{The scheduler}.}
 \end{frame}
 
 % SIMULATOR (topic "Timer and tick"): a tick every 100 ms, LEDs change every 3, 5 and 7 ticks,
@@ -3644,51 +3768,59 @@ void IRAM_ATTR onTick() {        // every 100 ms
   \taskhead{Simulator task}{Topic \simtab{Timer and tick}: a tick every 100 ms. LED 1 changes every 3 ticks,
     LED 2 every 5, LED 3 every 7. At the start all LEDs are off. \textbf{Predict first}, then check.}
   \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
+    \column{0.55\textwidth}
       \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{5pt}
+      \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Which LEDs change at tick \textbf{15}? At tick \textbf{21}? At tick \textbf{35}?
-        \item Which LEDs are \textbf{on} right after tick \textbf{10}?
-        \item At which tick do all three change \textbf{together} for the first time? After how many seconds?
+        \item When are all three LEDs \textbf{on at the same time} for the first time?
+        \item When do all three \textbf{turn on in the same tick} for the first time? Calculate it with the
+          least common multiple, then check.
+        \item All three change together again at the next such tick. Do they turn on, or off, then?
       \end{enumerate}
-    \column{0.46\textwidth}
+    \column{0.42\textwidth}
       \centering\footnotesize
-      \renewcommand{\arraystretch}{1.25}
+      \renewcommand{\arraystretch}{1.2}
       \begin{tabular}{cccc}
         \toprule
         & \textbf{LED 1} & \textbf{LED 2} & \textbf{LED 3} \\
         \midrule
-        changes at tick 15 & \ldots & \ldots & \ldots \\
-        changes at tick 21 & \ldots & \ldots & \ldots \\
-        changes at tick 35 & \ldots & \ldots & \ldots \\
-        on after tick 10 & \ldots & \ldots & \ldots \\
+        tick 15 & \ldots & \ldots & \ldots \\
+        tick 21 & \ldots & \ldots & \ldots \\
+        tick 35 & \ldots & \ldots & \ldots \\
         \bottomrule
       \end{tabular}
+      \vspace{0.15cm}
+      \defbox{\textbf{Least common multiple} (LCM): the smallest number divisible by all of them.
+        Example: LCM(4, 6) = 12.}
   \end{columns}
   \simfoot{\simaddr{Timer and tick}}
 \end{frame}
 
 \begin{frame}{Solution: Simulator 2}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.52\textwidth}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.42\textwidth}
+      {\scriptsize\textbf{Question 1}: which LEDs change\par}
+      \vspace{0.05cm}
       \centering\footnotesize
-      \renewcommand{\arraystretch}{1.25}
+      \renewcommand{\arraystretch}{1.2}
       \begin{tabular}{cccc}
         \toprule
         & \textbf{LED 1} & \textbf{LED 2} & \textbf{LED 3} \\
         \midrule
-        changes at tick 15 & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} & - \\
-        changes at tick 21 & \textcolor{HitGreen}{\faCheck} & - & \textcolor{HitGreen}{\faCheck} \\
-        changes at tick 35 & - & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} \\
-        on after tick 10 & \textbf{on} & off & \textbf{on} \\
+        tick 15 & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} & - \\
+        tick 21 & \textcolor{HitGreen}{\faCheck} & - & \textcolor{HitGreen}{\faCheck} \\
+        tick 35 & - & \textcolor{HitGreen}{\faCheck} & \textcolor{HitGreen}{\faCheck} \\
         \bottomrule
       \end{tabular}
-    \column{0.45\textwidth}
-      \stepbox{Question 2}{LED 1 changed 3 times (ticks 3, 6, 9): on. LED 2 twice (5, 10): off. LED 3 once (7): on.}
-      \stepbox{Question 3}{At tick $3 \times 5 \times 7 = \mathbf{105}$, after \textbf{10.5 s}.}
+    \column{0.55\textwidth}
+      \stepbox{Question 2}{After tick \textbf{9} (0.9 s), for one tick: LED 2 turns off at tick 10.}
+      \stepbox{Question 3}{LCM(3, 5, 7) = \textbf{105}: tick 105, after 10.5 s. Each LED changed an \textbf{odd}
+        number of times (35, 21, 15), so all three turn on.}
+      \stepbox{Question 4}{Tick 210, after 21 s. An \textbf{even} number of changes (70, 42, 30): all three turn
+        \textbf{off}.}
   \end{columns}
   \vfill
-  \keymsg{A LED changes when the tick number is divisible by its period: the ISR checks this at every tick.}
+  \keymsg{``On at the same time'' and ``turn on in the same tick'' are different questions. Only the second one is the LCM.}
 \end{frame}
 
 \begin{frame}{Build it: two more LEDs}
@@ -3706,36 +3838,47 @@ void IRAM_ATTR onTick() {        // every 100 ms
   \keymsg{Our circuit now: LEDs on GPIO 4, 7 and 3; buttons on 5 and 6; LCD on 8 and 9.}
 \end{frame}
 
-\begin{frame}{Task 2: three LEDs}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.5\textwidth}
-      \centering
-      \resizebox{\linewidth}{!}{\figthreeleds}
-    \column{0.47\textwidth}
+\begin{frame}[fragile]{Task 2: three LEDs}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos]
+const int LED1 = 4, LED2 = 7, LED3 = 3;
+hw_timer_t *timer = nullptr;
+volatile unsigned long ticks = 0;
+volatile bool led1, led2, led3;
+
+// TODO 1: the timer ISR onTick()
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  // TODO 2: timerBegin,
+  //   timerAttachInterrupt, timerAlarm
+}
+
+void loop() { }   // nothing here
+\end{lstlisting}
+    \column{0.45\textwidth}
       \taskhead{Task}{Use your circuit with three LEDs or the template from \ghlink{Task2}.}
       \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Make LED 1 blink every 500 ms \textbf{with a timer interrupt}, as on the slide ``A timer in the code''.
-        \item Change it: one tick every \textbf{100 ms}, and the three LEDs change every 300, 500 and 700 ms.
-        \item Keep the button counter from Task 1. In \texttt{loop()}, also count as fast as possible and show
-          \texttt{Loop: N} in row 1. Do the LEDs keep their rhythm?
-      \end{enumerate}
-      \vspace{0.05cm}
-      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
-        \scriptsize\textbf{If you finish early:} make LED 1 blink with \texttt{millis()} in \texttt{loop()}
-        instead of the timer, and keep the LCD writes. Is its rhythm still even?
-      \end{beamercolorbox}
+      Make LED 1, 2 and 3 change every \textbf{300}, \textbf{500} and \textbf{700 ms} with \textbf{one} timer:
+      a tick every 100 ms, as on the slide ``The tick in the code''.\\[6pt]
+      Run it: do the LEDs blink as in Simulator 2?
   \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Solution: three LEDs}
   \begin{columns}[T,onlytextwidth]
-    \column{0.56\textwidth}
+    \column{0.64\textwidth}
 \begin{lstlisting}[style=rtos]
-const int LED1 = 4, LED2 = 7, LED3 = 3;
-long loops = 0;
+void IRAM_ATTR onTick() {      // every 100 ms
+  ticks++;
+  if (ticks % 3 == 0) { led1 = !led1; digitalWrite(LED1, led1); }
+  if (ticks % 5 == 0) { led2 = !led2; digitalWrite(LED2, led2); }
+  if (ticks % 7 == 0) { led3 = !led3; digitalWrite(LED3, led3); }
+}
 void setup() {
-  // the LCD and button A as in Task 1
   pinMode(LED1, OUTPUT);  pinMode(LED2, OUTPUT);
   pinMode(LED3, OUTPUT);
   timer = timerBegin(1000000);
@@ -3743,81 +3886,70 @@ void setup() {
   timerAlarm(timer, 100000, true, 0);  // 100 ms
 }
 
-void loop() {
-  loops++;
-  lcd.setCursor(0, 0);
-  lcd.print("Presses: ");  lcd.print(presses);
-  lcd.setCursor(0, 1);
-  lcd.print("Loop: ");     lcd.print(loops);
-}
+void loop() { }   // nothing here
 \end{lstlisting}
-    \column{0.41\textwidth}
+    \column{0.33\textwidth}
       \stepbox{The ISR}{\texttt{onTick} from the slide ``The tick in the code''.}
-      \stepbox{Question 3}{\textbf{Yes}. The LEDs and the button are handled by interrupts, so it does not matter what
-        \texttt{loop()} does, even slow LCD writes.}
+      \stepbox{The timer}{The same three calls as for one LED. Only the alarm is shorter: \texttt{100000} = 100 ms,
+        one tick.}
   \end{columns}
+  \vfill
+  \keymsg{Three rhythms, one timer, and \texttt{loop()} is still empty.}
 \end{frame}
 
-% SIMULATOR (topic "Timer and tick", second mode): switch "How" with delay(), millis() in loop(),
-%   timer interrupt; a switch "loop() writes to the LCD" (one write = several ms).
+% SIMULATOR (topic "Timer and tick", second mode): switch "How" with millis() in loop() or timer interrupt;
+%   loop() always writes to the LCD (one write = several ms). Checked: timer 0 ms late, millis() up to about 21 ms.
 \begin{frame}[fragile]{Simulator 3: could we do this without interrupts?}
   \begin{columns}[T,onlytextwidth]
     \column{0.49\textwidth}
-      {\scriptsize\textbf{With \texttt{delay()}}\par}
+      {\scriptsize\textbf{With \texttt{millis()} in \texttt{loop()}}\par}
 \begin{lstlisting}[style=rtos]
 void loop() {
-  digitalWrite(LED1, HIGH);  delay(300);
-  digitalWrite(LED1, LOW);   delay(300);
-  // and LED 2? LED 3?
-}
-\end{lstlisting}
-      {\scriptsize\textbf{With \texttt{millis()}}\par}
-\begin{lstlisting}[style=rtos]
-void loop() {
-  if (millis() - last1 >= 300) {
-    last1 += 300;  toggle(LED1);
-  }
+  if (millis() - last1 >= 300)
+    { last1 += 300;  toggle(LED1); }
   // the same for LED 2 and LED 3
   showOnLcd();              // several ms
 }
 \end{lstlisting}
-    \column{0.48\textwidth}
-      \taskhead{Simulator task}{Topic \simtab{Timer and tick}, switch \emph{How}: \texttt{delay()},
-        \texttt{millis()} in \texttt{loop()} or a timer interrupt. Turn on \emph{loop() writes to the LCD}.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{5pt}
-        \item \texttt{delay()}: do the LEDs keep 300, 500 and 700 ms?
-        \item \texttt{millis()} in \texttt{loop()}: look at the moments when LED 1 changes. Are they on time?
-        \item Timer interrupt: are they on time now?
-      \end{enumerate}
-      \vspace{0.4cm}
-      {\raggedleft\tiny\textcolor{gray}{\mbox{\faLink\ \simaddr{Timer and tick}}}\par}
+    \column{0.49\textwidth}
+      {\scriptsize\textbf{With a timer interrupt}\par}
+\begin{lstlisting}[style=rtos]
+void IRAM_ATTR onTick() {   // every 100 ms
+  ticks++;
+  if (ticks % 3 == 0) toggle(LED1);
+  // the same for LED 2 and LED 3
+}
+void loop() { showOnLcd(); }  // several ms
+\end{lstlisting}
   \end{columns}
+  \taskhead{Simulator task}{Topic \simtab{Timer and tick}, switch \emph{How}: \texttt{millis()} in \texttt{loop()}
+    or timer interrupt. In both, \texttt{loop()} also writes to the LCD.}
+  \footnotesize
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \texttt{millis()} in \texttt{loop()}: look at the moments when LED 1 changes. Are they on time? How late at most?
+    \item Timer interrupt: are they on time now?
+    \item Both programs call \texttt{showOnLcd()}. Why does it hurt only one of them?
+  \end{enumerate}
+  \simfoot{\simaddr{Timer and tick}}
 \end{frame}
 
 \begin{frame}{Solution: Simulator 3}
   \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
+    \column{0.48\textwidth}
       \centering
-      \resizebox{\linewidth}{!}{\rhythm{1}}\\[0.1cm]
-      \stepbox{1. \texttt{delay()}}{\textbf{No}. While the CPU waits for one LED, it cannot serve the others.
-        The waits add up.}
-    \column{0.31\textwidth}
+      \resizebox{0.8\linewidth}{!}{\rhythm{2}}\\[0.1cm]
+      \stepbox{1. \texttt{millis()}}{Almost, but \textbf{uneven}: LED 1 changes after 292 to 311 ms, up to about
+        20 ms late. That is one write to the LCD.}
+    \column{0.48\textwidth}
       \centering
-      \resizebox{\linewidth}{!}{\rhythm{2}}\\[0.1cm]
-      \stepbox{2. \texttt{millis()}}{Almost. But each slow step in the loop delays the LEDs: the rhythm is
-        \textbf{uneven}.}
-    \column{0.31\textwidth}
-      \centering
-      \resizebox{\linewidth}{!}{\rhythm{3}}\\[0.1cm]
-      \stepbox{3. Timer interrupt}{\textbf{Yes}. The tick comes on time, whatever the loop is doing.}
+      \resizebox{0.8\linewidth}{!}{\rhythm{3}}\\[0.1cm]
+      \stepbox{2. Timer interrupt}{\textbf{Yes}: exactly every 300 ms, 0 ms late.}
   \end{columns}
   \vfill
-  {\centering\scriptsize\textcolor{gray}{\texttt{millis()} in \texttt{loop()} is polling again:
-    the loop keeps asking ``is it time yet?''.}\par}
-  \vspace{0.05cm}
-  \keymsg{Without interrupts it is possible, but it is \textbf{hard to keep an exact rhythm}
-    while the program also does other work.}
+  \stepbox{3. Why?}{\texttt{millis()} looks at the clock only when \texttt{loop()} gets there, after the LCD write.
+    The timer interrupt \textbf{stops} the LCD write, toggles the LED, and lets it continue.}
+  \vfill
+  \keymsg{\texttt{millis()} in \texttt{loop()} is polling again: the loop keeps asking ``is it time yet?''.}
 \end{frame}
 
 \begin{frame}{Interrupts: summary}
@@ -3846,8 +3978,8 @@ void loop() {
 \begin{frame}{One processor, several tasks}
   \begin{beamercolorbox}[rounded=true,sep=0.12cm,wd=\textwidth]{block body}
     \small In Task 2 each LED needed only a tiny piece of work, so it fit into the ISR.
-    But real tasks are \textbf{long programs} with their own loops and waits: read a sensor, update the LCD,
-    talk over Wi-Fi. They cannot run inside a short ISR.
+    But think of a small \textbf{robot}: it drives, watches for obstacles and shows its state on a screen.
+    Each of these is a \textbf{long program} with its own loop and waits. It cannot run inside a short ISR.
   \end{beamercolorbox}
   \vspace{0.2cm}
   \begin{center}
@@ -3969,10 +4101,12 @@ void loop() {
     }
   \end{center}
   \vspace{-0.15cm}
-  \only<1>{\stepbox{\badge{1}\ Tick}{Task A runs. The timer interrupt (the tick) arrives: \texttt{mepc} $\leftarrow$ PC, and the CPU jumps to the interrupt entry code.}}
+  \only<1>{\stepbox{\badge{1}\ Tick}{Task A runs. The tick arrives: \texttt{mepc} $\leftarrow$ PC, PC $\leftarrow$ \texttt{mtvec}. The CPU jumps to the
+    interrupt entry code, not straight to the scheduler: the scheduler runs later, inside this interrupt.}}
   \only<2>{\stepbox{\badge{2}\ Save A}{The entry code puts A's registers and its PC (from \texttt{mepc}) onto \textbf{stack A}, as we saw.
     The new top of stack A goes into the table of saved stack pointers.}}
-  \only<3>{\stepbox{\badge{3}\ Choose B}{The scheduler picks the next task: \textbf{B}.}}
+  \only<3>{\stepbox{\badge{3}\ Choose B}{Still inside the tick interrupt, the entry code calls the \textbf{scheduler}.
+    It picks the next task: \textbf{B}.}}
   \only<4>{\stepbox{\badge{4}\ Restore B}{\texttt{sp} $\leftarrow$ the saved sp of B. B's registers and PC come back
     from stack B: B continues as if nothing happened. These 4 steps are a \textbf{context switch}.}}
 \end{frame}
@@ -4119,7 +4253,7 @@ void loop() {
       \stepbox{\faMicrochip\ Everywhere}{Sensors, home appliances, cars, \ldots}
   \end{columns}
   \vfill
-  \keymsg{Everything from Part 2 is inside: the tick, time slices, states, priorities and the context switch.}
+  \keymsg{Everything from \emph{The scheduler} is inside: the tick, time slices, states, priorities and the context switch.}
 \end{frame}
 
 \begin{frame}{You have used FreeRTOS all along}
@@ -4135,6 +4269,18 @@ void loop() {
   \end{columns}
   \vfill
   \keymsg{Nothing to install: we can create our own tasks.}
+\end{frame}
+
+\begin{frame}{Back to the ISR rule: \texttt{delay()} in an ISR}
+  \vfill
+  \stepbox{Now we can explain it}{\texttt{delay()} is \texttt{vTaskDelay()}: it puts the \textbf{current task} to sleep.
+    In an ISR, the current task is the one that was \textbf{interrupted}, here \texttt{loopTask}. So \texttt{loop()}
+    sleeps, and the ISR goes on at once: it does not wait at all.}
+  \vfill
+  {\scriptsize\textcolor{gray}{The example \texttt{ISRRule2} on \ghlink{ISRRule2}: the ISR with \texttt{delay(1000)} took
+    17\,$\mu$s, and \texttt{loop()} stopped for 1\,s.}\par}
+  \vfill
+  \keymsg{An ISR is not a task: the scheduler cannot put it to sleep. That is why an ISR must never wait.}
 \end{frame}
 
 \begin{frame}[fragile]{Task 3: who runs \texttt{loop()}?}
@@ -4455,7 +4601,7 @@ _interrupt_handler:          # the tick arrives
   mret                       # B continues
 \end{lstlisting}
     \column{0.37\textwidth}
-      \stepbox{The same entry code}{It is \texttt{\_interrupt\_handler} from Part 1, with the inside of
+      \stepbox{The same entry code}{It is \texttt{\_interrupt\_handler} from \emph{Interrupts inside the processor}, with the inside of
         \texttt{rtos\_int\_enter} and \texttt{rtos\_int\_exit} shown below them (indented).}
       \stepbox{The trick}{The entry code \textbf{always} saves all registers on the stack of the task that was interrupted.
         So to switch, it is enough to change \texttt{sp} before the epilogue: the epilogue then restores \textbf{B}.}
@@ -4490,7 +4636,7 @@ _interrupt_handler:          # the tick arrives
         After the registers are restored, \texttt{sp} = \texttt{0x3000}.}
   \end{columns}
   \vfill
-  \keymsg{The table of saved stack pointers from Part 2 is the field \texttt{pxTopOfStack} in every TCB.}
+  \keymsg{The table of saved stack pointers from \emph{The scheduler} is the field \texttt{pxTopOfStack} in every TCB.}
 \end{frame}
 
 % CHECK in Wokwi before class: N must be large enough that each task runs for many ticks (tens of ms or more),
