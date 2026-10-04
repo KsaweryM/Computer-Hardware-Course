@@ -1,8 +1,8 @@
-# Task4: three LEDs as three tasks
+# Task4: a race between two tasks
 
-The template for Task 4 of Lecture 6: the three LEDs of Task 2, but with three FreeRTOS tasks instead of the timer. Fill in the `TODO` parts of `Task4.ino`.
+The template for Task 4 of Lecture 6: two tasks, `incA` and `incB`, increase one shared counter. Fill in the `TODO` parts of `Task4.ino`.
 
-The circuit: the circuit from Lecture 5 with two more LEDs: LED 1 on GPIO 4, LED 2 on GPIO 7, LED 3 on GPIO 3, button A on GPIO 5, button B on GPIO 6 and a 16×2 LCD on I2C (SDA = GPIO 8, SCL = GPIO 9).
+The circuit: an ESP32-C3 with an LED on GPIO 4, button A on GPIO 5, button B on GPIO 6 and a 16×2 LCD on I2C (SDA = GPIO 8, SCL = GPIO 9).
 
 ## In VS Code (Wokwi extension)
 

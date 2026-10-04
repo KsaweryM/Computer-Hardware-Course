@@ -55,7 +55,7 @@ The course is divided into eight lectures:
 | **4** | Memory and Cache | The memory wall, the memory hierarchy, locality, direct-mapped and set-associative caches, line/tag, hit rate, AMAT |
 | **5** | Input/Output: Devices and Polling | ESP32-C3 in Wokwi, LEDs and buttons on GPIO, an LCD on the I2C bus, memory-mapped I/O, controlling the GPIO controller through its registers, polling and its limits |
 | **6** | A Brief History of Concurrency: From a Button to a Scheduler | Interrupts and ISRs, timer interrupts, time slices, context switches, task states and priorities, FreeRTOS on the ESP32-C3 |
-| **7** | Threads and Synchronisation in C++ | Processes and threads, race conditions and data races, critical sections, mutexes, atomics, lock granularity |
+| **7** | Threads and Synchronisation in C++ | Threads, race conditions and data races, critical sections, mutexes, atomics, lock granularity |
 | **8** | Deadlock and Cooperating Threads | Deadlock and its four conditions, dining philosophers, lock ordering, busy waiting, condition variables, semaphores, producer-consumer, thread pools |
 
 ---

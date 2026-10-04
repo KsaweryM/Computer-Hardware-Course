@@ -11,7 +11,7 @@ FIRMWARE := $(BUILD_DIR)/$(SKETCH).merged.bin
 
 make: $(FIRMWARE)
 
-$(FIRMWARE): $(SKETCH)
+$(FIRMWARE): $(SKETCH) $(wildcard *.cpp *.h)
 	$(ARDUINO_CLI) compile --fqbn $(FQBN) --output-dir $(BUILD_DIR) .
 
 clear:

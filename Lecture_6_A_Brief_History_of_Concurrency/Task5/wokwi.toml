@@ -1,4 +1,0 @@
-[wokwi]
-version = 1
-firmware = "build/Task5.ino.merged.bin"
-elf = "build/Task5.ino.elf"

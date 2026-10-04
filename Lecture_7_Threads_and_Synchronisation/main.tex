@@ -2064,7 +2064,7 @@
 \newcommand{\concpar}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
     % one core
-    \node[font=\scriptsize\bfseries, text=nInk, anchor=west] at (-0.8,1.15) {\faMicrochip\ ESP32-C3: 1 core};
+    \node[font=\scriptsize\bfseries, text=nInk, anchor=west] at (-0.8,1.15) {\faMicrochip\ one core};
     \tlbar{-0.15}{core}{0.5/cTaskA/A,0.5/cTaskB/B,0.5/cTaskC/C,0.5/cTaskH/D,0.5/cTaskA/A,0.5/cTaskB/B,0.5/cTaskC/C,0.5/cTaskH/D}
     \draw[->, thick, DeepBlue] (0,-1.3) -- (4.2,-1.3) node[right, font=\tiny] {time};
     \node[font=\scriptsize\bfseries, text=AccentOrange] at (2.0,-1.75) {concurrency: taking turns};
@@ -2096,12 +2096,11 @@
     \draw[<->, very thick, DeepBlue] (2.7,-0.6) -- (2.7,-0.9);
   \end{tikzpicture}}
 
-% ---------- processes and threads ----------
+% ---------- the threads of one program ----------
 \newcommand{\procthreads}{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    % process 1
     \draw[nInk, very thick, rounded corners=6pt, fill=nFill] (0,0) rectangle (7.2,3.6);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.1,3.55) {process 1: our program};
+    \node[anchor=north west, font=\scriptsize\bfseries, text=nInk] at (0.1,3.55) {our program};
     \node[lbox, draw=nLine, fill=nFill, text=nInk, minimum width=6.6cm, minimum height=0.75cm] (sh) at (3.6,2.55)
       {shared memory\\[-1pt]{\mdseries code, global variables (\texttt{counter}), heap}};
     \foreach \i/\c/\x in {1/cTaskA/1.2, 2/cTaskB/3.6, 3/cTaskC/6.0} {
@@ -2109,13 +2108,6 @@
         {thread \i\\[-1pt]{\mdseries own stack}\\[-2pt]{\mdseries own registers}};
       \draw[<->, very thick, \c] (t\i.north) -- (t\i.north |- sh.south);
     }
-    % process 2
-    \draw[nLight, very thick, rounded corners=6pt, fill=white] (7.8,0) rectangle (10.4,3.6);
-    \node[anchor=north west, font=\scriptsize\bfseries, text=gray!40!black] at (7.9,3.55) {process 2};
-    \node[greybox, minimum width=2.1cm, minimum height=0.75cm] (sh2) at (9.1,2.55) {its own\\[-1pt]memory};
-    \node[greybox, minimum width=2.1cm, minimum height=1.05cm] (u1) at (9.1,0.75) {thread 1};
-    \draw[<->, very thick, gray] (u1.north) -- (sh2.south);
-    \node[font=\Large, text=aWrite] at (7.5,2.55) {\faTimes};
   \end{tikzpicture}}
 
 % ---------- start a thread, then join it ----------
@@ -2299,10 +2291,6 @@
 
         \item[\textcolor{DeepBlue}{\faUniversity}] \textbf{5. The bank} \
         \textcolor{gray}{\small A bigger program, and a new problem}
-        \vspace{0.3cm}
-
-        \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{6. Back on the ESP32} \
-        \textcolor{gray}{\small The same mutex in FreeRTOS}
       \end{itemize}
   \end{columns}
 \end{frame}
@@ -2358,7 +2346,7 @@
         The ready task with the \textbf{highest priority} runs.}
   \end{columns}
   \vfill
-  \keymsg{FreeRTOS does this on the ESP32-C3 all the time: even \texttt{loop()} is a task.}
+  \keymsg{This is how one core runs several tasks: each one gets a slice of time, in turn.}
 \end{frame}
 
 \begin{frame}{From Monday: a race condition}
@@ -2444,22 +2432,12 @@ g++ -std=c++20 -pthread hello.cpp -o hello
   \keymsg{A laptop does both: the cores work in parallel, and when there are more tasks than cores, they take turns.}
 \end{frame}
 
-\begin{frame}{Processes and threads: a process}
+\begin{frame}{What is a thread?}
   \begin{center}
     \resizebox{!}{0.45\textheight}{\procthreads}
   \end{center}
   \vfill
-  \stepbox{Process}{A running program with \textbf{its own memory}: its code, its global variables, its heap.
-    Other processes cannot see it. Your browser and your compiler are two processes.}
-  \vfill
-\end{frame}
-
-\begin{frame}{Processes and threads: a thread}
-  \begin{center}
-    \resizebox{!}{0.45\textheight}{\procthreads}
-  \end{center}
-  \vfill
-  \stepbox{Thread}{A path of execution \textbf{inside} a process. The threads of one process \textbf{share} its memory,
+  \stepbox{Thread}{A path of execution \textbf{inside} our program. All threads \textbf{share} its memory,
     but each has its own stack and registers.}
   \vfill
   \keymsg{A thread is the laptop's version of Monday's \textbf{task}: its own context, shared global variables.}
@@ -2847,7 +2825,7 @@ sw   t1, 0(t0)     # counter = t1
 %   The student clicks "A" or "B" to choose who runs the next instruction. When both are done: the result,
 %   "correct" or "lost update", and a counter "orders tried: k of 20". Button "Reset".
 %   Answers: 7 only for A A A B B B and B B B A A A (2 of the 6!/(3!3!) = 20 orders); every other order gives 6.
-\begin{frame}{Simulator 8: race step by step}
+\begin{frame}{Simulator 5: race step by step}
   \taskhead{Simulator task}{Topic \simtab{Race step by step}: threads A and B each run \texttt{lw}, \texttt{addi},
     \texttt{sw} once. \texttt{counter} = 5. You choose which thread runs the next instruction.}
   \footnotesize
@@ -2859,7 +2837,7 @@ sw   t1, 0(t0)     # counter = t1
   \simfoot{\simaddr{Race step by step}}
 \end{frame}
 
-\begin{frame}{Solution: Simulator 8}
+\begin{frame}{Solution: Simulator 5}
   \vfill
   \stepbox{Question 1}{7: one thread does all three instructions first (A A A B B B).
     6: both read before the other one writes (A B A B A B, \ldots).}
@@ -2962,7 +2940,7 @@ inc:
     \mutexflow
   \end{center}
   \vfill
-  \stepbox{B is Blocked}{A thread that waits for a mutex is \textbf{Blocked}, like a task in \texttt{vTaskDelay}
+  \stepbox{B is Blocked}{A thread that waits for a mutex is \textbf{Blocked}, like a blocked task
     on Monday. The scheduler does not give it any time: it uses no CPU time.}
   \stepbox{A gives the mutex back}{Then B becomes \textbf{Ready}, takes the mutex, and runs its \texttt{counter++}.}
   \vfill
@@ -2971,7 +2949,7 @@ inc:
 % SIMULATOR (topic "Mutex"): the same two threads as in "Race step by step", but each runs
 %   lock, lw, addi, sw, unlock. If a thread clicks lock while the other one holds the mutex, it turns grey (Blocked)
 %   and its button is disabled until unlock. Every possible order ends with counter = 7.
-\begin{frame}{Simulator 9: a mutex}
+\begin{frame}{Simulator 6: a mutex}
   \taskhead{Simulator task}{Topic \simtab{Mutex}: the same two threads, but now each runs
     \texttt{lock}, \texttt{lw}, \texttt{addi}, \texttt{sw}, \texttt{unlock}. \texttt{counter} = 5.}
   \footnotesize
@@ -2983,7 +2961,7 @@ inc:
   \simfoot{\simaddr{Mutex}}
 \end{frame}
 
-\begin{frame}{Solution: Simulator 9}
+\begin{frame}{Solution: Simulator 6}
   \vfill
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
@@ -3532,146 +3510,6 @@ balance[to]   += x;
 \end{frame}
 
 % =====================================================================
-\section[ESP32]{Back on the ESP32}
-% =====================================================================
-
-% OPTIONAL: skip this section if there is no time. It can also be an extra task for students who want to go back to Wokwi.
-\begin{frame}[fragile]{A mutex in FreeRTOS}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
-\begin{lstlisting}[style=rtos]
-SemaphoreHandle_t m;
-
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
-    xSemaphoreTake(m, portMAX_DELAY);   // lock
-    counter++;
-    xSemaphoreGive(m);                  // unlock
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
-}
-
-void setup() {
-  // the LCD as on Monday
-  m = xSemaphoreCreateMutex();
-  // the two tasks as on Monday
-}
-\end{lstlisting}
-    \column{0.42\textwidth}
-      \stepbox{The whole program}{Monday's Task 5, with \texttt{counter++} protected by a mutex.}
-      \stepbox{Three new things}{\texttt{xSemaphoreCreateMutex}, \texttt{xSemaphoreTake} and \texttt{xSemaphoreGive}.
-        Let us look at them \textbf{one by one}.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{A mutex in FreeRTOS: \texttt{xSemaphoreCreateMutex}}
-  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-SemaphoreHandle_t m;
-
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
-    xSemaphoreTake(m, portMAX_DELAY);   // lock
-    counter++;
-    xSemaphoreGive(m);                  // unlock
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
-}
-
-void setup() {
-  // the LCD as on Monday
-  m = (*\hlcode{xSemaphoreCreateMutex()}*);(*\eol*)
-  // the two tasks as on Monday
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[0.3cm]{Create the mutex}{It creates a mutex and returns a \emph{handle} to it, of the type
-    \texttt{SemaphoreHandle\_t}. We keep it in the global \texttt{m}.\\[3pt] Create it \textbf{before} the tasks
-    that use it.\\[3pt] In FreeRTOS a mutex is a kind of \emph{semaphore}: more about them tomorrow.}
-\end{frame}
-
-\begin{frame}[fragile]{A mutex in FreeRTOS: \texttt{xSemaphoreTake}}
-  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-SemaphoreHandle_t m;
-
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
-    (*\hlcode{xSemaphoreTake(m, portMAX\_DELAY)}*);   // lock(*\eol*)
-    counter++;
-    xSemaphoreGive(m);                  // unlock
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
-}
-
-void setup() {
-  // the LCD as on Monday
-  m = xSemaphoreCreateMutex();
-  // the two tasks as on Monday
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[0.3cm]{Lock}{Like \texttt{m.lock()}: take the mutex, or wait until it is free.\\[3pt]
-    \texttt{portMAX\_DELAY}: wait as long as needed. While it waits, the task is \textbf{Blocked}.}
-\end{frame}
-
-\begin{frame}[fragile]{A mutex in FreeRTOS: \texttt{xSemaphoreGive}}
-  \begin{minipage}[c][0.75\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-SemaphoreHandle_t m;
-
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
-    xSemaphoreTake(m, portMAX_DELAY);   // lock
-    counter++;
-    (*\hlcode{xSemaphoreGive(m)}*);                  // unlock(*\eol*)
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
-}
-
-void setup() {
-  // the LCD as on Monday
-  m = xSemaphoreCreateMutex();
-  // the two tasks as on Monday
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[0.3cm]{Unlock}{Like \texttt{m.unlock()}: give the mutex back. If the other task waits for it, it becomes
-    \textbf{Ready}.\\[3pt] There is no \texttt{lock\_guard} in C: do not forget this line.}
-\end{frame}
-
-\begin{frame}{Task 6: fix Monday's Task 5}
-  \taskhead{Task}{Open the template from \ghlink{Task6}: Monday's Task 5, already solved. Protect \texttt{counter++}
-    with a FreeRTOS mutex.}
-  \footnotesize
-  \begin{enumerate}\setlength{\itemsep}{6pt}
-    \item Create the mutex in \texttt{setup()}, and lock and unlock it around \texttt{counter++}.
-    \item Run it several times. What does the LCD show now?
-    \item Is it faster or slower than on Monday? Why?
-  \end{enumerate}
-  \vfill
-  \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
-    \scriptsize\textbf{If you finish early:} use the idea of the local sum from Task 5. How many times does each task
-    take the mutex now?
-  \end{beamercolorbox}
-\end{frame}
-
-\begin{frame}{Solution: fix Monday's Task 5}
-  \vfill
-  \stepbox{Question 2}{\texttt{Got: 2000000}, every time.}
-  \stepbox{Question 3}{Slower: two million times \texttt{xSemaphoreTake} and \texttt{xSemaphoreGive}, and the tasks
-    wait for each other. The same as Task 4 today.}
-  \stepbox{If you finished early}{Each task counts in a local variable and takes the mutex \textbf{once}, at the end.
-    Correct and fast.}
-  \vfill
-  \keymsg{The same idea everywhere: FreeRTOS, C++, every operating system.}
-\end{frame}
-
-% =====================================================================
 \section{Summary}
 % =====================================================================
 
@@ -3690,12 +3528,9 @@ void setup() {
         {\textbf{Fixes}\\[2pt] mutex, atomic, local sum; being correct costs time};
       \node[sbox, draw=nLine, fill=nFill] (d) at (10.8,0)
         {\textbf{Deadlock}\\[2pt] many small locks can stop the program: Wednesday};
-      \node[sbox, draw=nLine, fill=nFill] (e) at (14.4,0)
-        {\textbf{ESP32}\\[2pt] the same mutex in FreeRTOS: \texttt{xSemaphoreTake}, \texttt{xSemaphoreGive}};
       \draw[->, very thick, DeepBlue] (a) -- (b);
       \draw[->, very thick, DeepBlue] (b) -- (c);
       \draw[->, very thick, DeepBlue] (c) -- (d);
-      \draw[->, very thick, DeepBlue] (d) -- (e);
     \end{tikzpicture}}
   \end{center}
   \vfill
@@ -3706,7 +3541,7 @@ void setup() {
   \vfill
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
-    \item What is the difference between a process and a thread? What do the threads of one process share?
+    \item What do the threads of one program share, and what does each thread have of its own?
     \item Why does \texttt{counter++} lose updates? Use the words \emph{read}, \emph{add} and \emph{write}.
     \item Why does \texttt{std::lock\_guard} unlock the mutex even after an early \texttt{return}?
     \item Why is the mutex version correct but slow? What did the local-sum version do better?

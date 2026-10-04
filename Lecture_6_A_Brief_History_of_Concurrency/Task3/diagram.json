@@ -11,51 +11,66 @@
       "attrs": {}
     },
     {
-      "type": "wokwi-led",
-      "id": "led1",
-      "top": 95,
-      "left": 185,
-      "attrs": {
-        "color": "red"
-      }
-    },
-    {
-      "type": "wokwi-resistor",
-      "id": "r1",
-      "top": 174.35,
-      "left": 170.45,
-      "rotate": 90,
-      "attrs": {
-        "value": "220"
-      }
-    },
-    {
-      "type": "wokwi-pushbutton",
-      "id": "btnA",
-      "top": 40,
-      "left": 170,
-      "attrs": {
-        "color": "green",
-        "bounce": "0"
-      }
-    },
-    {
       "type": "wokwi-lcd1602",
       "id": "lcd",
-      "top": -175,
-      "left": 170,
+      "top": 260,
+      "left": -60,
       "attrs": {
         "pins": "i2c"
       }
     },
     {
-      "type": "wokwi-pushbutton",
-      "id": "btnB",
-      "top": -25,
-      "left": 170,
+      "type": "wokwi-hc-sr04",
+      "id": "sonar",
+      "top": -330,
+      "left": -60,
       "attrs": {
-        "color": "blue",
-        "bounce": "0"
+        "distance": "100"
+      }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz",
+      "top": 200,
+      "left": -60,
+      "attrs": {
+        "volume": "0.2"
+      }
+    },
+    {
+      "type": "wokwi-a4988",
+      "id": "drvL",
+      "top": 40,
+      "left": -150,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-a4988",
+      "id": "drvR",
+      "top": 40,
+      "left": 180,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-stepper-motor",
+      "id": "wheelL",
+      "top": -30,
+      "left": -330,
+      "attrs": {
+        "size": "17",
+        "arrow": "orange",
+        "display": "none"
+      }
+    },
+    {
+      "type": "wokwi-stepper-motor",
+      "id": "wheelR",
+      "top": -30,
+      "left": 280,
+      "attrs": {
+        "size": "17",
+        "arrow": "orange",
+        "display": "none"
       }
     }
   ],
@@ -71,52 +86,6 @@
       "$serialMonitor:TX",
       "",
       []
-    ],
-    [
-      "esp:4",
-      "led1:A",
-      "green",
-      [
-        "h68.5",
-        "v106.5",
-        "h50"
-      ]
-    ],
-    [
-      "led1:C",
-      "r1:1",
-      "green",
-      []
-    ],
-    [
-      "esp:GND.6",
-      "r1:2",
-      "black",
-      [
-        "h20",
-        "v81.1",
-        "h88.5"
-      ]
-    ],
-    [
-      "esp:5",
-      "btnA:1.l",
-      "green",
-      [
-        "h58.5",
-        "v-52.9"
-      ]
-    ],
-    [
-      "btnA:2.r",
-      "esp:GND.6",
-      "black",
-      [
-        "h23",
-        "v163",
-        "h-148.5",
-        "v-81.1"
-      ]
     ],
     [
       "esp:GND.10",
@@ -157,24 +126,124 @@
       ]
     ],
     [
-      "esp:6",
-      "btnB:1.l",
-      "green",
-      [
-        "h48.5",
-        "v-108.3"
-      ]
+      "esp:0",
+      "sonar:TRIG",
+      "orange",
+      []
     ],
     [
-      "btnB:2.r",
-      "esp:GND.6",
+      "esp:1",
+      "sonar:ECHO",
+      "gold",
+      []
+    ],
+    [
+      "esp:5V.2",
+      "sonar:VCC",
+      "red",
+      []
+    ],
+    [
+      "esp:GND.4",
+      "sonar:GND",
       "black",
-      [
-        "h23",
-        "v228",
-        "h-148.5",
-        "v-81.1"
-      ]
+      []
+    ],
+    [
+      "esp:10",
+      "bz:2",
+      "red",
+      []
+    ],
+    [
+      "bz:1",
+      "esp:GND.3",
+      "black",
+      []
+    ],
+    [
+      "esp:4",
+      "drvL:STEP",
+      "green",
+      []
+    ],
+    [
+      "esp:5",
+      "drvL:DIR",
+      "blue",
+      []
+    ],
+    [
+      "drvL:SLEEP",
+      "drvL:RESET",
+      "gray",
+      []
+    ],
+    [
+      "drvL:2B",
+      "wheelL:A-",
+      "purple",
+      []
+    ],
+    [
+      "drvL:2A",
+      "wheelL:A+",
+      "purple",
+      []
+    ],
+    [
+      "drvL:1A",
+      "wheelL:B+",
+      "purple",
+      []
+    ],
+    [
+      "drvL:1B",
+      "wheelL:B-",
+      "purple",
+      []
+    ],
+    [
+      "esp:4",
+      "drvR:STEP",
+      "green",
+      []
+    ],
+    [
+      "esp:5",
+      "drvR:DIR",
+      "blue",
+      []
+    ],
+    [
+      "drvR:SLEEP",
+      "drvR:RESET",
+      "gray",
+      []
+    ],
+    [
+      "drvR:2B",
+      "wheelR:A-",
+      "purple",
+      []
+    ],
+    [
+      "drvR:2A",
+      "wheelR:A+",
+      "purple",
+      []
+    ],
+    [
+      "drvR:1A",
+      "wheelR:B+",
+      "purple",
+      []
+    ],
+    [
+      "drvR:1B",
+      "wheelR:B-",
+      "purple",
+      []
     ]
   ],
   "dependencies": {}

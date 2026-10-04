@@ -2604,7 +2604,7 @@
 %   The student clicks which thread runs the next step. Beside it: the wait-for graph, arrows "holds" (solid)
 %   and "waits for" (dashed). When a circle appears: a red message "Deadlock", the thread buttons are disabled.
 %   A counter "orders tried", a button "Reset". Same screen layout as the topic "Mutex" from Tuesday.
-\begin{frame}{Simulator 10: deadlock}
+\begin{frame}{Simulator 7: deadlock}
   \taskhead{Simulator task}{Topic \simtab{Deadlock}: thread A locks X, then Y. Thread B locks Y, then X.
     You choose which thread runs the next step.}
   \footnotesize
@@ -2616,7 +2616,7 @@
   \simfoot{\simaddr{Deadlock}}
 \end{frame}
 
-\begin{frame}{Solution: Simulator 10}
+\begin{frame}{Solution: Simulator 7}
   \begin{columns}[c,onlytextwidth]
     \column{0.5\textwidth}
       \stepbox{Question 1}{\textbf{Two} steps are enough: A locks X, B locks Y. Now A waits for Y and B waits for X:
@@ -3136,7 +3136,7 @@ int main() {
 % SIMULATOR (topic "Producer-consumer"): buffer size 1-8 (default 5), speed sliders for the producer and the consumer
 %   (items per second), an option "random short pauses", the state of each thread (Running / Blocked) in the colours
 %   of Monday, counters "produced / consumed", a chart of the buffer fill over time. Button "Pause".
-\begin{frame}{Simulator 11: producer and consumer}
+\begin{frame}{Simulator 8: producer and consumer}
   \taskhead{Simulator task}{Topic \simtab{Producer-consumer}. Buffer size = 5.}
   \footnotesize
   \begin{enumerate}\setlength{\itemsep}{6pt}
@@ -3149,7 +3149,7 @@ int main() {
   \simfoot{\simaddr{Producer-consumer}}
 \end{frame}
 
-\begin{frame}{Solution: Simulator 11}
+\begin{frame}{Solution: Simulator 8}
   \begin{columns}[T,onlytextwidth]
     \column{0.48\textwidth}
       \stepbox{Question 1}{The buffer fills up. Then the producer is \textbf{Blocked} most of the time:

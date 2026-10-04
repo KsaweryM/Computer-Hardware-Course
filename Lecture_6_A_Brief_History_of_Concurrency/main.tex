@@ -1122,6 +1122,75 @@
     \fi
   \end{tikzpicture}}
 
+% ---------- the robot of Task 3 (the parts as in Wokwi, the wires as thick buses) ----------
+\definecolor{SonarBlue}{RGB}{20,90,160}
+\definecolor{DriverGreen}{RGB}{20,130,70}
+\tikzset{
+  % HC-SR04 distance sensor, origin = bottom left, 2.6 x 1.1
+  pics/wsonar/.style={code={
+    \fill[SonarBlue, rounded corners=1.5pt] (0,0) rectangle (2.6,1.1);
+    \foreach \x in {0.58,2.02} {
+      \fill[gray!45] (\x,0.55) circle (0.43);
+      \fill[black!70] (\x,0.55) circle (0.33);
+      \foreach \r in {0.08,0.16,0.24} \draw[gray!60, line width=0.3pt] (\x,0.55) circle (\r);
+    }
+    \fill[gray!70, rounded corners=0.5pt] (1.15,0.62) rectangle (1.45,0.78);
+    \node[font=\pinfont\bfseries, text=white] at (1.3,0.95) {HC-SR04};
+    \foreach \x in {0.95,1.15,1.45,1.65} \fill[MacYellow] (\x,0.1) circle (0.04);
+  }},
+  % A4988 stepper driver, origin = bottom left, 0.9 x 1.1
+  pics/wdriver/.style={code={
+    \fill[DriverGreen, rounded corners=1pt] (0,0) rectangle (0.9,1.1);
+    \fill[black!85] (0.27,0.3) rectangle (0.63,0.66);
+    \node[font=\pinfont\bfseries, text=white] at (0.45,0.88) {A4988};
+    \foreach \y in {0.15,0.3,...,0.96} { \fill[MacYellow] (0.08,\y) circle (0.03); \fill[MacYellow] (0.82,\y) circle (0.03); }
+  }},
+  % stepper motor (NEMA 17) seen from the front, origin = centre; the orange arrow shows its position
+  pics/wstepper/.style={code={
+    \fill[gray!35, rounded corners=3pt] (-0.8,-0.8) rectangle (0.8,0.8);
+    \foreach \x in {-1,1} \foreach \y in {-1,1} \fill[gray!60] (0.62*\x,0.62*\y) circle (0.07);
+    \fill[gray!55] (0,0) circle (0.5);
+    \fill[gray!25] (0,0) circle (0.3);
+    \draw[AccentOrange, line width=2pt, -{Stealth[length=4pt]}] (0,0) -- (40:0.55);
+    \fill[gray!80] (0,0) circle (0.1);
+  }},
+  % buzzer, origin = centre
+  pics/wbuzzer/.style={code={
+    \fill[black!85] (0,0) circle (0.38);
+    \draw[gray!60, line width=0.4pt] (0,0) circle (0.25);
+    \fill[gray!40] (0,0) circle (0.07);
+  }},
+  bus/.style={line width=2.4pt, gray!55},
+  buslabel/.style={font=\tiny, text=black, fill=white, inner sep=0.6pt},
+  partlabel/.style={font=\small\bfseries, text=nInk},
+}
+\newcommand{\robotpic}{%
+  \begin{tikzpicture}
+    \pic (esp) at (0,0) {esp32c3};
+    % distance sensor, above the board
+    \pic at (0.05,6.0) {wsonar};
+    \node[partlabel, anchor=south] at (1.35,7.12) {distance sensor};
+    \draw[bus] (2.35,4.9) -- (2.35,6.0) node[buslabel, midway] {GPIO 0, 1};
+    % wheels: a driver and a stepper motor on each side
+    \foreach \s/\dx/\mx/\t in {1/4.0/5.9/right wheel, -1/-2.2/-3.2/left wheel} {
+      \pic at (\dx,1.9) {wdriver};
+      \pic at (\mx,2.45) {wstepper};
+      \node[partlabel, anchor=south] at (\mx,3.3) {\t};
+      \node[partlabel, anchor=north] at ({\dx+0.45},1.85) {driver};
+      \foreach \y in {2.2,2.35,2.55,2.7}
+        \draw[ProgramPurple, line width=0.8pt] ({\dx+0.45+0.45*\s},\y) -- ({\mx-0.8*\s},\y);
+    }
+    \draw[bus] (2.7,2.45) -- (4.0,2.45) node[buslabel, midway] {GPIO 4, 5};
+    \draw[bus] (0,2.45) -- (-1.3,2.45) node[buslabel, midway] {GPIO 4, 5};
+    % buzzer and LCD, below the board
+    \pic at (0.35,-1.05) {wbuzzer};
+    \node[partlabel, anchor=east] at (-0.15,-1.05) {buzzer};
+    \draw[bus] (0.35,-0.05) -- (0.35,-0.67) node[buslabel, midway] {GPIO 10};
+    \pic at (0.85,-3.05) {wlcd};
+    \node[partlabel, anchor=north] at (2.35,-3.1) {LCD};
+    \draw[bus] (2.25,-0.05) -- (2.25,-1.85) node[buslabel, midway] {GPIO 8, 9};
+  \end{tikzpicture}}
+
 % ---------- power: VCC, GND and a closed loop ----------
 \newcommand{\powerexplain}{%
   \begin{tikzpicture}[font=\scriptsize, >=Stealth]
@@ -2060,6 +2129,90 @@
   \end{tikzpicture}}
 
 % ---------- context switch in 4 steps ----------
+% ---------- a context switch with the code: task A, the tick handler (simplified), task B ----------
+% #1 step: 1 A runs, 2 tick: save A, 3 scheduler, 4 switch the stack, 5 restore B and B runs
+\newcommand{\ctxpass}[1]{%
+  \begin{tikzpicture}[>=Stealth, font=\scriptsize,
+      ln/.style={draw=nLine, fill=white, minimum height=0.38cm, inner sep=1pt, font=\ttfamily\scriptsize,
+        anchor=west, text width=2.95cm},
+      lnh/.style={ln, text width=4.6cm},
+      run/.style={aexec, label={[text=aExec, inner sep=1pt, font=\tiny]left:$\blacktriangleright$}},
+      preg/.style={draw=nLine, very thick, fill=white, rounded corners=2pt, minimum width=2.5cm,
+        minimum height=0.42cm, font=\scriptsize},
+      mcell/.style={draw=nLine, thick, fill=nUsed, minimum width=2.6cm, minimum height=0.42cm, inner sep=0pt,
+        font=\tiny},
+      free/.style={mcell, fill=white, dashed, draw=nLine!60}]
+    \useasboundingbox (-0.3,-0.7) rectangle (14.6,5.85);
+    % which line runs
+    \ifnum#1=1 \def\ra{1}\else \def\ra{99}\fi
+    \ifnum#1=5 \def\rb{2}\else \def\rb{99}\fi
+    \ifcase#1 \or \def\rh{99}\or \def\rh{0}\or \def\rh{1}\or \def\rh{2}\or \def\rh{99}\fi
+    % ----- task A -----
+    \node[font=\scriptsize\bfseries, text=nText, anchor=west] at (0.4,5.6) {task A \mdseries(blinks the LED)};
+    \foreach \a/\t [count=\k from 0] in {0x0208/{li\ \ \ t0, 0}, 0x020C/{addi t0, t0, 1}, 0x0210/{sw\ \ \ t0, 0(a0)},
+        0x0214/{j\ \ \ \ 0x020C}} {
+      \ifnum\k=\ra \tikzset{cur/.style={ln, run}}\else \tikzset{cur/.style={ln}}\fi
+      \node[cur] at (0.4,{5.15-0.42*\k}) {\a\ \ \t};
+    }
+    \ifnum#1>1 \node[font=\tiny, text=gray, anchor=west] at (0.4,3.5) {paused, next: \texttt{0x0210}}; \fi
+    % ----- the tick handler -----
+    \node[font=\scriptsize\bfseries, text=nText, anchor=west] at (4.75,5.6) {tick handler \mdseries(simplified)};
+    \foreach \t [count=\k from 0] in {{save all registers + PC on its stack}, {next = scheduler()},
+        {sp = the stack of next}, {restore all registers + PC, return}} {
+      \ifnum\k=\rh \tikzset{cur/.style={lnh, run}}\else \tikzset{cur/.style={lnh}}\fi
+      \node[cur] at (4.75,{5.15-0.42*\k}) {\t};
+    }
+    % ----- task B -----
+    \node[font=\scriptsize\bfseries, text=nText, anchor=west] at (10.95,5.6) {task B \mdseries(counts)};
+    \foreach \a/\t [count=\k from 0] in {0x0300/{li\ \ \ t0, 0}, 0x0304/{add\ \ t0, t0, t1}, 0x0308/{addi t1, t1, 1},
+        0x030C/{j\ \ \ \ 0x0304}} {
+      \ifnum\k=\rb \tikzset{cur/.style={ln, run}}\else \tikzset{cur/.style={ln}}\fi
+      \node[cur] at (10.95,{5.15-0.42*\k}) {\a\ \ \t};
+    }
+    \ifnum#1<5 \node[font=\tiny, text=gray, anchor=west] at (10.95,3.5) {paused, next: \texttt{0x0308}}; \fi
+    % ----- the stacks, under their tasks; two free cells above the used part -----
+    \node[font=\tiny\bfseries, text=nText] at (1.9,2.65) {stack of A};
+    \node[font=\tiny\bfseries, text=nText] at (12.45,2.65) {stack of B};
+    \foreach \x/\n in {1.9/A, 12.45/B} {
+      \node[mcell] at (\x,0.2) {data of \n};
+      \node[mcell] (d\n) at (\x,0.62) {data of \n};
+    }
+    \ifnum#1<2
+      \node[free] (cA) at (1.9,1.04) {};
+    \else
+      \node[mcell] (cA) at (1.9,1.04) {A's PC (0x0210) + registers};
+    \fi
+    \node[free] at (1.9,1.46) {}; \node[free] at (1.9,1.88) {};
+    \ifnum#1<5
+      \node[mcell] (cB) at (12.45,1.04) {B's PC (0x0308) + registers};
+    \else
+      \node[free, text=gray] (cB) at (12.45,1.04) {B's PC (0x0308) + registers};
+    \fi
+    \node[free] at (12.45,1.46) {}; \node[free] at (12.45,1.88) {};
+    % ----- the CPU, in the middle -----
+    \ifcase#1 \or \def\pcv{0x020C}\def\who{A's}\or \def\pcv{in the handler}\def\who{A's}\or \def\pcv{in the handler}\def\who{A's}%
+      \or \def\pcv{in the handler}\def\who{A's}\or \def\pcv{0x0308}\def\who{B's}\fi
+    \draw[nLine, thick, rounded corners=4pt, fill=gray!4] (5.9,0.25) rectangle (8.45,2.45);
+    \node[anchor=north west, font=\tiny\bfseries, text=nText] at (5.95,2.42) {CPU};
+    \node[preg] (pc) at (7.18,1.8) {\textbf{PC}\ \ \texttt{\pcv}};
+    \node[preg] (rg) at (7.18,1.28) {\textbf{registers}\ \ \who};
+    \node[preg] (sp) at (7.18,0.68) {\textbf{sp}};
+    \ifnum#1=1 \draw[->, very thick, nInk] (sp.west) -- (dA.east); \fi
+    \ifnum#1=2 \draw[->, very thick, nInk] (sp.west) -- (cA.east); \fi
+    \ifnum#1=3 \draw[->, very thick, nInk] (sp.west) -- (cA.east); \fi
+    \ifnum#1=4 \draw[->, very thick, nInk] (sp.east) -- (cB.west); \fi
+    \ifnum#1=5 \draw[->, very thick, nInk] (sp.east) -- (dB.west); \fi
+    % ----- what is read and written -----
+    \ifnum#1=2 \draw[aread] (rg.south west) rectangle (pc.north east); \draw[awrite] (cA.south west) rectangle (cA.north east); \fi
+    \ifnum#1=4 \draw[awrite] (sp.south west) rectangle (sp.north east); \fi
+    \ifnum#1=5 \draw[aread] (cB.south west) rectangle (cB.north east); \draw[awrite] (rg.south west) rectangle (pc.north east); \fi
+    \ifnum#1=2 \node[font=\scriptsize\bfseries, text=cIO, anchor=west] at (7.6,5.6) {\faClock\ tick!}; \fi
+    % ----- legend -----
+    \node[font=\tiny] at (7.18,-0.45) {\textcolor{aExec}{$\blacktriangleright$}\ the code that runs
+      \quad\tikz[baseline=-0.6ex]\draw[awrite] (0,-0.07) rectangle (0.32,0.11);\ written
+      \quad\tikz[baseline=-0.6ex]\draw[aread] (0,-0.07) rectangle (0.32,0.11);\ read};
+  \end{tikzpicture}}
+
 % #1 = step (1 tick, 2 save A, 3 choose B, 4 restore B)
 \newcommand{\ctxswitch}[1]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize,
@@ -2282,8 +2435,12 @@
         \textcolor{gray}{\small One processor, several tasks}
         \vspace{0.3cm}
 
-        \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{6. FreeRTOS} \\
-        \textcolor{gray}{\small A real scheduler on the ESP32-C3}
+        \item[\textcolor{DeepBlue}{\faMicrochip}] \textbf{6. FreeRTOS tasks} \\
+        \textcolor{gray}{\small Create your own tasks: program a robot}
+        \vspace{0.3cm}
+
+        \item[\textcolor{DeepBlue}{\faCogs}] \textbf{7. Under the hood} \\
+        \textcolor{gray}{\small Stacks, the context switch, task states, a race}
       \end{itemize}
   \end{columns}
 \end{frame}
@@ -3772,10 +3929,13 @@ void IRAM_ATTR onTick() {        // every 100 ms
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
         \item Which LEDs change at tick \textbf{15}? At tick \textbf{21}? At tick \textbf{35}?
-        \item When are all three LEDs \textbf{on at the same time} for the first time?
-        \item When do all three \textbf{turn on in the same tick} for the first time? Calculate it with the
-          least common multiple, then check.
-        \item All three change together again at the next such tick. Do they turn on, or off, then?
+        \item Without the simulator:
+          \begin{enumerate}
+            \item[a)] When do all three \textbf{change in the same tick} for the first time? Use the least common
+              multiple.
+            \item[b)] At that tick, do all three turn \textbf{on}? Or do some turn on and some turn off?
+          \end{enumerate}
+        \item Check 2a and 2b in the simulator. When will the \textbf{next} such tick come?
       \end{enumerate}
     \column{0.42\textwidth}
       \centering\footnotesize
@@ -3791,7 +3951,7 @@ void IRAM_ATTR onTick() {        // every 100 ms
       \end{tabular}
       \vspace{0.15cm}
       \defbox{\textbf{Least common multiple} (LCM): the smallest number divisible by all of them.
-        Example: LCM(4, 6) = 12.}
+        For two numbers: LCM(4, 6) = 12. For three: LCM(2, 3, 4) = 12.}
   \end{columns}
   \simfoot{\simaddr{Timer and tick}}
 \end{frame}
@@ -3813,14 +3973,16 @@ void IRAM_ATTR onTick() {        // every 100 ms
         \bottomrule
       \end{tabular}
     \column{0.55\textwidth}
-      \stepbox{Question 2}{After tick \textbf{9} (0.9 s), for one tick: LED 2 turns off at tick 10.}
-      \stepbox{Question 3}{LCM(3, 5, 7) = \textbf{105}: tick 105, after 10.5 s. Each LED changed an \textbf{odd}
-        number of times (35, 21, 15), so all three turn on.}
-      \stepbox{Question 4}{Tick 210, after 21 s. An \textbf{even} number of changes (70, 42, 30): all three turn
-        \textbf{off}.}
+      \stepbox{Question 2}{a) LCM(3, 5, 7) = \textbf{105}: tick 105, after 10.5 s.\\
+        b) Each LED has changed an \textbf{odd} number of times (35, 21, 15): all three turn \textbf{on}.}
+      \stepbox{Question 3}{The simulator agrees. The next such tick is \textbf{210}, after 21 s. There each LED has
+        changed an \textbf{even} number of times (70, 42, 30): all three turn \textbf{off}.}
   \end{columns}
   \vfill
-  \keymsg{``On at the same time'' and ``turn on in the same tick'' are different questions. Only the second one is the LCM.}
+  {\scriptsize\textcolor{gray}{With periods 5 and 10 they change together at tick 10, but LED 1 turns off and LED 2 turns on:
+    they never turn on together.}\par}
+  \keymsg{The LCM tells \textbf{when} they change together. On or off depends on how many times each one has changed:
+    odd = on, even = off.}
 \end{frame}
 
 \begin{frame}{Build it: two more LEDs}
@@ -4004,6 +4166,21 @@ void loop() { showOnLcd(); }  // several ms
   \end{columns}
 \end{frame}
 
+% SIMULATOR (topic "Time slice"): tasks A, B, C take turns on one core; each moves its own runner from left to right
+%   (only in its own time slice). Time slice: 1 s, 500, 100, 50, 10, 1 ms (starts at 1 s). A strip "the core now".
+\begin{frame}{Simulator 4: time slices}
+  \taskhead{Simulator task}{Topic \simtab{Time slice}: tasks A, B and C take turns on one core. Each task moves its
+    own runner from left to right.}
+  \footnotesize
+  \begin{enumerate}\setlength{\itemsep}{8pt}
+    \item Choose a time slice of \textbf{1 s}. See: for the first second only task A runs, then B, then C.
+    \item Now make the time slice shorter, step by step. The shorter it is, the more the tasks look as if they ran
+      at the same time.
+    \item From which time slice can you no longer see that they take turns?
+  \end{enumerate}
+  \simfoot{\simaddr{Time slice}}
+\end{frame}
+
 \begin{frame}{Who decides when to switch?}
   \defbox{The \textbf{scheduler} is the part of the system that decides \textbf{which task runs next} and switches to it.}
   \vspace{0.15cm}
@@ -4015,49 +4192,241 @@ void loop() { showOnLcd(); }  // several ms
       \stepbox{Task 2}{tick $\to$ \textbf{which LED}?}
       \stepbox{The scheduler}{tick $\to$ \textbf{which task}?}
   \end{columns}
+\end{frame}
+
+\begin{frame}{The scheduler runs on a tick}
   \vfill
-  \keymsg{The same idea as in Task 2: a regular \textbf{tick}, and a decision at every tick.
-    On our ESP32 the tick comes every \textbf{1 ms}.}
-\end{frame}
-
-% SIMULATOR (topic "Time slice"): tasks A, B, C, round robin, time slice adjustable (1 ms ... 500 ms);
-%   two rows: what the core really does, and how it looks to us (A blinks an LED, B counts, C reads buttons).
-\begin{frame}{Simulator 4: time slices}
-  \taskhead{Simulator task}{Topic \simtab{Time slice}: tasks A, B and C take turns (round robin), one time slice = 1 ms.
-    Task A starts at 0 ms. \textbf{Predict first}, then check.}
-  \footnotesize
-  \begin{enumerate}\setlength{\itemsep}{6pt}
-    \item Which task runs from \textbf{7 to 8 ms}?
-    \item How many task switches happen in \textbf{one second}?
-    \item Set the time slice to \textbf{500 ms}. Look at the row \emph{how it looks to us}.
-      Do the tasks still seem to run at the same time?
-  \end{enumerate}
-  \simfoot{\simaddr{Time slice}}
-\end{frame}
-
-\begin{frame}{Solution: Simulator 4}
   \begin{center}
-    \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-      \tlbar{0}{CPU core}{0.8/cTaskA/A,0.8/cTaskB/B,0.8/cTaskC/C,0.8/cTaskA/A,0.8/cTaskB/B,0.8/cTaskC/C,
-        0.8/cTaskA/A,0.8/cTaskB/B,0.8/cTaskC/C}
-      \foreach \k in {0,...,9} \node[font=\tiny, text=nInk] at ({0.8*\k},-0.4) {\k};
-      \node[font=\tiny, text=nInk, anchor=west] at (7.35,-0.4) {ms};
-      \draw[AccentOrange, very thick, rounded corners=2pt] (5.6,-0.27) rectangle (6.4,0.27);
-    \end{tikzpicture}
+    \large The same idea as in Task 2:\\[2pt] a regular \textbf{tick}, and a \textbf{decision} at every tick.
   \end{center}
-  \vspace{0.1cm}
+  \vfill
   \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \stepbox{Question 1}{\textbf{B}: A, B, C, A, B, C, A, \textbf{B}.}
-    \column{0.31\textwidth}
-      \stepbox{Question 2}{\textbf{1000}: one switch every 1 ms.}
-    \column{0.31\textwidth}
-      \stepbox{Question 3}{\textbf{No}. Now you can see them take turns: the LED stops for a whole second
-        while B and C run.}
+    \column{0.48\textwidth}
+      \stepbox{Task 2}{A timer interrupt every \textbf{100 ms}.\\ Decision: which LED changes?}
+    \column{0.48\textwidth}
+      \stepbox{The scheduler}{A timer interrupt every \textbf{1 ms}.\\ Decision: which task runs?}
   \end{columns}
   \vfill
-  \keymsg{Concurrency works because the time slices are \textbf{short}: much shorter than anything we can notice.}
+  \keymsg{On our ESP32 the tick of the scheduler comes every \textbf{1 ms}: 1000 decisions per second.}
 \end{frame}
+
+% =====================================================================
+\section[FreeRTOS tasks]{FreeRTOS tasks}
+% =====================================================================
+
+\begin{frame}{A real scheduler: FreeRTOS}
+  \vfill
+  \defbox{\textbf{FreeRTOS} is a small operating system for microcontrollers: mainly a \textbf{scheduler}
+    plus tools that help tasks cooperate.}
+  \vspace{0.2cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.31\textwidth}
+      \stepbox{\faCode\ Free and open}{Open source. Runs on many processors, including RISC-V.}
+    \column{0.31\textwidth}
+      \stepbox{\faStopwatch\ RTOS}{\emph{Real-time operating system}: a task with a high priority reacts quickly.}
+    \column{0.31\textwidth}
+      \stepbox{\faMicrochip\ Everywhere}{Sensors, home appliances, cars, \ldots}
+  \end{columns}
+  \vfill
+  \keymsg{It is already on our ESP32, in the ESP32 libraries: nothing to install. Let us create our own tasks.}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.52\textwidth}
+\begin{lstlisting}[style=rtos]
+const int LED1 = 4;
+
+void blink1(void *param) {   // a task
+  for (;;) {
+    digitalWrite(LED1, HIGH);
+    delay(300);
+    digitalWrite(LED1, LOW);
+    delay(300);
+  }
+}
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  xTaskCreate(blink1, "blink1", 2048,
+              NULL, 1, NULL);
+}
+
+void loop() { }
+\end{lstlisting}
+    \column{0.45\textwidth}
+      \stepbox{The whole program}{One task blinks LED 1. \texttt{setup()} creates it.}
+      \stepbox{Two new things}{The task function and \texttt{xTaskCreate}. Let us look at them \textbf{one by one}.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task: the task function}
+  \begin{minipage}[c][0.68\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int LED1 = 4;
+
+void (*\hlcode{blink1(void *param)}*) {   // a task(*\eol*)
+  for (;;) {
+    digitalWrite(LED1, HIGH);
+    delay(300);
+    digitalWrite(LED1, LOW);
+    delay(300);
+  }
+}
+void setup() {
+  pinMode(LED1, OUTPUT);
+  xTaskCreate(blink1, "blink1", 2048,
+              NULL, 1, NULL);
+}
+void loop() { }
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.2cm]{A task is a function}{A normal C function with one parameter, \texttt{param}: any value we want to
+    give the task.\\[3pt] In FreeRTOS a task runs \textbf{forever}: inside, an \textbf{endless loop},
+    \texttt{for (;;)}.\\[3pt] To end, it must say so: \texttt{vTaskDelete(NULL)}.}
+\end{frame}
+
+\begin{frame}[fragile]{Creating a task: \texttt{xTaskCreate}}
+  \begin{minipage}[c][0.68\textheight][c]{0.55\textwidth}
+\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
+const int LED1 = 4;
+
+void blink1(void *param) {   // a task
+  for (;;) {
+    digitalWrite(LED1, HIGH);
+    delay(300);
+    digitalWrite(LED1, LOW);
+    delay(300);
+  }
+}
+void setup() {
+  pinMode(LED1, OUTPUT);
+  (*\hlcode{xTaskCreate}*)(blink1, "blink1", 2048,(*\eol*)
+              NULL, 1, NULL);
+}
+void loop() { }
+\end{lstlisting}
+  \end{minipage}
+  \codenote[0.6cm]{Start a new task}{\begin{tabular}{@{}l@{\ \ }l@{}}
+      \texttt{blink1} & the task function\\ \texttt{"blink1"} & a name, for us\\
+      \texttt{2048} & its own stack: 2048 bytes\\ \texttt{NULL} & \texttt{param}: nothing here\\
+      \texttt{1} & the priority\\ \texttt{NULL} & no handle: not needed\end{tabular}}
+  \vfill
+  \keymsg{From now on the scheduler gives \texttt{blink1} its time slices.}
+\end{frame}
+
+\begin{frame}{Our robot}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.56\textwidth}
+      \centering\resizebox{!}{0.8\textheight}{\robotpic}
+    \column{0.42\textwidth}
+      \stepbox{\faRobot\ What it does}{It drives forward while the obstacle is at least \textbf{20\,cm} away.\\[2pt]
+        Closer: it \textbf{stops} and \textbf{beeps}.\\[2pt] All the time, the LCD shows the distance.}
+      \stepbox{\faPlug\ The parts}{Two wheels (each a stepper motor with its driver), a distance sensor,
+        a buzzer and the LCD. Power wires are not shown.}
+      \vspace{0.1cm}
+      \keymsg{All the wires are ready. We only write the tasks.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{The robot's parts: ready functions}
+  We do not look inside: the functions are ready, in \texttt{robot.cpp}.
+  \vspace{0.25cm}
+  \begin{center}
+    \small
+    \begin{tabular}{@{}l@{\qquad}l@{}}
+      \toprule
+      \textbf{Function} & \textbf{What it does} \\
+      \midrule
+      \texttt{setupRobot()}       & sets up all the parts: call it first in \texttt{setup()} \\
+      \texttt{measureCm()}        & returns the distance to the obstacle in cm (takes 40\,ms) \\
+      \texttt{showDistance(cm)}   & shows a distance on the LCD \\
+      \texttt{beep()}             & one short beep \\
+      \texttt{forward()}          & the wheels turn forward \\
+      \texttt{backward()}         & the wheels turn backward \\
+      \texttt{stop()}             & the wheels stop \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \vfill
+  {\footnotesize\color{gray}\texttt{measureCm()} uses an \textbf{ISR} on the pin of the sensor: it notes when the
+    echo starts and ends. So a task switch cannot spoil the measurement.\par}
+\end{frame}
+
+\begin{frame}[fragile]{Task 3: program the robot}
+  \taskhead{Task}{The template from \ghlink{Task3}. The task \texttt{watch} is ready: every 100\,ms it
+    measures \texttt{distance}. Write the other tasks in the same way.}
+  \footnotesize
+  \begin{enumerate}\setlength{\itemsep}{3pt}
+    \item Run it and move the slider of the sensor (click the sensor in Wokwi). Watch the Serial Monitor.
+    \item \texttt{show}: every 200\,ms, \texttt{showDistance(distance)}.
+    \item \texttt{drive}: every 50\,ms, \texttt{forward()} when \texttt{distance >= 20}, else \texttt{stop()}.
+    \item \texttt{warn}: every 500\,ms, \texttt{beep()} when \texttt{distance < 20}.
+    \item Create the three tasks in \texttt{setup()}.
+  \end{enumerate}
+  \vfill
+  \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
+    \scriptsize\textbf{Finished early?} Extend the robot: see the box at the end of \texttt{Task3.ino}.
+  \end{beamercolorbox}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: the tasks}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+\begin{lstlisting}[style=rtos]
+void show(void *param) {
+  for (;;) {
+    showDistance(distance);
+    delay(200);
+  }
+}
+void drive(void *param) {
+  for (;;) {
+    if (distance >= 20) forward();
+    else stop();
+    delay(50);
+  }
+}
+void warn(void *param) {
+  for (;;) {
+    if (distance < 20) beep();
+    delay(500);
+  }
+}
+\end{lstlisting}
+    \column{0.46\textwidth}
+      \stepbox{Each task is like \texttt{watch}}{An endless loop: do one small job, then \texttt{delay()}.}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: \texttt{setup()} and \texttt{loop()}}
+\begin{lstlisting}[style=rtos]
+void setup() {
+  setupRobot();
+  xTaskCreate(watch, "watch", 4096, NULL, 1, NULL);   // it prints: a bigger stack
+  xTaskCreate(show,  "show",  4096, NULL, 1, NULL);
+  xTaskCreate(drive, "drive", 2048, NULL, 1, NULL);
+  xTaskCreate(warn,  "warn",  2048, NULL, 1, NULL);
+}
+
+void loop() {
+  vTaskDelete(NULL);
+}
+\end{lstlisting}
+  \vfill
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \stepbox{\texttt{setup()}}{Sets up the robot and creates four tasks. Then it ends: the tasks keep running.}
+    \column{0.48\textwidth}
+      \stepbox{\texttt{loop()}}{Not needed. It runs in a task too (\texttt{loopTask}), so it ends this task with
+        \texttt{vTaskDelete(NULL)}.}
+  \end{columns}
+  \vfill
+\end{frame}
+
+% =====================================================================
+\section[Under the hood]{Under the hood}
+% =====================================================================
 
 \begin{frame}{What does a task need to continue later?}
   \begin{beamercolorbox}[rounded=true,sep=0.12cm,wd=\textwidth]{block body}
@@ -4075,7 +4444,7 @@ void loop() { showOnLcd(); }  // several ms
   \vspace{0.25cm}
   \uncover<4->{\defbox{Together this is the task's \textbf{context}.}}
   \vfill
-  \uncover<4->{\keymsg{The interrupt entry code already puts \textbf{all} registers and \texttt{mepc} on the task's stack: that is its context.}}
+  \uncover<4->{\keymsg{When we switch from one task to another, the context of the current task is put on \textbf{its own stack}.}}
 \end{frame}
 
 \begin{frame}{Each task has its own stack}
@@ -4091,75 +4460,43 @@ void loop() { showOnLcd(); }  // several ms
   \keymsg{To switch tasks: save the registers on the old task's stack and \textbf{change} \texttt{sp}.}
 \end{frame}
 
-\begin{frame}{Context switch, step by step}
+\begin{frame}{Context switch: 1. task A runs}
   \begin{center}
-    \resizebox{!}{0.64\textheight}{%
-      \only<1>{\ctxswitch{1}}%
-      \only<2>{\ctxswitch{2}}%
-      \only<3>{\ctxswitch{3}}%
-      \only<4>{\ctxswitch{4}}%
-    }
+    \resizebox{!}{0.6\textheight}{\ctxpass{1}}
   \end{center}
-  \vspace{-0.15cm}
-  \only<1>{\stepbox{\badge{1}\ Tick}{Task A runs. The tick arrives: \texttt{mepc} $\leftarrow$ PC, PC $\leftarrow$ \texttt{mtvec}. The CPU jumps to the
-    interrupt entry code, not straight to the scheduler: the scheduler runs later, inside this interrupt.}}
-  \only<2>{\stepbox{\badge{2}\ Save A}{The entry code puts A's registers and its PC (from \texttt{mepc}) onto \textbf{stack A}, as we saw.
-    The new top of stack A goes into the table of saved stack pointers.}}
-  \only<3>{\stepbox{\badge{3}\ Choose B}{Still inside the tick interrupt, the entry code calls the \textbf{scheduler}.
-    It picks the next task: \textbf{B}.}}
-  \only<4>{\stepbox{\badge{4}\ Restore B}{\texttt{sp} $\leftarrow$ the saved sp of B. B's registers and PC come back
-    from stack B: B continues as if nothing happened. These 4 steps are a \textbf{context switch}.}}
-\end{frame}
-
-% SIMULATOR (topic "Context switch"): the 4 steps of the slide before, with these values:
-%   CPU: PC = 0x0210, t0 = 7, t1 = 3, sp = 0x2000 (task A runs);
-%   stack B holds B's saved context: PC = 0x0308, t0 = 42, t1 = 9; saved sp of B = 0x2FF4;
-%   a context is 3 registers (PC, t0, t1) of 4 bytes, so saving moves sp down by 12 = 0xC.
-\begin{frame}{Simulator 5: a context switch}
-  \taskhead{Simulator task}{Topic \simtab{Context switch}. \textbf{Before each step}, predict what will change.
-    Then click \textbf{Next} and check.}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.45\textwidth}
-      \centering\footnotesize\textbf{At the start}\\[0.1cm]
-      \scriptsize
-      \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{lll}
-        \toprule
-        & \textcolor{cTaskA}{\textbf{CPU (task A runs)}} & \textcolor{cTaskB}{\textbf{saved on stack B}} \\
-        \midrule
-        \texttt{PC} & \texttt{0x0210} & \texttt{0x0308} \\
-        \texttt{t0} & \texttt{7}      & \texttt{42} \\
-        \texttt{t1} & \texttt{3}      & \texttt{9} \\
-        \texttt{sp} & \texttt{0x2000} & saved sp of B: \texttt{0x2FF4} \\
-        \bottomrule
-      \end{tabular}\\[0.15cm]
-      \raggedright Each register takes \textbf{4 bytes}. Here a context = \texttt{PC}, \texttt{t0}, \texttt{t1}
-      {\color{gray}(really: all registers)}.
-    \column{0.52\textwidth}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{5pt}
-        \item Step 2, \emph{Save A}: which values go onto stack A? What is the saved sp of A?
-        \item Step 4, \emph{Restore B}: what are \texttt{PC}, \texttt{t0}, \texttt{t1} and \texttt{sp} after the restore?
-        \item Where is A's \texttt{t0 = 7} now? Who gives it back to A, and when?
-      \end{enumerate}
-  \end{columns}
-  \simfoot{\simaddr{Context switch}}
-\end{frame}
-
-\begin{frame}{Solution: Simulator 5}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \stepbox{Question 1}{\texttt{0x0210}, \texttt{7} and \texttt{3}: 3 registers $\times$ 4 bytes = 12 = \texttt{0xC}.\\[0.05cm]
-        Saved sp of A: \texttt{0x2000} $-$ \texttt{0xC} = \textbf{\texttt{0x1FF4}}.}
-    \column{0.31\textwidth}
-      \stepbox{Question 2}{\texttt{PC} = \texttt{0x0308}, \texttt{t0} = \texttt{42}, \texttt{t1} = \texttt{9}.\\[0.05cm]
-        \texttt{sp} = \texttt{0x2FF4} + \texttt{0xC} = \textbf{\texttt{0x3000}}.}
-    \column{0.31\textwidth}
-      \stepbox{Question 3}{On \textbf{stack A}. The scheduler restores it at the next switch back to A,
-        exactly like B's values now.}
-  \end{columns}
   \vfill
-  \keymsg{Task A will never notice the break: its \texttt{t0} waits for it on its own stack.}
+  \stepbox{Task A runs}{It runs \texttt{addi} at 0x020C, and \texttt{sp} points to stack A. B was stopped earlier:
+    its PC and registers wait on stack B.}
+\end{frame}
+
+\begin{frame}{Context switch: 2. the tick, save A}
+  \begin{center}
+    \resizebox{!}{0.6\textheight}{\ctxpass{2}}
+  \end{center}
+  \vfill
+  \stepbox{The tick}{The timer interrupt arrives. A finishes \texttt{addi} and stops. The tick handler puts A's PC
+    (0x0210) and \textbf{all} its registers onto stack A.}
+\end{frame}
+
+\begin{frame}{Context switch: 3. choose B}
+  \begin{center}
+    \resizebox{!}{0.6\textheight}{\ctxpass{3}}
+  \end{center}
+  \vfill
+  \stepbox{The scheduler}{We are still in the tick handler: A and B are both paused. The scheduler picks the next task:
+    \textbf{B}.}
+\end{frame}
+
+\begin{frame}{Context switch: 4. restore B}
+  \begin{center}
+    \resizebox{!}{0.6\textheight}{\only<1>{\ctxpass{4}}\only<2>{\ctxpass{5}}}
+  \end{center}
+  \vfill
+  \only<1>{\stepbox{Switch the stack}{\texttt{sp} now points to stack B. (The scheduler remembers where stack A ends,
+    to come back to it later.)}}%
+  \only<2>{\stepbox{Restore B}{B's PC and registers come back from stack B. B continues at 0x0308, as if nothing
+    happened. These steps together are a \textbf{context switch}: an interrupt that returns to a
+    \textbf{different} task.}}
 \end{frame}
 
 \begin{frame}{Task states}
@@ -4171,104 +4508,10 @@ void loop() { showOnLcd(); }  // several ms
       \stepbox{Running}{On one core only \textbf{one} task runs at a time.}
       \stepbox{Ready}{Could run, waits for its turn.}
       \stepbox{Blocked}{Waits for something: a delay, a button. Gets \textbf{no} time slices.}
-      \stepbox{Nobody is Ready?}{Then the CPU runs a special task that does nothing: \textbf{IDLE}.}
   \end{columns}
   \vfill
-  \keymsg{A Blocked task uses \textbf{no processor time}, unlike polling.}
-\end{frame}
-
-\begin{frame}{Which task runs next?}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.47\textwidth}
-      \stepbox{Round robin}{Tasks with the \textbf{same priority} take turns, one time slice each.}
-      \stepbox{Priorities}{A Ready task with a \textbf{higher priority} always runs first.
-        It even stops (preempts) a running task with a lower priority.}
-    \column{0.5\textwidth}
-      \centering
-      \resizebox{0.95\linewidth}{!}{\rrqueue}
-  \end{columns}
-  \vfill
-  \keymsg{The scheduler picks the Ready task with the \textbf{highest priority}; equal priorities take turns.}
-\end{frame}
-
-% SIMULATOR (topic "States and priorities"): A, B, C priority 1 (round robin, 1 ms), H priority 2 waits
-%   for the button; C calls a 3 ms delay at 2 ms; a CPU usage bar that includes the IDLE task.
-% SIMULATOR (topic "Shared counter"): two tasks, each does counter++ three times, the counter starts at 0;
-%   the moments of the switches are random, so some runs give 4 or 5. Do NOT show the read and the write
-%   of counter++ separately: the explanation is on Tuesday.
-\begin{frame}{Simulator 6: states, priorities and a shared counter}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.52\textwidth}
-      \taskhead{Simulator task}{Topic \simtab{States and priorities}: A, B and C have priority 1.
-        Task H has priority 2 and waits for the button.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item At 2 ms, task C calls a 3 ms delay. In which state is C from 2 to 5 ms? Does it get any time slices?
-        \item Press the button: H becomes Ready. What happens to the task that is running?
-        \item What runs when A, B and C are all Blocked?
-      \end{enumerate}
-    \column{0.45\textwidth}
-      \taskhead{Then}{Topic \simtab{Shared counter}: two tasks, each adds 1 to \texttt{counter} three times.
-        The counter starts at 0.}
-      \footnotesize
-      \begin{enumerate}\setcounter{enumi}{3}\setlength{\itemsep}{4pt}
-        \item \textbf{Predict} the final value.
-        \item Click \textbf{Run} three times and write down the results.
-      \end{enumerate}
-  \end{columns}
-  \simfoot{\simaddr{States and priorities}\quad \simaddr{Shared counter}}
-\end{frame}
-
-\begin{frame}{Solution: Simulator 6}
-  \vfill
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{Question 1}{\textbf{Blocked}: no time slices. At 5 ms it becomes Ready again.}
-      \stepbox{Question 2}{It is stopped at once and goes to Ready. \textbf{H} runs.
-        When H waits again, A, B and C continue.}
-      \stepbox{Question 3}{The \textbf{IDLE} task.}
-    \column{0.48\textwidth}
-      \stepbox{Questions 4 and 5}{We expect \textbf{6}. But some runs give \textbf{4} or \textbf{5},
-        and the result changes from run to run.}
-      \probbox{Some additions were lost}{Two tasks, six additions, and the counter did not count them all. Why?
-        Keep this question: we will meet it again at the end of today.}
-  \end{columns}
-\end{frame}
-
-% =====================================================================
-\section{FreeRTOS}
-% =====================================================================
-
-\begin{frame}{A real scheduler: FreeRTOS}
-  \vfill
-  \defbox{\textbf{FreeRTOS} is a small operating system for microcontrollers: mainly a \textbf{scheduler}
-    plus tools that help tasks cooperate.}
-  \vspace{0.2cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \stepbox{\faCode\ Free and open}{Open source. Runs on many processors, including RISC-V.}
-    \column{0.31\textwidth}
-      \stepbox{\faStopwatch\ RTOS}{\emph{Real-time operating system}: a task with a high priority reacts quickly.}
-    \column{0.31\textwidth}
-      \stepbox{\faMicrochip\ Everywhere}{Sensors, home appliances, cars, \ldots}
-  \end{columns}
-  \vfill
-  \keymsg{Everything from \emph{The scheduler} is inside: the tick, time slices, states, priorities and the context switch.}
-\end{frame}
-
-\begin{frame}{You have used FreeRTOS all along}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
-      \centering
-      \resizebox{\linewidth}{!}{\rtostasks}
-    \column{0.42\textwidth}
-      \stepbox{\texttt{loopTask}}{On the ESP32, your \texttt{setup()} and \texttt{loop()} already run
-        \textbf{inside a FreeRTOS task}.}
-      \stepbox{\texttt{delay()} = \texttt{vTaskDelay()}}{On the ESP32, \texttt{delay()} makes the task
-        \textbf{Blocked}: while your \texttt{loop()} waited, it did not waste the CPU.}
-  \end{columns}
-  \vfill
-  \keymsg{Nothing to install: we can create our own tasks.}
+  \keymsg{\texttt{delay()} in a task makes it \textbf{Blocked}: it uses \textbf{no processor time}, unlike polling.
+    That is why all the tasks of our robot can wait.}
 \end{frame}
 
 \begin{frame}{Back to the ISR rule: \texttt{delay()} in an ISR}
@@ -4283,389 +4526,39 @@ void loop() { showOnLcd(); }  // several ms
   \keymsg{An ISR is not a task: the scheduler cannot put it to sleep. That is why an ISR must never wait.}
 \end{frame}
 
-\begin{frame}[fragile]{Task 3: who runs \texttt{loop()}?}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-\begin{lstlisting}[style=rtos]
-void setup() {
-  Serial.begin(115200);
-  Serial.print("Task: ");
-  Serial.println(pcTaskGetName(NULL));
-  Serial.print("Priority: ");
-  Serial.println(uxTaskPriorityGet(NULL));
-}
-
-void loop() {
-  delay(1000);
-}
-\end{lstlisting}
-    \column{0.47\textwidth}
-      \taskhead{Task}{Any Wokwi project: replace \texttt{setup()} and \texttt{loop()} with this code (also on \ghlink{Task3}).
-        Run it and open the \textbf{Serial Monitor}.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Which task runs \texttt{setup()}?
-        \item What is its priority?
-      \end{enumerate}
-      \vspace{0.1cm}
-      \stepbox{New in this code}{\texttt{pcTaskGetName}: the name of a task. \texttt{uxTaskPriorityGet}: its priority.
-        \texttt{NULL} means: the task that is running now. \texttt{Serial.print} sends text to the Serial Monitor.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Solution: who runs \texttt{loop()}?}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.45\textwidth}
-      {\scriptsize\textbf{Serial Monitor}\par}
-\begin{lstlisting}[style=term]
-Task: @loopTask@
-Priority: @1@
-\end{lstlisting}
-    \column{0.5\textwidth}
-      \stepbox{Questions 1 and 2}{The task \textbf{loopTask}, with priority \textbf{1}.}
-      \stepbox{Next}{The tasks we create will also get priority 1, so they take turns with \texttt{loopTask}.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Creating a task}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
-\begin{lstlisting}[style=rtos]
-void blinkTask(void *param) {
-  for (;;) {                       // forever
-    digitalWrite(LED1, HIGH);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    digitalWrite(LED1, LOW);
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
-}
-
-void setup() {
-  pinMode(LED1, OUTPUT);
-  xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
-}
-\end{lstlisting}
-    \column{0.42\textwidth}
-      \stepbox{The whole program}{\texttt{blinkTask} blinks LED 1. \texttt{setup()} starts it as a new FreeRTOS task,
-        next to \texttt{loopTask}.}
-      \stepbox{Three new things}{The task function, \texttt{vTaskDelay} and \texttt{xTaskCreate}. One by one.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Creating a task: the task function}
-  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-void (*\hlcode{blinkTask}*)(void *param) {(*\eol*)
-  for (;;) {                       // forever
-    digitalWrite(LED1, HIGH);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    digitalWrite(LED1, LOW);
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
-}
-
-void setup() {
-  pinMode(LED1, OUTPUT);
-  xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[-0.4cm]{A task is a function}{A normal C function with one parameter, \texttt{param}: any value we want to give the task.\\[3pt] Inside: an \textbf{endless loop}, \texttt{for (;;)}. A task never returns: when it is done, it deletes itself (Task 5).}
-\end{frame}
-
-\begin{frame}[fragile]{Creating a task: \texttt{vTaskDelay}}
-  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-void blinkTask(void *param) {
-  for (;;) {                       // forever
-    digitalWrite(LED1, HIGH);
-    (*\hlcode{vTaskDelay}*)(pdMS_TO_TICKS(500));(*\eol*)
-    digitalWrite(LED1, LOW);
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
-}
-
-void setup() {
-  pinMode(LED1, OUTPUT);
-  xTaskCreate(blinkTask, "blink", 2048, NULL, 1, NULL);
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[0cm]{Wait without using the CPU}{The task becomes \textbf{Blocked} for 500 ms. It gets no time slices, the other tasks run.\\[3pt] \texttt{pdMS\_TO\_TICKS} turns milliseconds into ticks (on the ESP32: 1 tick = 1 ms). Arduino's \texttt{delay()} does exactly this.}
-\end{frame}
-
-\begin{frame}[fragile]{Creating a task: \texttt{xTaskCreate}}
-  \begin{minipage}[c][0.7\textheight][c]{0.55\textwidth}
-\begin{lstlisting}[style=rtos, escapeinside={(*}{*)}]
-void blinkTask(void *param) {
-  for (;;) {                       // forever
-    digitalWrite(LED1, HIGH);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    digitalWrite(LED1, LOW);
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
-}
-
-void setup() {
-  pinMode(LED1, OUTPUT);
-  (*\hlcode{xTaskCreate}*)(blinkTask, "blink", 2048, NULL, 1, NULL);(*\eol*)
-}
-\end{lstlisting}
-  \end{minipage}
-  \codenote[0.2cm]{Start a new task}{\texttt{blinkTask}: the task function\\ \texttt{"blink"}: a name, for debugging\\ \texttt{2048}: its own stack, in bytes\\ \texttt{NULL}: the value of \texttt{param}\\ \texttt{1}: the priority\\ \texttt{NULL}: a handle, not needed here}
-  \vfill
-  \keymsg{From now on the scheduler gives time slices to \texttt{blinkTask} and \texttt{loopTask}.}
-\end{frame}
-
-% CHECK in Wokwi before class: with a busy task the IDLE task gets no time; a "task watchdog" message
-% may appear in the Serial Monitor after a few seconds. If it does, show it: the system notices it.
-\begin{frame}[fragile]{Task 4: three LEDs as three tasks}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.52\textwidth}
-      \taskhead{Task}{The same three LEDs as in Task 2, but now \textbf{without the timer}. Template: \ghlink{Task4}.}
-      \footnotesize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Remove the timer. Create \textbf{three tasks} with \texttt{xTaskCreate}: LED 1 changes every 300 ms,
-          LED 2 every 500 ms, LED 3 every 700 ms.
-        \item Keep \texttt{Loop: N} on the LCD in \texttt{loop()}. Do the LEDs keep their rhythm?
-        \item In the task of LED 3, replace \texttt{vTaskDelay} with a \textbf{busy wait} (on the right).
-          Do the other LEDs still blink? Now create this task with priority \textbf{2}. What happens?
-      \end{enumerate}
-    \column{0.45\textwidth}
-      {\scriptsize\textbf{A busy wait for question 3}\par}
-\begin{lstlisting}[style=rtos]
-unsigned long t = millis();
-while (millis() - t < 700) { }
-\end{lstlisting}
-      \vspace{0.1cm}
-      \stepbox{Hint}{One function can serve all three tasks: pass the pin and the period through \texttt{param}.}
-      \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
-        \scriptsize\textbf{If you finish early:} replace \texttt{vTaskDelay} with \texttt{vTaskDelayUntil}.
-        What is the difference?
-      \end{beamercolorbox}
-  \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Solution: three LEDs as three tasks}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-\begin{lstlisting}[style=rtos]
-struct Blink { int pin; int ms; };
-Blink b1 = {4, 300}, b2 = {7, 500}, b3 = {3, 700};
-
-void blinkTask(void *param) {
-  Blink *b = (Blink *)param;
-  pinMode(b->pin, OUTPUT);
-  for (;;) {
-    digitalWrite(b->pin, HIGH);
-    vTaskDelay(pdMS_TO_TICKS(b->ms));
-    digitalWrite(b->pin, LOW);
-    vTaskDelay(pdMS_TO_TICKS(b->ms));
-  }
-}
-
-// in setup():
-xTaskCreate(blinkTask, "led1", 2048, &b1, 1, NULL);
-xTaskCreate(blinkTask, "led2", 2048, &b2, 1, NULL);
-xTaskCreate(blinkTask, "led3", 2048, &b3, 1, NULL);
-\end{lstlisting}
-    \column{0.47\textwidth}
-      \stepbox{Question 2}{\textbf{Yes}. Each LED task is Blocked most of the time and gets the core
-        within 1 ms when its delay is over.}
-      \stepbox{Question 3, priority 1}{The other LEDs still blink, but the busy task wastes its time slices:
-        \textbf{polling again}.}
-      \stepbox{Question 3, priority 2}{The other LEDs and the LCD \textbf{stop}: the busy task is always Ready
-        and has the highest priority.}
-      \stepbox{If you finished early}{\texttt{vTaskDelayUntil} wakes the task at fixed moments: small delays do not add up.}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Two solutions of the same problem}
-  \begin{center}
-    \small
-    \renewcommand{\arraystretch}{1.4}
-    \begin{tabular}{lll}
-      \toprule
-      & \textbf{Task 2: one timer + ticks} & \textbf{Task 4: three FreeRTOS tasks} \\
-      \midrule
-      Who counts the ticks & you, in the ISR & the scheduler \\
-      The code of one LED & mixed into one ISR & its own simple loop \\
-      A fourth LED & change the ISR & one more \texttt{xTaskCreate} \\
-      Waiting & - & \texttt{vTaskDelay}: Blocked, no CPU \\
-      Cost & nothing extra & one stack per task (RAM) \\
-      \bottomrule
-    \end{tabular}
-  \end{center}
-  \vfill
-  \keymsg{Both use a timer tick. With FreeRTOS, the scheduler does the bookkeeping for you.
-    Next: \textbf{look inside}, what did it do?}
-\end{frame}
-
-% Source: FreeRTOS kernel, tasks.c (simplified). CHECK the version you show; ESP-IDF has its own copy.
-\begin{frame}[fragile]{Look inside: a task in FreeRTOS}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.57\textwidth}
-      {\scriptsize\textbf{\texttt{tasks.c}} (simplified)\par}
-\begin{lstlisting}[style=frc]
-typedef struct tskTaskControlBlock {
-    volatile StackType_t *pxTopOfStack; /* MUST be first */
-    ListItem_t   xStateListItem;  /* Ready or Blocked list */
-    UBaseType_t  uxPriority;      /* priority              */
-    StackType_t *pxStack;         /* start of the stack    */
-    char         pcTaskName[16];  /* name                  */
-    /* ... */
-} tskTCB;
-\end{lstlisting}
-    \column{0.4\textwidth}
-      \stepbox{\texttt{pxTopOfStack}}{The \textbf{saved sp} from our context switch. It is the \textbf{first} field.}
-      \stepbox{\texttt{xStateListItem}}{On which list the task is: \textbf{Ready} or \textbf{Blocked}.}
-      \stepbox{\texttt{uxPriority}}{Its priority: 1 for our tasks.}
-  \end{columns}
-  \vfill
-  \keymsg{\textbf{TCB} = Task Control Block: one per task. It is our table of saved stack pointers, and more.}
-\end{frame}
-
-\begin{frame}[fragile]{Choosing the next task: \texttt{vTaskSwitchContext}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.5\textwidth}
-      {\scriptsize\textbf{\texttt{tasks.c}} (simplified)\par}
-\begin{lstlisting}[style=frc]
-void vTaskSwitchContext( void )
-{
-    /* ... */
-    taskSELECT_HIGHEST_PRIORITY_TASK();
-    /* now pxCurrentTCB points to
-       the TCB of the next task */
-}
-\end{lstlisting}
-    \column{0.47\textwidth}
-      \centering
-      \resizebox{\linewidth}{!}{\readylists}
-  \end{columns}
-  \vspace{0.2cm}
-  \stepbox{Step 3 of the context switch}{The scheduler takes the first task from the \textbf{highest non-empty}
-    Ready list and stores its TCB in \texttt{pxCurrentTCB}. Tasks with the same priority take turns.}
-\end{frame}
-
-% Source: FreeRTOS kernel, portable/GCC/RISC-V/portASM.S and portContext.h (simplified).
-% CHECK: ESP-IDF has its own RISC-V port for the ESP32-C3 with the same idea.
-\begin{frame}[fragile]{Saving and restoring registers (simplified)}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      {\scriptsize\textbf{Save} the old task (step 2)\par}
-\begin{lstlisting}[style=rv6]
-addi sp, sp, -CONTEXT_SIZE # room on its stack
-sw   ra, 1*4(sp)           # save registers
-sw   t0, 2*4(sp)
-...
-csrr t0, mepc              # where it stopped
-sw   t0, 0(sp)             # save the PC
-lw   t0, pxCurrentTCB      # its TCB
-sw   sp, 0(t0)             # pxTopOfStack = sp
-\end{lstlisting}
-    \column{0.48\textwidth}
-      {\scriptsize\textbf{Restore} the new task (step 4)\par}
-\begin{lstlisting}[style=rv6]
-lw   t0, pxCurrentTCB      # the new TCB
-lw   sp, 0(t0)             # sp = pxTopOfStack
-lw   t0, 0(sp)             # its saved PC
-csrw mepc, t0
-lw   ra, 1*4(sp)           # restore registers
-lw   t0, 2*4(sp)
-...
-addi sp, sp, CONTEXT_SIZE
-mret                       # continue the task
-\end{lstlisting}
-  \end{columns}
-  \vfill
-  \keymsg{Exactly our 4 steps, in code: \texttt{sw} and \texttt{lw} for the registers, and one TCB per task.}
-\end{frame}
-
-\begin{frame}[fragile]{The context switch on the ESP32-C3: the real code}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.6\textwidth}
-\begin{lstlisting}[style=rv6, escapeinside={(*}{*)}]
-_interrupt_handler:          # the tick arrives
-  addi sp, sp, -128
-  sw   ...                   # (*\badge{2}*) all registers of A
-  call rtos_int_enter        #   on stack A
-     lw  a0, pxCurrentTCB
-     sw  sp, 0(a0)           #   A's top = sp
-  jal  _global_interrupt_handler
-  call rtos_int_exit
-     call vTaskSwitchContext # (*\badge{3}*) choose B
-     lw  a0, pxCurrentTCB
-     lw  sp, 0(a0)           # (*\badge{4}*) sp = B's top
-  lw   ...                   #   all registers of B
-  addi sp, sp, 128           #   from stack B
-  mret                       # B continues
-\end{lstlisting}
-    \column{0.37\textwidth}
-      \stepbox{The same entry code}{It is \texttt{\_interrupt\_handler} from \emph{Interrupts inside the processor}, with the inside of
-        \texttt{rtos\_int\_enter} and \texttt{rtos\_int\_exit} shown below them (indented).}
-      \stepbox{The trick}{The entry code \textbf{always} saves all registers on the stack of the task that was interrupted.
-        So to switch, it is enough to change \texttt{sp} before the epilogue: the epilogue then restores \textbf{B}.}
-  \end{columns}
-  \vfill
-  \keymsg{A context switch is an interrupt that returns to a \textbf{different} task.}
-\end{frame}
-
-% SIMULATOR (topic "Context switch", switch "FreeRTOS names"): the same values as in Simulator 5,
-%   with TCB A, TCB B (pxTopOfStack), pxCurrentTCB and the assembly from the slide before (current line marked).
-\begin{frame}{Simulator 7: the context switch with FreeRTOS names}
-  \taskhead{Simulator task}{Topic \simtab{Context switch} again, the same start as in Simulator 5.
-    Turn on \emph{FreeRTOS names}. \textbf{Before each step}, predict, then click \textbf{Next}.}
-  \footnotesize
-  \begin{enumerate}\setlength{\itemsep}{6pt}
-    \item Before step 2: to which TCB does \texttt{pxCurrentTCB} point?
-    \item After step 2: what is the value of \texttt{pxTopOfStack} in the TCB of A?
-    \item Step 3: what does \texttt{vTaskSwitchContext} change?
-    \item Step 4: which line of the assembly gives \texttt{sp} its new value? What is that value?
-  \end{enumerate}
-  \simfoot{\simaddr{Context switch}}
-\end{frame}
-
-\begin{frame}{Solution: Simulator 7}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \stepbox{Question 1}{To the TCB of \textbf{A}: A was running.}
-      \stepbox{Question 2}{\textbf{\texttt{0x1FF4}}: the same saved sp as in Simulator 5.}
-    \column{0.48\textwidth}
-      \stepbox{Question 3}{Only \texttt{pxCurrentTCB}: now it points to the TCB of \textbf{B}.}
-      \stepbox{Question 4}{\texttt{lw sp, 0(t0)}, with \texttt{t0} = the TCB of B: \texttt{sp} = \texttt{0x2FF4}.
-        After the registers are restored, \texttt{sp} = \texttt{0x3000}.}
-  \end{columns}
-  \vfill
-  \keymsg{The table of saved stack pointers from \emph{The scheduler} is the field \texttt{pxTopOfStack} in every TCB.}
-\end{frame}
-
 % CHECK in Wokwi before class: N must be large enough that each task runs for many ticks (tens of ms or more),
 % otherwise there is no switch in the middle of counter++ and the result is correct. Also check how long it runs.
-\begin{frame}[fragile]{Task 5: a race between two tasks}
+\begin{frame}[fragile]{Task 4: a race between two tasks}
   \begin{columns}[T,onlytextwidth]
-    \column{0.52\textwidth}
+    \column{0.5\textwidth}
 \begin{lstlisting}[style=rtos]
 const int N = 1000000;
 volatile int counter = 0;
-volatile bool doneA = false, doneB = false;
+volatile bool doneA = false;
+volatile bool doneB = false;
 
-void incTask(void *param) {
-  for (int i = 0; i < N; i++) {
+void incA(void *param) {
+  for (int i = 0; i < N; i++)
     counter++;
-  }
-  *(volatile bool *)param = true;   // done
-  vTaskDelete(NULL);                // end this task
+  doneA = true;
+  vTaskDelete(NULL);
+}
+
+void incB(void *param) {
+  for (int i = 0; i < N; i++)
+    counter++;
+  doneB = true;
+  vTaskDelete(NULL);
 }
 \end{lstlisting}
-    \column{0.45\textwidth}
-      \taskhead{Task}{Open the template from \ghlink{Task5}. Two tasks increase \textbf{one shared counter}.}
+    \column{0.47\textwidth}
+      \taskhead{Task}{Open the template from \ghlink{Task4}. Two tasks increase \textbf{one shared counter}.}
       \footnotesize
       \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item Start \textbf{two} \texttt{incTask} tasks with the same priority, with \texttt{\&doneA} and
-          \texttt{\&doneB} as parameters.
-        \item In \texttt{loop()}, wait until both are done. Then show on the LCD:
-          \texttt{Goal: 2000000} and \texttt{Got: N}.
-        \item Run it several times. Is \texttt{N} always the same? Is it ever correct?
+        \item Create the tasks \texttt{incA} and \texttt{incB}.
+        \item In \texttt{loop()}, wait until \texttt{doneA} and \texttt{doneB} are true. Then show on the LCD:
+          \texttt{Goal: 2000000} and \texttt{Got:} the counter.
+        \item Run it several times. Is the result always the same? Is it ever correct?
       \end{enumerate}
       \vspace{0.05cm}
       \begin{beamercolorbox}[rounded=true,sep=0.1cm,wd=\linewidth]{block body}
@@ -4680,10 +4573,10 @@ void incTask(void *param) {
 \begin{lstlisting}[style=rtos]
 void setup() {
   // the LCD as before
-  xTaskCreate(incTask, "incA", 2048,
-              (void *)&doneA, 1, NULL);
-  xTaskCreate(incTask, "incB", 2048,
-              (void *)&doneB, 1, NULL);
+  xTaskCreate(incA, "incA", 2048,
+              NULL, 1, NULL);
+  xTaskCreate(incB, "incB", 2048,
+              NULL, 1, NULL);
 }
 
 void loop() {
@@ -4692,13 +4585,13 @@ void loop() {
     lcd.print("Goal: ");  lcd.print(2 * N);
     lcd.setCursor(0, 1);
     lcd.print("Got:  ");  lcd.print(counter);
-    while (true) delay(1000);
+    vTaskDelete(NULL);
   }
-  delay(10);            // wait without wasting the CPU
+  delay(10);
 }
 \end{lstlisting}
     \column{0.42\textwidth}
-      \stepbox{Question 3}{\texttt{N} is \textbf{smaller} than 2\,000\,000 and \textbf{different} every time.
+      \stepbox{Question 3}{The counter is \textbf{smaller} than 2\,000\,000 and \textbf{different} every time.
         It is never correct.}
       \stepbox{If you finished early}{With \texttt{N = 1000} each task finishes within one time slice:
         no switch comes in the middle, so the result is correct.}
@@ -4711,9 +4604,8 @@ void loop() {
   \end{center}
   \vspace{-0.2cm}
   \defbox{This is a \textbf{race condition}: the result depends on \textbf{when} the scheduler switches the tasks.}
-  \stepbox{We saw it three times}{Two cores: two presses, \texttt{presses} grew by one.
-    \quad Simulator 6: 6 additions, counter 4 or 5.
-    \quad Task 5: two million additions, the counter got less.}
+  \stepbox{We saw it twice}{Two cores: two presses, \texttt{presses} grew by one.
+    \quad Task 4: two million additions, the counter got less.}
   \vfill
   \begin{alertblock}{The question}
     \small Why? \texttt{counter++} is \textbf{one line}. How can a switch fall \emph{in the middle} of it?
@@ -4729,7 +4621,7 @@ void loop() {
     \lockbox
   \end{center}
   \vfill
-  \keymsg{Tomorrow: \textbf{why} updates are lost, and how to fix it with \textbf{threads, mutexes and atomic operations},
+  \keymsg{On Tuesday: \textbf{why} updates are lost, and how to fix it with \textbf{threads, mutexes and atomic operations},
     in C++ on your laptops.}
 \end{frame}
 
@@ -4751,7 +4643,7 @@ void loop() {
       \node[sbox, draw=nLine, fill=nFill] (b) at (7.2,0)
         {\textbf{Scheduler}\\[2pt] at every tick, tasks take turns; the context switch};
       \node[sbox, draw=nLine, fill=nFill] (c) at (10.8,0)
-        {\textbf{FreeRTOS}\\[2pt] \texttt{xTaskCreate}, \texttt{vTaskDelay}, TCB; the same LEDs, simpler code};
+        {\textbf{FreeRTOS}\\[2pt] \texttt{xTaskCreate}, \texttt{delay()} in a task; the robot};
       \node[sbox, draw=nLine, fill=nFill] (d) at (14.4,0)
         {\textbf{Race condition}\\[2pt] shared data needs protection: Tuesday};
       \draw[->, very thick, DeepBlue] (a) -- (e);
@@ -4762,52 +4654,6 @@ void loop() {
   \end{center}
   \vfill
   \keymsg{A brief history of concurrency: it all started with a button.}
-\end{frame}
-
-\begin{frame}{Check yourself}
-  \vfill
-  \footnotesize
-  \begin{enumerate}\setlength{\itemsep}{6pt}
-    \item Why does an interrupt not miss a short press, while polling can?
-    \item What does the CPU save when an interrupt arrives, and why does the main program not notice the break?
-    \item Why does an ISR written in C not save the registers it uses, and who saves them?
-    \item What does \texttt{timerAlarm(timer, 500000, true, 0)} do, if the timer counts at 1 MHz?
-    \item What is a context switch? What is saved, and where?
-    \item Why does a task that waits with \texttt{vTaskDelay} not waste CPU time, while a busy loop does?
-  \end{enumerate}
-  \vfill
-  \keymsg{Try to answer each question in \textbf{2 or 3 sentences}.}
-\end{frame}
-
-\begin{frame}[fragile]{Before Tuesday}
-  \begin{beamercolorbox}[rounded=true,sep=0.12cm,wd=\textwidth]{block body example}
-    \centering\small From Tuesday we write \textbf{C++} on your own laptops. Install a compiler with \textbf{C++20}
-    support (g++, clang or MSVC). Instructions will be sent today.
-  \end{beamercolorbox}
-  \vspace{0.2cm}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.55\textwidth}
-      {\scriptsize\textbf{\texttt{hello.cpp}}: check your installation\par}
-\begin{lstlisting}[style=cc]
-#include <iostream>
-#include <thread>
-
-int main() {
-    std::thread t([] {
-        std::cout << "Hello from a thread\n";
-    });
-    t.join();
-}
-\end{lstlisting}
-    \column{0.42\textwidth}
-      {\scriptsize\textbf{Compile and run}\par}
-\begin{lstlisting}[style=term]
-g++ -std=c++20 -pthread hello.cpp -o hello
-./hello
-\end{lstlisting}
-  \end{columns}
-  \vfill
-  \keymsg{If it prints \texttt{Hello from a thread}, you are ready for Tuesday.}
 \end{frame}
 
 \end{document}
