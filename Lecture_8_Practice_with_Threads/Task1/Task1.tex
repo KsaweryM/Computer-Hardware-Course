@@ -1,0 +1,98 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 1}{The ticket shop}
+
+\begin{story}
+A company has hired you to check the code of its ticket shop. Look at the code below and judge the
+dangers. Is there a race condition here? A deadlock? What do you think?
+\end{story}
+
+\section{The situation}
+
+A concert hall has \textbf{100 seats}, and \textbf{150 people} want a ticket. Every customer is a separate
+thread with a unique number from 0 to 149, and all of them click \emph{Buy} at the same time.
+
+\begin{center}
+\begin{tikzpicture}
+  % customers at their computers
+  \foreach \i/\x/\l in {0/0/customer 0, 1/2.3/customer 1, 2/4.6/customer 2, 4/9.6/customer 149} {
+    \node[text=sIndigo, font=\huge] (pc\i) at (\x,0) {\faDesktop};
+    \node[font=\scriptsize, text=nInk, below=-1pt of pc\i] (lab\i) {\l};
+  }
+  \node[text=nInk, font=\Large] at (7.1,0) {$\cdots$};
+  % every click goes straight into the server
+  \foreach \i/\t in {0/2.2, 1/3.5, 2/4.8, 4/7.4}
+    \draw[-{Stealth}, thick, sIndigo] (lab\i.south) -- node[pos=0.35, fill=white, inner sep=1pt, font=\scriptsize, text=nInk] {Buy} (\t,-2.05);
+  \foreach \t in {5.7, 6.1, 6.5} \draw[-{Stealth}, thin, sIndigo!50, dashed] (7.1,-0.35) -- (\t,-2.05);
+  \node[font=\scriptsize, text=nInk, anchor=west] at (10.15,-1.2) {150 clicks at the same moment};
+  % the ticket server
+  \node[hw, minimum width=6.4cm, minimum height=2.0cm, anchor=north] (srv) at (4.8,-2.05) {};
+  \node[text=nInk, font=\Huge, anchor=west] at ($(srv.west)+(0.25,0)$) {\faServer};
+  \node[font=\bfseries, text=nInk, anchor=north west] at ($(srv.north west)+(1.4,-0.2)$) {ticket server};
+  \node[font=\small\ttfamily, text=nInk, anchor=north west] at ($(srv.north west)+(1.4,-0.65)$) {tickets left: 100};
+  \foreach \k in {0,...,19} \fill[nLine] ($(srv.north west)+(1.45+\k*0.22,-1.45)$) rectangle ++(0.17,0.3);
+  \node[font=\scriptsize, text=nInk, anchor=north west] at ($(srv.north west)+(1.4,-1.6)$) {100 seats};
+  % the bank
+  \node[text=nInk, font=\Huge] (bank) at (12.4,-3.05) {\faUniversity};
+  \node[font=\scriptsize, text=nInk, below=0pt of bank] {bank};
+  \draw[-{Stealth}, thick, nInk] (srv.east) -- node[above, font=\scriptsize\ttfamily] {pay()} node[below, font=\scriptsize] {10\,ms} (bank.west);
+  \node[font=\small\bfseries, text=AccentOrange] at (4.8,-4.45) {150 customers, 100 tickets: who gets one?};
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{tickets.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{pay()} & simulates connecting to the bank and the customer paying for the ticket: 10\,ms \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{SEATS} & 100 seats in the hall \\
+\texttt{CUSTOMERS} & 150 customers, one thread each \\
+\end{tabularx}
+\end{note}
+
+\codesection
+
+The template is in \ghfolder{Task1}. This is \texttt{tickets.cpp}:
+
+\codefile[firstline=6]{tickets.cpp}
+
+\runline
+
+\begin{note}{How \texttt{main()} starts 150 threads}
+In Lecture 7 every thread had its own variable: \texttt{std::thread a(lunch);}. For 150 threads we keep them in
+a list instead, a \texttt{std::vector}:
+\begin{code}
+std::vector<std::thread> threads;         // an empty list of threads
+for (int id = 0; id < CUSTOMERS; id++)
+    threads.emplace_back(customer, id);   // start a new thread: customer(id)
+for (auto &t : threads)                   // for every thread in the list ...
+    t.join();                             // ... wait until it ends
+\end{code}
+\texttt{threads.emplace\_back(customer, id)} creates a new \texttt{std::thread} at the end of the list. The thread starts
+at once and runs \texttt{customer(id)}: the first one with \texttt{id = 0}, the last one with \texttt{id = 149}. It does the
+same as \texttt{std::thread t(customer, id);}, only the thread is kept in the vector, so that we can \texttt{join()} all of
+them later. The other tasks start their threads in the same way.
+\end{note}
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Do you see a danger? What exactly can go wrong? Suppose only one ticket is left, and two customers
+        click \emph{Buy} at the same moment. Describe, step by step, how both of them can get a ticket.
+  \item Write a function \texttt{check()} that checks whether the shop sold the tickets correctly: no more tickets
+        than seats, and the tickets sold plus the tickets left add up to \texttt{SEATS}. It prints \texttt{OK} or
+        \texttt{ERROR}. Call it at the end of \texttt{main()} and run the program several times.
+        Does your check catch the problem every time?
+  \item Fix the danger. Does your check pass now?
+  \item \texttt{pay()} talks to the bank, and in real life it can take several seconds. While one customer pays
+        under the mutex, all the others wait. It is possible to move \texttt{pay()} \textbf{outside} the mutex and keep
+        the shop safe. Think how to do it, write it, and check it with \texttt{check()}.
+        Measure how long the program takes before and after.
+  \item Would it be enough to change \texttt{int tickets} to \texttt{std::atomic<int> tickets} and keep the
+        same \texttt{if}? Try it.
+\end{questions}
+
+\end{document}

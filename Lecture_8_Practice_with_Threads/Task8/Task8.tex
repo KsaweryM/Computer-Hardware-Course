@@ -1,0 +1,138 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+% the buffer figure: producer S1, consumer S2
+\newcommand{\bufferfig}{%
+\begin{tikzpicture}
+  \node[actor=sIndigo, minimum height=0.9cm, minimum width=2.2cm] (p) at (0,0) {producer};
+  \foreach \i in {0,1,2} \node[cellused, minimum size=0.75cm] at (3+\i*0.75,0) {};
+  \foreach \i in {3,4} \node[cellfree, minimum size=0.75cm] at (3+\i*0.75,0) {};
+  \node[actor=sPink, minimum height=0.9cm, minimum width=2.2cm] (c) at (9,0) {consumer};
+  \draw[data] (p.east) -- node[above, font=\small, text=nInk] {push} (2.6,0);
+  \draw[data] (6.4,0) -- node[above, font=\small, text=nInk] {pop} (c.west);
+  \node[font=\small, text=nInk] at (4.5,-0.75) {the buffer (at most $N$)};
+  \node[font=\scriptsize, text=nInk] at (3.75,0.65) {used};
+  \node[font=\scriptsize, text=nInk] at (5.62,0.65) {free};
+\end{tikzpicture}}
+\begin{document}
+\settitle{Task 8}{The video decoder}
+
+Task 8 is about a famous problem of concurrency. Read this introduction first.
+
+\section{The producer-consumer problem}
+
+The \textbf{producer-consumer problem}, also called the \textbf{bounded buffer problem}, is one of the classic
+problems of concurrent programming. Edsger Dijkstra described it in 1965.
+
+Some threads \textbf{produce} things (the \textbf{producers}), other threads \textbf{use} them (the
+\textbf{consumers}). They work at different speeds, so between them there is a \textbf{buffer}: a queue that holds
+at most $N$ things.
+
+\begin{center}\bufferfig\end{center}
+
+There are two kinds of waiting:
+\begin{itemize}
+  \item \textbf{The buffer is full:} the producer waits until the consumer takes something.
+  \item \textbf{The buffer is empty:} the consumer waits until the producer adds something.
+\end{itemize}
+
+\textbf{With mutexes only, the program is correct}: the mutex protects the queue, so nothing is lost or broken.
+But a mutex cannot put a thread to sleep until something changes. A thread that waits for a full or an empty buffer
+has to unlock, lock and look again in a loop (busy waiting), and it uses the processor for nothing.
+\textbf{Condition variables do not fix a bug here, they make the waiting cheap}: the result is the same, but the
+waiting thread sleeps. You need three things:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{a mutex} & protects the queue, because both threads change it \\
+\textbf{\texttt{not\_full}} & a condition variable: the producer waits on it when the buffer is full; the consumer
+  wakes it up after \texttt{pop()} \\
+\textbf{\texttt{not\_empty}} & a condition variable: the consumer waits on it when the buffer is empty; the producer
+  wakes it up after \texttt{push()} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Why a buffer at all?} It smooths out the differences in speed. When the producer is slow for a moment,
+the consumer takes from the stock in the buffer. When the consumer is slow for a moment, the producer puts things
+into the buffer and does not have to wait.
+
+This pattern is everywhere: a video player, a printer queue, a web server that handles requests, and the pipe in
+a terminal (\texttt{cat file | grep word}: \texttt{cat} produces lines, \texttt{grep} consumes them).
+
+\begin{keymsg}
+Producer-consumer: two kinds of waiting (full, empty) around one buffer, protected by one mutex.
+\end{keymsg}
+
+\section{The task}
+
+\begin{story}
+You work for a company that writes a driver for video decoding. One thread decodes the frames of a video (the
+producer), and another one shows them on the screen at a fixed speed: one frame every 40\,ms, 25 frames per
+second (the consumer). Decoding takes an uneven time: a normal frame is fast, a key frame (an I-frame) is much
+slower. Between the threads there is a buffer of decoded frames. When the buffer is empty, the picture freezes.
+The driver works correctly, but customers complain that their laptops get hot and the battery runs down fast.
+Your team must fix it.
+\end{story}
+
+\begin{center}
+\begin{tikzpicture}
+  % the decoder (producer)
+  \node[actor=sIndigo, minimum width=2.6cm, minimum height=1.5cm, align=center, font=\small\bfseries] (dec) at (0,0)
+    {\Large\faFilm\\[2pt] decoder};
+  \node[font=\scriptsize, text=nInk, align=center, anchor=north] at (0,-0.95)
+    {the producer\\normal frame: 5\,ms\\key frame (every 25th): 200\,ms};
+  % the buffer of decoded frames
+  \foreach \k in {0,...,5} \node[cellused, minimum size=0.75cm, font=\scriptsize] at (2.6+\k*0.78,0) {\#\k};
+  \foreach \k in {6,...,9} \node[cellfree, minimum size=0.75cm] at (2.6+\k*0.78,0) {};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror}, nInk] (2.2,-0.55) -- (9.98,-0.55)
+    node[midway, below=6pt, font=\scriptsize, text=nInk, align=center] {the buffer: at most \texttt{CAPACITY} = 10 decoded frames\\(\texttt{std::queue<Frame>})};
+  \draw[data] (dec.east) -- node[above, font=\scriptsize] {push} (2.18,0);
+  % the display (consumer)
+  \node[actor=sPink, minimum width=2.6cm, minimum height=1.5cm, align=center, font=\small\bfseries] (scr) at (12.0,0)
+    {\Large\faTv\\[2pt] display};
+  \draw[data] (10.02,0) -- node[above, font=\scriptsize] {pop} (scr.west);
+  \node[font=\scriptsize, text=nInk, align=center, anchor=north] at (12.0,-0.95)
+    {the consumer\\one frame every 40\,ms\\empty buffer: the picture freezes};
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{video.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{decode\_frame(i)} & decode frame \texttt{i}: a normal frame takes 5\,ms, every 25th frame is a key frame and takes 200\,ms \\
+\texttt{show(f)} & show the frame for 40\,ms; if it comes more than 10\,ms late, print that the picture froze \\
+\texttt{report()} & print how many times the picture froze \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{FRAMES} & 100 frames: the video lasts 4\,s \\
+\end{tabularx}
+\end{note}
+
+The template is in \ghfolder{Task8}. This is \texttt{video.cpp}:
+
+\codefile[firstline=7]{video.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \setcounter{questionsi}{-1}
+  \item Who is the producer here, who is the consumer, and what is the buffer? When does each of them wait?
+  \item Run it with \texttt{time ./build/video}. How much processor time (\texttt{user}) do the threads use?
+        (The program does not end: stop it with Ctrl+C about 2\,s after \texttt{decoder: all frames decoded}.
+        Question 4 fixes this.)
+  \item Replace busy waiting with two condition variables, \texttt{not\_empty} and \texttt{not\_full}.
+        Who waits on which one, and who wakes up whom? Run it with \texttt{time} again.
+  \item A colleague put \texttt{std::this\_thread::sleep\_for(std::chrono::milliseconds(10))} into the waiting
+        loops instead. The laptop stays cool. Is this as good a solution as a condition variable?
+  \item The video is over, but the program does not end. Why? Fix it, so that the display shows all frames that
+        are still in the buffer and then ends. (Hint: the decoder must tell the display that nothing more comes.)
+  \item Set \texttt{CAPACITY} to 1, then 10, then 100. How many times does the picture freeze?
+        Why does the decoder work ahead? What does a larger buffer cost?
+\end{questions}
+
+\end{document}

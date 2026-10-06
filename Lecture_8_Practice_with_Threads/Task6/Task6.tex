@@ -1,0 +1,165 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 6}{The lobby of an online game}
+
+Tasks 6 and 7 use a new tool, the \textbf{condition variable}. Read this introduction first.
+
+\section{Condition variables: how they work}
+
+Often a thread has to wait until something happens: until all players are here, until a frame is ready,
+until it is its turn. With what you know so far, the thread checks the condition in a loop:
+
+\begin{code}
+m.lock();
+while (!ready) {      // not yet? look again
+    m.unlock();       // let the others change ready
+    m.lock();
+}
+m.unlock();
+\end{code}
+
+This works, but the thread does nothing useful and still uses a whole core of the processor: it asks
+again and again, millions of times per second. This is called \textbf{busy waiting}.
+
+\begin{definition}{Condition variable}
+A \textbf{condition variable} (\texttt{std::condition\_variable}) lets a thread \textbf{sleep} until another thread
+wakes it up. A sleeping thread uses no processor time.
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm, y=1cm]
+  \node[anchor=east, font=\small, text=nInk] at (-0.2,1.2) {busy waiting};
+  \fill[nIdle] (0,0.95) rectangle (7,1.45);
+  \node[font=\scriptsize, text=nInk] at (3.5,1.2) {checks again and again: the core is busy};
+  \fill[sIndigo] (7,0.95) rectangle (9.5,1.45);
+  \node[font=\scriptsize, text=white] at (8.25,1.2) {works};
+  \node[anchor=east, font=\small, text=nInk] at (-0.2,0.2) {condition variable};
+  \draw[sIndigo, dashed, line width=0.9pt, fill=sIndigo!30, rounded corners=2pt] (0,-0.05) rectangle (7,0.45);
+  \node[font=\scriptsize, text=nInk] at (3.5,0.2) {sleeps: uses no processor time};
+  \fill[sIndigo] (7,-0.05) rectangle (9.5,0.45);
+  \node[font=\scriptsize, text=white] at (8.25,0.2) {works};
+  \draw[-{Stealth}, thick, AccentOrange] (7,-0.6) -- (7,-0.1);
+  \node[font=\scriptsize, text=AccentOrange, anchor=north] at (7,-0.6) {another thread: \texttt{notify}};
+\end{tikzpicture}
+\end{center}
+
+A condition variable always comes with three things:
+
+\begin{enumerate}
+  \item The \textbf{state} that the threads wait for (for example a counter of players), protected by a \textbf{mutex}.
+  \item The \textbf{waiting} thread. It locks the mutex and checks the condition in a \texttt{while} loop.
+        If the condition is false, it calls \texttt{wait()}. \texttt{wait()} unlocks the mutex and puts the thread
+        to sleep, in one step. When the thread is woken up, \texttt{wait()} locks the mutex again and returns.
+  \item The \textbf{waking} thread. It locks the mutex, changes the state, and calls \texttt{notify\_one()}
+        (wakes up one waiting thread) or \texttt{notify\_all()} (wakes up all of them).
+\end{enumerate}
+
+\begin{code}
+std::mutex m;
+std::condition_variable cv;
+bool ready = false;
+
+void waiter() {
+    std::unique_lock<std::mutex> lock(m);
+    while (!ready)          // while, not if: check again after waking up
+        cv.wait(lock);      // unlock m and sleep; lock m again when woken up
+    // here ready == true and m is locked
+}
+
+void waker() {
+    std::lock_guard<std::mutex> lock(m);
+    ready = true;
+    cv.notify_all();        // wake up everybody who waits on cv
+}
+\end{code}
+
+Three details matter:
+
+\begin{itemize}
+  \item \textbf{\texttt{unique\_lock}, not \texttt{lock\_guard}.} \texttt{wait()} has to unlock and lock the mutex again.
+        A \texttt{lock\_guard} cannot do that; a \texttt{unique\_lock} can.
+  \item \textbf{\texttt{while}, not \texttt{if}.} After waking up, the condition may be false again: another thread
+        may have been faster, and a thread can even wake up without any \texttt{notify} (a \emph{spurious wakeup}).
+        So always check again.
+  \item \textbf{Check the condition under the mutex.} If the waiter checked without the mutex, the waker could change the
+        state and call \texttt{notify} between the check and \texttt{wait()}. Nobody would be waiting yet, the
+        \texttt{notify} would be lost, and the waiter would sleep for ever (a \emph{lost wakeup}).
+\end{itemize}
+
+\begin{keymsg}
+A mutex protects the data. A condition variable lets a thread sleep until the data changes.
+\end{keymsg}
+
+\section{The task}
+
+\begin{story}
+A match starts when all 4 players have loaded the map. Every player is a thread that loads the map
+(it takes a different time for every player) and then waits for the others. Now the players ask again and again:
+``is everybody here?'', and the game server uses its whole processor just for waiting.
+\end{story}
+
+\begin{center}
+\begin{tikzpicture}[x=4.2cm, y=0.75cm]
+  \foreach \p/\t in {0/1, 1/1.5, 2/2, 3/2.5} {
+    \node[anchor=east, font=\scriptsize, text=nInk] at (-0.03,-\p) {\textcolor{sIndigo}{\small\faGamepad}\ player \p};
+    \fill[sIndigo, rounded corners=2pt] (0,-\p-0.3) rectangle (\t,-\p+0.3);
+    \node[font=\scriptsize, text=white] at (\t/2,-\p) {loads the map};
+    \ifdim \t pt<2.5pt
+      \fill[nIdle, rounded corners=2pt] (\t,-\p-0.3) rectangle (2.5,-\p+0.3);
+      \ifdim \t pt<2pt
+        \node[font=\scriptsize, text=nInk] at ({(\t+2.5)/2},-\p) {``everybody here?''};
+      \else
+        \node[font=\scriptsize, text=nInk] at ({(\t+2.5)/2},-\p) {waits};
+      \fi
+    \fi
+  }
+  \draw[AccentOrange, very thick] (2.5,0.55) -- (2.5,-3.45);
+  \node[font=\small\bfseries, text=AccentOrange, anchor=west] at (2.53,0.3) {\faFlag\ the match starts};
+  \draw[nLine, thick] (0,-3.65) -- (2.8,-3.65);
+  \foreach \x/\l in {0/0, 0.5/0.5, 1/1, 1.5/1.5, 2/2, 2.5/2.5} {\draw[nLine] (\x,-3.58) -- (\x,-3.72);
+    \node[font=\scriptsize, text=nInk] at (\x,-3.95) {\l\,s};}
+  \node[font=\scriptsize, text=nInk, anchor=west] at (2.53,-1.5) {\textcolor{nLine}{\rule{0.4cm}{6pt}} waiting:};
+  \node[font=\scriptsize, text=nInk, anchor=west] at (2.53,-1.9) {asks again and again,};
+  \node[font=\scriptsize, text=nInk, anchor=west] at (2.53,-2.3) {uses a core for nothing};
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{lobby.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{load\_map(id)} & the player loads the map: player 0 takes 1\,s, player 1 takes 1.5\,s, \dots, player 3 takes 2.5\,s \\
+\texttt{start\_match(id)} & the match starts for this player (prints a line) \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{PLAYERS} & 4 players in a match \\
+\end{tabularx}
+\end{note}
+
+The template is in \ghfolder{Task6}. This is \texttt{lobby.cpp}:
+
+\codefile[firstline=6]{lobby.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run it with \texttt{time ./build/lobby} (Linux, macOS). How much processor time (\texttt{user} and
+        \texttt{sys}) did the players use, when they mostly waited?
+  \item Replace busy waiting with a \texttt{std::condition\_variable}. Who should wake the players up?
+        Run it with \texttt{time} again.
+  \item \texttt{notify\_one()} or \texttt{notify\_all()}? Why?
+  \item A match has 3 rounds, and before each round we wait until everybody is ready. Is it enough to set
+        \texttt{loaded} back to 0 when a round starts? Write it and run it. What happens, and why?
+        How can you fix it?
+\end{questions}
+
+\begin{note}{\texttt{time}}
+\texttt{real} is the time on the clock. \texttt{user} is the processor time spent in your program, and
+\texttt{sys} the processor time spent in the operating system for your program. On Windows, compare the
+processor usage in the Task Manager instead.
+\end{note}
+
+\end{document}

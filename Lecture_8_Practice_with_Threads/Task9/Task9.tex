@@ -1,0 +1,146 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+% an e-mail window
+\newtcolorbox{email}{enhanced, breakable, colback=white, colframe=nLine, boxrule=0.6pt, arc=4pt,
+  left=12pt, right=12pt, top=8pt, bottom=10pt,
+  before upper={\setlength{\parskip}{0.6em}},
+  title={\small\faEnvelope\ \ Inbox}, coltitle=nInk, colbacktitle=nFill, fonttitle=\bfseries}
+\newcommand{\mailfield}[2]{\textcolor{nLine}{\makebox[1.6cm][l]{#1}}#2\\}
+\begin{document}
+\settitle{Task 9}{At most 3 decoders at the same time}
+
+You have just closed the ticket of Task 8. The next morning you find this e-mail:
+
+\begin{email}
+{\small
+\mailfield{From:}{Tomasz M. (Senior Software Engineer, Video Drivers)}
+\mailfield{To:}{you}
+\mailfield{Cc:}{Video Drivers Team}
+\mailfield{Subject:}{\textbf{RE: [VD-1482] High CPU usage in the display module: semaphores as an alternative}}}
+\vspace{-0.3em}\textcolor{nLight}{\rule{\linewidth}{0.6pt}}
+
+Hi,
+
+first of all congratulations, and thanks for closing VD-1482 so quickly. I did the review: CPU usage at idle dropped
+practically to zero, and QA confirms that the test laptops no longer get hot. The customer has been informed
+too. Good job.
+
+While we are at it, I'd like to point you to one more tool that you will meet quite often in our code base:
+\textbf{semaphores}. Here is a short summary, so that we have the same context.
+
+\textbf{What a semaphore is.} It is a counter that can never go below zero. It has two operations:
+\begin{itemize}
+  \item \texttt{acquire()}: if the counter is greater than zero, decrease it by 1 and return at once.
+        If the counter is 0, the thread sleeps until somebody increases it.
+  \item \texttt{release()}: increase the counter by 1 and wake up one of the waiting threads.
+\end{itemize}
+
+Fun fact: semaphores were invented by Dijkstra, the same person who described producer-consumer, and in the same
+work from 1965 he solved that problem with them.
+
+\textbf{How to use it in C++.} Since C++20 there is \texttt{std::counting\_semaphore<N>} in the header
+\texttt{<semaphore>}. An example from our own backyard: the GPU has 3 hardware decoding units, so at most 3 streams
+can be decoded at the same time.
+
+\begin{code}
+std::counting_semaphore<3> hw_decoders{3};   // 3 free units at the start
+
+void decode_stream(int id) {
+    hw_decoders.acquire();    // take a unit; if all are taken, sleep
+    decode(id);
+    hw_decoders.release();    // give the unit back
+}
+\end{code}
+
+\textbf{How it differs from a mutex.} A mutex is in practice a semaphore with a counter of 1, with one important
+difference: only the thread that locked a mutex may unlock it. \texttt{release()} of a semaphore may be called by
+\textbf{any} thread. That is why a semaphore is good not only for limits but also for signalling: one thread calls
+\texttt{release()}, another one waits in \texttt{acquire()}.
+
+\textbf{When a semaphore, and when a condition variable.} If you wait for a simple count (``there are free places'',
+``there is something to do''), a semaphore usually gives shorter code. If the condition is more complex, stay with
+a condition variable.
+
+So I have two requests for this sprint:
+\begin{enumerate}
+  \item \textbf{[VD-1497]} We have reports that with several videos at once the driver returns a hardware error,
+        because it tries to use a fourth decoding unit, which does not exist. Please make sure that at most 3 streams
+        are decoded at the same time.
+  \item \textbf{[VD-1503]} Try to rewrite the buffer from VD-1482 with two semaphores: one counts the free places,
+        the other one the ready frames. I'd like to compare both versions at the next code review.
+\end{enumerate}
+
+If anything is unclear, just write, or catch me at the daily.
+
+Best regards,\\
+Tomasz
+
+\textcolor{nLine}{\rule{2cm}{0.4pt}}\\
+{\small\textcolor{nInk}{Tomasz M.\\ Senior Software Engineer \textbullet\ Video Drivers Team}}
+\end{email}
+
+This task is ticket VD-1497. Task 10 is ticket VD-1503.
+
+\section{The task: VD-1497}
+
+\begin{story}
+Six videos play at the same time, each one in its own thread. The GPU has only 3 decoding units. The ready function
+\texttt{decode()} checks how many units are in use and reports a hardware error when somebody tries to use a fourth one.
+\end{story}
+
+\begin{center}
+\begin{tikzpicture}
+  % six video streams, one thread each
+  \foreach \i in {0,...,5} {
+    \node[actor=sIndigo, minimum width=1.6cm, font=\scriptsize\bfseries] (s\i) at (\i*2.0,0) {\faVideo\ stream \i};
+  }
+  % the GPU with 3 decoding units
+  \node[hw, minimum width=8.6cm, minimum height=2.1cm] (gpu) at (3.0,-2.6) {};
+  \node[font=\small\bfseries, text=nInk, anchor=north east] at ($(gpu.north east)+(-0.1,-0.05)$) {\faMicrochip\ GPU};
+  \foreach \u/\x in {0/0, 1/2, 2/6} \node[draw=nInk, thick, fill=white, rounded corners=2pt, minimum width=1.7cm, minimum height=0.9cm,
+    font=\scriptsize, text=nInk] (u\u) at (\x,-2.75) {unit \u};
+  % three get a unit, three do not
+  \draw[-{Stealth}, thick, sIndigo] (s0.south) -- (u0.north);
+  \draw[-{Stealth}, thick, sIndigo] (s1.south) -- (u1.north);
+  \draw[-{Stealth}, thick, sIndigo] (s3.south) -- (u2.north);
+  \foreach \i in {2,4,5} {
+    \draw[-{Stealth}, thick, nLine, dashed] (s\i.south) -- ++(0,-0.85);
+    \node[font=\scriptsize, text=nInk] at ($(s\i.south)+(0,-1.1)$) {\nok\ error};
+  }
+  \node[font=\small\bfseries, text=AccentOrange] at (5,-4.15) {6 streams want to decode at the same time, the GPU has only 3 units};
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{gpu.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{decode(id)} & decode one stream on a free unit: 1\,s; print an error if all 3 units are in use \\
+\texttt{report()} & print how many hardware errors there were \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{UNITS} & 3 decoding units on the GPU \\
+\texttt{STREAMS} & 6 videos at the same time \\
+\end{tabularx}
+\end{note}
+
+The template is in \ghfolder{Task9}. This is \texttt{streams.cpp}:
+
+\codefile[firstline=1]{streams.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run it with \texttt{time ./build/streams}. How many streams are decoded at the same time?
+        How many hardware errors are there?
+  \item Add a \texttt{std::counting\_semaphore} so that at most 3 streams are decoded at the same time.
+        How long does the whole program take now?
+  \item A colleague puts one mutex around \texttt{decode()} instead of the semaphore. Do the errors go away?
+        How long does the program take then? Why?
+  \item Somebody forgets \texttt{release()} in one place (for example on a path that ends the function early).
+        What happens after a few videos?
+\end{questions}
+
+\end{document}

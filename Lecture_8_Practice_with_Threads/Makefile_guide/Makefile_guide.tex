@@ -1,0 +1,235 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+% a file node and a dependency arrow for the graphs
+\tikzset{file/.style={hw, font=\ttfamily\small, minimum width=1.9cm},
+         dep/.style={-{Stealth}, thick, nInk}}
+% the TAB key, drawn
+\newcommand{\tabkey}{\tikz[baseline=-0.6ex]\node[draw=AccentOrange, thick, rounded corners=2pt, font=\scriptsize\bfseries,
+  text=AccentOrange, inner sep=2pt] {TAB};}
+\begin{document}
+\settitle{Extra}{How to write a Makefile}
+
+A guide for those who want more. You do not need it for the tasks: every task folder already has a
+\texttt{Makefile}. But one day you will write your own, and then this guide helps. The examples are in
+\ghfolder{Makefile\_guide/examples}; everything below was run with GNU Make 4.3.
+
+\section{Why \texttt{make}?}
+
+You can always compile by hand:
+
+\begin{terminal}
+g++ -std=c++20 -O0 -Wall -pthread tickets.cpp -o build/tickets
+\end{terminal}
+
+This is long, and in a bigger project you have many such commands. You do not want to type them, and you do not
+want to run all of them after every small change, because a big project compiles for minutes. \texttt{make} solves
+both problems:
+
+\begin{itemize}
+  \item you write the commands \textbf{once}, in a file called \texttt{Makefile};
+  \item \texttt{make} runs \textbf{only} the commands that are needed, because something has changed since the last time.
+\end{itemize}
+
+\section{The first rule}
+
+A \texttt{Makefile} is a list of \textbf{rules}. A rule says: ``to make this file (the \textbf{target}), you need these
+files (the \textbf{prerequisites}), and these are the commands (the \textbf{recipe})''.
+
+\begin{center}
+\begin{tikzpicture}
+  \node[font=\ttfamily, anchor=west, inner sep=1pt] (t) at (0,0) {hello:};
+  \node[font=\ttfamily, anchor=west, inner sep=1pt] (p) at ($(t.east)+(0.25,0)$) {hello.cpp};
+  \node[anchor=west, inner sep=0pt] (tab) at (0,-0.75) {\tabkey};
+  \node[font=\ttfamily, anchor=west, inner sep=1pt] (r) at ($(tab.east)+(0.15,0)$) {g++ -std=c++20 -Wall hello.cpp -o hello};
+  \draw[annot] ($(t.south west)+(-0.05,-0.05)$) rectangle ($(t.north east)+(0.05,0.05)$);
+  \draw[annot] ($(p.south west)+(-0.05,-0.05)$) rectangle ($(p.north east)+(0.05,0.05)$);
+  \draw[annot] ($(r.south west)+(-0.05,-0.05)$) rectangle ($(r.north east)+(0.05,0.05)$);
+  \node[font=\small, text=AccentOrange, anchor=south] (lt) at ($(t.north)+(-0.4,0.45)$) {target};
+  \node[font=\small, text=AccentOrange, anchor=south] (lp) at ($(p.north)+(0.6,0.45)$) {prerequisites};
+  \draw[-{Stealth}, AccentOrange, thick] (lt.south) -- (t.north);
+  \draw[-{Stealth}, AccentOrange, thick] (lp.south) -- (p.north);
+  \node[font=\small, text=AccentOrange, anchor=west] at ($(r.east)+(0.4,0)$) {recipe};
+  \node[font=\small, text=AccentOrange, anchor=north west] at ($(tab.south west)+(0,-0.15)$) {a TAB, not spaces};
+\end{tikzpicture}
+\end{center}
+
+\begin{trap}{The recipe starts with a TAB}
+Every line of a recipe must start with a \textbf{TAB} character, not with spaces. With spaces, \texttt{make} stops with:
+\texttt{Makefile:2: *** missing separator.\ \ Stop.} Most editors can show TABs; in VS Code the bottom bar shows
+``Spaces'' or ``Tab Size''.
+\end{trap}
+
+The whole \texttt{Makefile} of the first example (\texttt{examples/1\_one\_file}):
+
+\codefile[style=make]{examples/1_one_file/Makefile}
+
+Run \texttt{make} in this folder:
+
+\begin{terminal}
+$ make
+g++ -std=c++20 -Wall hello.cpp -o hello
+$ make
+make: 'hello' is up to date.
+$ touch hello.cpp
+$ make
+g++ -std=c++20 -Wall hello.cpp -o hello
+\end{terminal}
+
+How does \texttt{make} decide? It compares the \textbf{modification times} of the files. If the target does not exist,
+or one of the prerequisites is newer than the target, it runs the recipe. Otherwise the target is up to date and nothing
+happens. \texttt{touch} only changes the time of a file, as if you had saved it.
+
+Without arguments, \texttt{make} makes the \textbf{first} target in the file. You can name another one:
+\texttt{make hello}.
+
+\section{Several files: a graph of dependencies}
+
+A real program has several \texttt{.cpp} files. Each one is compiled separately into an \textbf{object file}
+(\texttt{.o}, the option \texttt{-c}), and then the object files are \textbf{linked} into the program. In
+\texttt{examples/2\_three\_files}, \texttt{main.cpp} calls \texttt{square()} from \texttt{util.cpp}, and both include
+\texttt{util.h}:
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.1cm and 1.3cm]
+  \node[file] (app) {app};
+  \node[file, below left=of app] (mo) {main.o};
+  \node[file, below right=of app] (uo) {util.o};
+  \node[file, below=of mo] (mc) {main.cpp};
+  \node[file, below=of uo] (uc) {util.cpp};
+  \node[file] (uh) at ($(mc)!0.5!(uc)$) {util.h};
+  \draw[dep] (mo) -- (app); \draw[dep] (uo) -- (app);
+  \draw[dep] (mc) -- (mo); \draw[dep] (uh) -- (mo);
+  \draw[dep] (uc) -- (uo); \draw[dep] (uh) -- (uo);
+  \node[font=\scriptsize, text=nInk, anchor=west] at ($(uo.east)+(0.4,0.9)$) {link: \texttt{g++ main.o util.o -o app}};
+  \node[font=\scriptsize, text=nInk, anchor=west] at ($(uo.east)+(0.4,-0.9)$) {compile: \texttt{g++ -c util.cpp -o util.o}};
+\end{tikzpicture}
+\end{center}
+
+An arrow means ``is needed to make''. The \texttt{Makefile} writes this graph down, one rule per box:
+
+\codefile[style=make]{examples/2_three_files/Makefile}
+
+Now \texttt{make} rebuilds only what depends on the changed file:
+
+\begin{terminal}
+$ make
+g++ -std=c++20 -Wall -c main.cpp -o main.o
+g++ -std=c++20 -Wall -c util.cpp -o util.o
+g++ main.o util.o -o app
+$ touch util.cpp; make            # only util.o and app
+g++ -std=c++20 -Wall -c util.cpp -o util.o
+g++ main.o util.o -o app
+$ touch util.h; make              # util.h is needed by both
+g++ -std=c++20 -Wall -c main.cpp -o main.o
+g++ -std=c++20 -Wall -c util.cpp -o util.o
+g++ main.o util.o -o app
+\end{terminal}
+
+\begin{trap}{Do not forget the headers}
+If \texttt{util.h} were missing from the prerequisites, a change in \texttt{util.h} would not recompile anything,
+and the program could use an old, wrong version of the header. Always list the headers that a file includes.
+\end{trap}
+
+\section{Variables and automatic variables}
+
+The same compiler and the same options appear in several rules. Put them into \textbf{variables}, so that you change
+them in one place. \texttt{CXX} and \texttt{CXXFLAGS} are the usual names for the C++ compiler and its options.
+
+\codefile[style=make]{examples/3_variables/Makefile}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\texttt{NAME := value} & define a variable; \texttt{\$(NAME)} uses it \\
+\texttt{\$@} & the target of this rule, here \texttt{main.o} \\
+\texttt{\$<} & the first prerequisite, here \texttt{main.cpp} \\
+\texttt{\$\^{}} & all prerequisites, here \texttt{main.o util.o} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+A variable can be changed from the command line, without editing the file. \texttt{-B} makes everything again,
+even if it is up to date:
+
+\begin{terminal}
+$ make -B CXXFLAGS="-std=c++20 -O0"
+g++ -std=c++20 -O0 -c main.cpp -o main.o
+g++ -std=c++20 -O0 -c util.cpp -o util.o
+g++ main.o util.o -o app
+\end{terminal}
+
+\begin{note}{\texttt{:=} or \texttt{=}?}
+\texttt{A := \$(B)} copies the value of \texttt{B} at this moment. \texttt{A = \$(B)} remembers ``the value of
+\texttt{B}'' and reads it each time \texttt{A} is used, so a later change of \texttt{B} also changes \texttt{A}.
+When in doubt, use \texttt{:=}.
+\end{note}
+
+\section{Pattern rules and \texttt{.PHONY}}
+
+The rules for \texttt{main.o} and \texttt{util.o} are the same, only the name differs. A \textbf{pattern rule} with
+\texttt{\%} writes them once: ``any \texttt{X.o} is made from \texttt{X.cpp}''. And some targets are not files at all,
+but names of actions: \texttt{all}, \texttt{run}, \texttt{clean}. Mark them as \texttt{.PHONY}, so that \texttt{make}
+runs them even if a file with this name happens to exist.
+
+\codefile[style=make]{examples/4_patterns/Makefile}
+
+\begin{terminal}
+$ make run
+./app
+7 * 7 = 49
+$ make clean
+rm -f app main.o util.o
+$ make -n                 # only print the commands, do not run them
+g++ -std=c++20 -Wall -O2 -c main.cpp -o main.o
+g++ -std=c++20 -Wall -O2 -c util.cpp -o util.o
+g++ main.o util.o -o app
+\end{terminal}
+
+\section{The \texttt{Makefile} of our tasks, line by line}
+
+Every task folder has this file. Each \texttt{.cpp} file in the folder is a separate program, so there are no
+object files here: each \texttt{.cpp} becomes one program in \texttt{build/}. The folders of the solutions have the
+same file without \texttt{run}, because some solutions are wrong on purpose and hang.
+
+\codefile[style=make]{../Task1/Makefile}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}X@{}}
+\toprule
+line & what it does \\
+\midrule
+\texttt{CXXFLAGS := -std=c++20 -O0 ...} & the options of the compiler; \texttt{-pthread} is needed for threads \\
+\texttt{\$(wildcard *.cpp)} & all \texttt{.cpp} files in the folder, for example \texttt{tickets.cpp} \\
+\texttt{\$(patsubst \%.cpp,\$(BUILD\_DIR)/\%,...)} & replace the name: \texttt{tickets.cpp} becomes \texttt{build/tickets} \\
+\texttt{make: \$(PROGRAMS)} & the first target, so plain \texttt{make} builds all programs. It is called \texttt{make}, as in
+  the Makefiles of Lecture 6 \\
+\texttt{\$(BUILD\_DIR)/\%: \%.cpp \$(wildcard *.h)} & a pattern rule: \texttt{build/tickets} from \texttt{tickets.cpp}; it also depends on all
+  headers, so a change in \texttt{tickets.h} recompiles it \\
+\texttt{mkdir -p \$(BUILD\_DIR)} & create \texttt{build/} if it does not exist yet \\
+\texttt{\$(basename ...)} & remove the extension: \texttt{tickets.cpp} becomes \texttt{tickets}, so \texttt{PROGRAM} is
+  \texttt{build/tickets}, the one program of the task \\
+\texttt{run: \$(PROGRAM)} & build the program if needed, then run it \\
+\texttt{clear} & remove \texttt{build/} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Good to know}
+
+\begin{itemize}
+  \item \texttt{make -j8} runs up to 8 recipes at the same time, on 8 cores. It works because \texttt{make} knows the
+        graph: it never starts a recipe before its prerequisites are ready.
+  \item Every line of a recipe runs in its own shell. \texttt{cd build} on one line does not change the folder of the next
+        line; write \texttt{cd build \&\& ...} on one line.
+  \item A comment starts with \texttt{\#}. A long line can continue on the next one after a \texttt{\textbackslash}.
+  \item In big projects, people often let a tool write the \texttt{Makefile} for them (CMake, Meson). But what that
+        tool writes is the same: targets, prerequisites, recipes.
+\end{itemize}
+
+\begin{keymsg}
+A \texttt{Makefile} is a graph: target, prerequisites, recipe. \texttt{make} compares the times of the files and runs
+only what is out of date.
+\end{keymsg}
+\end{document}

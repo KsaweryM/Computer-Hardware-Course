@@ -1,0 +1,168 @@
+% common.tex: the shared preamble of all A4 documents of Lecture 8 (tasks, solutions, the Makefile guide).
+% Every document starts with:
+%   \documentclass[a4paper,11pt]{article}
+%   \input{../common.tex}           (or ../../common.tex from Solutions/TaskK)
+%   \settitle{Task 3}{Statistics in a 5G base station}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[a4paper,margin=2.2cm,top=2.6cm,bottom=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{microtype}
+\usepackage{needspace}
+\DisableLigatures[-]{family=tt*}   % tickets-- stays two hyphens, not a dash
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, positioning, shapes.geometric, decorations.pathreplacing}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist{itemsep=0.25em, topsep=0.3em}
+
+% ---------- colours (the same as in the presentations, ~/Agents/colors) ----------
+\definecolor{DeepBlue}{HTML}{283593}      % headings, links, control-flow arrows
+\definecolor{AccentOrange}{HTML}{EB5A14}  % annotations: notes, conclusions, step numbers
+\definecolor{LightGray}{HTML}{F5F6FA}
+\definecolor{sIndigo}{HTML}{5C6BC0}       % S1
+\definecolor{sPink}{HTML}{EC407A}         % S2
+\definecolor{sViolet}{HTML}{7E57C2}       % S3
+\definecolor{sAmber}{HTML}{FFB300}        % S4: black text on it
+\definecolor{sTeal}{HTML}{26A69A}         % S5
+\definecolor{sBrown}{HTML}{8D6E63}        % S6
+\definecolor{sPinkText}{HTML}{C2185B}
+\definecolor{sAmberText}{HTML}{A06A00}
+\definecolor{sTealText}{HTML}{00796B}
+\definecolor{aExec}{HTML}{43A047}
+\definecolor{aRead}{HTML}{1E88E5}
+\definecolor{aWrite}{HTML}{E53935}
+\definecolor{nInk}{HTML}{37474F}
+\definecolor{nLine}{HTML}{90A4AE}
+\definecolor{nLight}{HTML}{CFD8DC}
+\definecolor{nFill}{HTML}{ECEFF1}
+\definecolor{nIdle}{HTML}{E0E0E0}
+\definecolor{VSDarkBg}{RGB}{25,25,25}
+\definecolor{VSText}{RGB}{245,245,245}
+\definecolor{VSBlue}{RGB}{80,180,255}
+\definecolor{VSPurple}{RGB}{210,110,210}
+\definecolor{VSString}{RGB}{255,140,80}
+\definecolor{VSComment}{RGB}{80,220,80}
+\hypersetup{colorlinks=true, linkcolor=DeepBlue, urlcolor=DeepBlue}
+
+% ---------- TikZ styles (colour rules) ----------
+\tikzset{
+  hw/.style={draw=nLine, thick, fill=nFill, text=nInk, rounded corners=3pt, align=center, inner sep=4pt},
+  cell/.style={draw=nLine, thick, fill=white, text=nInk, font=\ttfamily\small, minimum size=0.7cm},
+  cellused/.style={cell, fill=nFill},
+  cellfree/.style={cell, dashed, draw=nLight},
+  actor/.style={fill=#1, draw=#1, text=white, rounded corners=3pt, align=center, font=\small\bfseries, inner sep=4pt},
+  actoramber/.style={actor=sAmber, text=black},
+  suspended/.style={fill=#1!30, draw=#1, dashed, line width=0.9pt, text=nInk, rounded corners=3pt, align=center, inner sep=4pt},
+  idle/.style={fill=nIdle, draw=none, text=nInk, rounded corners=3pt, align=center, inner sep=4pt},
+  flow/.style={-{Stealth}, very thick, DeepBlue},
+  data/.style={-{Stealth}, very thick, nInk},
+  holds/.style={-{Stealth}, very thick, nInk},
+  waits/.style={-{Stealth}, very thick, nLine, dashed},
+  annot/.style={draw=AccentOrange, line width=1.4pt, rounded corners=3pt},
+}
+\newcommand{\ok}{\textcolor{aExec}{\faCheck}}
+\newcommand{\nok}{\textcolor{aWrite}{\faTimes}}
+\newcommand{\badge}[1]{\tikz[baseline=(b.base)]\node[circle,fill=AccentOrange,text=white,
+  inner sep=1.2pt,font=\bfseries\scriptsize] (b) {#1};}
+
+% ---------- code ----------
+\lstdefinestyle{cpp}{language=C++, basicstyle=\color{VSText}\ttfamily\footnotesize, numbers=none,
+  keywordstyle=\color{VSBlue}\bfseries, commentstyle=\color{VSComment}\itshape, stringstyle=\color{VSString},
+  columns=fixed, basewidth=0.52em, keepspaces=true, showstringspaces=false,
+  breaklines=true, breakatwhitespace=true, postbreak=\mbox{\textcolor{nLine}{$\hookrightarrow$}\space},
+  morekeywords={std,thread,mutex,lock_guard,scoped_lock,unique_lock,atomic,condition_variable,
+    counting_semaphore,uint32_t,uint64_t},
+  emph={join,lock,unlock,wait,notify_one,notify_all,acquire,release,fetch_add,compare_exchange_weak,
+    load,try_lock},
+  emphstyle=\color{VSPurple}, deletestring=[b]{'}, upquote=true}
+\lstdefinestyle{plain}{language={}, basicstyle=\color{VSText}\ttfamily\footnotesize, columns=fixed, basewidth=0.52em,
+  keepspaces=true, showstringspaces=false, upquote=true}
+\lstdefinestyle{make}{language={make}, basicstyle=\color{VSText}\ttfamily\footnotesize, columns=fixed, basewidth=0.52em,
+  keepspaces=true, showstringspaces=false, upquote=true, keywordstyle=\color{VSBlue}\bfseries,
+  commentstyle=\color{VSComment}\itshape, stringstyle=\color{VSString}, tabsize=4}
+\tcbuselibrary{listings}
+\tcbset{codebox/.style={enhanced, colback=VSDarkBg, colframe=VSDarkBg, arc=3pt,
+  boxrule=0pt, left=8pt, right=6pt, bottom=4pt,
+  overlay={\foreach \x in {0,0.32,0.64}
+    \fill[nLine] ([xshift=10pt+\x cm,yshift=-7pt]frame.north west) circle (2.6pt);},
+  top=16pt}}
+% code typed into the document: \begin{code} ... \end{code}, or \begin{code}[style=plain]
+\newtcblisting{code}[1][]{codebox, listing only, listing options={style=cpp,#1}}
+% code from a file: \codefile{tickets.cpp} or \codefile[firstline=10,lastline=30]{tickets.cpp}
+\newtcbinputlisting{\codefile}[2][]{codebox, listing only, listing file={#2}, listing options={style=cpp,#1}}
+% terminal output: \begin{terminal} ... \end{terminal}
+\newtcblisting{terminal}[1][]{codebox, listing only, listing options={style=plain,#1}}
+
+% ---------- text boxes ----------
+% the story of the task
+\newtcolorbox{story}{enhanced, breakable, colback=AccentOrange!7, colframe=AccentOrange!7, arc=3pt,
+  boxrule=0pt, borderline west={3pt}{0pt}{AccentOrange}, left=10pt, fontupper=\itshape}
+% a grey box with a bold title: \begin{note}{Title} ... \end{note}
+\newtcolorbox{note}[1]{enhanced, breakable, colback=LightGray, colframe=LightGray, arc=3pt, boxrule=0pt,
+  title={\textbf{#1}}, coltitle=nInk, colbacktitle=LightGray, attach title to upper={\\[2pt]}}
+% the one sentence to remember
+\newtcolorbox{keymsg}{enhanced, colback=AccentOrange!10, colframe=AccentOrange!10, arc=3pt, boxrule=0pt,
+  halign=center}
+% a definition
+\newtcolorbox{definition}[1]{enhanced, colback=AccentOrange!10, colframe=AccentOrange!10, arc=3pt,
+  boxrule=0pt, title={\textbf{\textcolor{AccentOrange}{\faBook}\ #1}}, coltitle=black,
+  colbacktitle=AccentOrange!10, attach title to upper={\\[2pt]}}
+% a warning or a trap
+\newtcolorbox{trap}[1]{enhanced, breakable, colback=AccentOrange!10, colframe=AccentOrange!10, arc=3pt,
+  boxrule=0pt, title={\textbf{\textcolor{AccentOrange}{\faExclamationTriangle}\ #1}}, coltitle=black,
+  colbacktitle=AccentOrange!10, attach title to upper={\\[2pt]}}
+
+% questions of a task: \begin{questions} \item ... \end{questions}
+\newlist{questions}{enumerate}{1}
+\setlist[questions]{label=\protect\badge{\arabic*}, leftmargin=2.2em, itemsep=0.5em}
+% the answer to one question in a solution: \answer{2}{Write a check in main()}
+\newcommand{\answer}[2]{\par\medskip{\large\badge{#1}\ \textbf{#2}}\par\nopagebreak}
+
+% ---------- headings and page style ----------
+\titleformat{\section}{\Large\bfseries\color{DeepBlue}}{}{0pt}{}
+\titleformat{\subsection}{\large\bfseries\color{DeepBlue}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsection}{0pt}{1em}{0.3em}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\newcommand{\doclabel}{}
+\fancyhead[L]{\small\textcolor{nLine}{Computer Hardware \textbullet\ Lecture 8: Practice with Threads}}
+\fancyhead[R]{\small\textcolor{nLine}{\doclabel}}
+\fancyfoot[C]{\small\textcolor{nLine}{\thepage}}
+
+% the title band: \settitle{Task 3}{Statistics in a 5G base station}
+\newcommand{\settitle}[2]{%
+  \renewcommand{\doclabel}{#1}%
+  \thispagestyle{fancy}%
+  \begin{tcolorbox}[enhanced, colback=DeepBlue, colframe=DeepBlue, arc=4pt, boxrule=0pt,
+      left=12pt, top=10pt, bottom=10pt]
+    \color{white}{\small Computer Hardware \textbullet\ Lecture 8: Practice with Threads}\\[4pt]
+    {\LARGE\bfseries #1: #2}
+  \end{tcolorbox}\vspace{0.3em}}
+
+% the GitHub folder of a task
+\newcommand{\repo}{https://github.com/KsaweryM/Computer-Hardware-Course/tree/main/Lecture_8_Practice_with_Threads}
+\newcommand{\ghfolder}[1]{\href{\repo/#1}{\texttt{#1}}}
+
+% one line under the code of a task
+\newcommand{\runline}{\par In the task folder, \texttt{make run} compiles the program and runs it.\par}
+
+% the heading of the code section: starts a new page if less than about half a page is left,
+% so that the heading and the code stay together
+\newcommand{\codesection}{\Needspace{0.5\textheight}\section{The code}}

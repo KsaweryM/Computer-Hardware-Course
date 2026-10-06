@@ -1,0 +1,131 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 3}{Statistics in a 5G base station}
+
+\begin{story}
+A 5G base station receives millions of packets per second from the phones around it, and eight threads
+process them. The station keeps three statistics: how many packets have come so far, how many bytes they
+had together (for monitoring and billing), and the length of the longest packet so far (to size the buffers).
+The code is correct, but the profiler shows that the threads spend most of their time waiting for one mutex.
+Make it faster.
+\end{story}
+
+Note: this is a very simplified model, made for teaching.
+
+\section{The situation}
+
+\begin{center}
+\begin{tikzpicture}[
+    pk/.style={draw=nLine, fill=nFill, minimum width=0.36cm, minimum height=0.22cm, inner sep=0pt,
+      rounded corners=1pt},
+    lane/.style={nLight, thick},
+    expl/.style={anchor=north west, text width=7.2cm, font=\small, text=nInk, align=left,
+      execute at begin node={\hyphenpenalty=10000\relax}},
+    stage/.style={font=\small\bfseries, text=nInk, anchor=west}]
+  \def\cx{3.15}
+  % ======================= 1. loose =======================
+  \foreach \i in {0,...,7} {
+    \ifnum\i=3
+      \node[actor=sIndigo, minimum width=0.6cm, inner sep=2pt, font=\scriptsize\bfseries] at (\i*0.9,0) {T\i};
+    \else
+      \node[suspended=sIndigo, minimum width=0.6cm, inner sep=2pt, font=\scriptsize\bfseries] at (\i*0.9,0) {T\i};
+    \fi
+    \draw[lane] (\i*0.9,-0.3) -- (\i*0.9,-3.0) -- (\cx+\i*0.7-3.5*0.7,-4.2);
+  }
+  \foreach \i/\y in {0/-0.8, 0/-2.3, 1/-1.4, 1/-2.8, 2/-1.0, 2/-2.0, 3/-0.7, 3/-2.5, 4/-1.7,
+                     5/-1.1, 5/-2.4, 6/-0.6, 6/-1.9, 7/-1.3, 7/-2.7}
+    \node[pk] at (\i*0.9,\y) {};
+  % ======================= 2. the jam =======================
+  \fill[AccentOrange!12, rounded corners=4pt] (0.45,-4.15) -- (5.85,-4.15) -- (4.15,-5.75) -- (2.15,-5.75) -- cycle;
+  \foreach \r/\n in {0/12, 1/10, 2/8, 3/6, 4/4} {
+    \pgfmathtruncatemacro{\last}{\n-1}
+    \foreach \j in {0,...,\last}
+      \node[pk] at (\cx-\n*0.2+0.2+\j*0.4, -4.4-\r*0.29) {};
+  }
+  \node[font=\scriptsize\bfseries, text=AccentOrange, anchor=west] at (4.6,-5.45) {the jam};
+  % ======================= 3. one at a time =======================
+  \node[hw, minimum width=6.0cm, minimum height=2.75cm, anchor=north] (mx) at (\cx,-6.05) {};
+  \node[font=\small, text=nInk, anchor=north west] at ($(mx.north west)+(0.1,-0.08)$) {\faLock\ \textbf{mutex m}};
+  \draw[-{Stealth}, thick, nInk] (\cx,-5.75) -- (\cx,-6.0);
+  \node[pk, minimum width=0.75cm, minimum height=0.32cm, font=\scriptsize\ttfamily, text=nInk, fill=white]
+    at (\cx+1.85,-6.3) {512};
+  \node[font=\scriptsize, text=nInk, anchor=east] at (\cx+1.4,-6.3) {T3 with};
+  \node[font=\small, text=nInk, anchor=north] at (\cx,-6.65) {%
+    \begin{tabular}{@{}l@{\quad}r@{\,}c@{\,}r@{}}
+      & \scriptsize before & & \scriptsize after \\
+      \texttt{packet\_count} & \texttt{1\,041} & $\to$ & \texttt{1\,042} \\
+      \texttt{total\_bytes} & \texttt{793\,410} & $\to$ & \texttt{793\,922} \\
+      \texttt{longest\_packet} & \texttt{1\,463} & $\to$ & \texttt{1\,463}
+    \end{tabular}};
+  % ======================= 4. loose again =======================
+  \draw[lane] (\cx,-8.8) -- (\cx,-9.1);
+  \foreach \i in {0,...,7}
+    \draw[lane, -{Stealth}] (\cx,-9.1) -- (\i*0.9,-9.9) -- (\i*0.9,-11.6);
+  \foreach \i/\y in {0/-10.3, 1/-11.0, 2/-10.5, 3/-10.1, 3/-11.2, 4/-10.7, 5/-10.2, 6/-10.9, 7/-10.4}
+    \node[pk] at (\i*0.9,\y) {};
+  % ======================= the explanation on the right =======================
+  \begin{scope}[xshift=7.6cm]
+    \node[stage] at (0,-0.5) {\badge{1}\ Loose};
+    \node[expl] at (0,-0.85) {Eight threads, each with its own packets. Every thread takes a packet and calls
+      \texttt{on\_packet(len)}. Plenty of room: the threads work at the same time.};
+    \node[stage] at (0,-4.2) {\badge{2}\ The jam};
+    \node[expl] at (0,-4.55) {All of them want the same mutex. Only one can go in; the other seven wait in
+      front of the door. More threads only make the jam longer.};
+    \node[stage] at (0,-6.4) {\badge{3}\ One at a time};
+    \node[expl] at (0,-6.75) {Inside the mutex, T3 updates the statistics with its packet of 512 bytes,
+      and gets the number \texttt{1\,041} back.};
+    \node[stage] at (0,-10.0) {\badge{4}\ Loose again};
+    \node[expl] at (0,-10.35) {After the mutex every thread goes on alone with its packet: no more waiting.};
+  \end{scope}
+  \node[font=\small\bfseries, text=AccentOrange] at (7.9,-12.2)
+    {8 threads, but at the mutex only 1 of them works at a time};
+\end{tikzpicture}
+\end{center}
+
+\codesection
+
+The template is in \ghfolder{Task3}. This is \texttt{stats.cpp}:
+
+\codefile[firstline=1]{stats.cpp}
+
+\runline
+
+The program measures the speed: 8 threads send 1\,000\,000 packets each, and it prints how many million
+packets per second \texttt{on\_packet()} handled.
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run it. How many packets per second does the version with the mutex handle?
+  \item Replace the mutex with \texttt{std::atomic}. To check your solution, change \texttt{TEST} from 0 to 1 at the
+        top of \texttt{stats.cpp}: the program then does not measure, but runs ready tests. Do all tests pass?
+        If not, why not, when every variable is atomic?
+  \item Set \texttt{TEST} back to 0. How many times faster is it now?
+\end{questions}
+
+\begin{note}{The tests (\texttt{TEST 1})}
+They are ready in \texttt{packets.h}; you do not write them. 8 threads send packets, and the program checks four
+things: the sequence numbers are unique, the byte counter is exact, \texttt{longest\_packet} never goes down, and
+\texttt{longest\_packet} is right at the end.
+\end{note}
+
+\Needspace{16\baselineskip}
+\begin{note}{Atomic variables}
+\texttt{std::atomic<int>} (from \texttt{<atomic>}) is an \texttt{int} whose every operation happens in
+\textbf{one step}: no other thread can come in the middle of it. In the same way \texttt{std::atomic<uint32\_t>}
+is an atomic \texttt{uint32\_t}.
+\begin{code}
+std::atomic<int> x{5};       // declare: an atomic int that starts at 5
+
+int old = x.fetch_add(3);    // add 3, return the value before: x = 8, old = 5
+x++;                         // the same as x.fetch_add(1): x = 9
+
+int now = x.load();          // read: now = 9
+if (x > 7) { /* ... */ }     // a plain read works too, it is the same as x.load() > 7
+
+x = 10;                      // write: x = 10
+\end{code}
+\end{note}
+
+\end{document}

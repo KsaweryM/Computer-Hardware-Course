@@ -1,0 +1,202 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+% a grid of cells: \grid{rows}{cols}
+\newcommand{\grid}[2]{\foreach \r in {1,...,#1} \foreach \c in {1,...,#2}
+  \node[cellfree, minimum size=0.75cm] at (\c*0.75-0.75,-\r*0.75+0.75) {};}
+\begin{document}
+\settitle{Task 4}{Robots in a warehouse}
+
+\begin{story}
+A company runs an automatic warehouse: robots drive around a grid of cells. The company says that its robots
+can never get stuck. Prove them wrong: write routes after which the robots are stuck for ever.
+\end{story}
+
+\section{The situation}
+
+\begin{center}
+\begin{tikzpicture}[x=0.85cm, y=0.85cm]
+  % the warehouse: 5 rows, 8 columns; (row, column) = (0,0) top left
+  \fill[nFill, rounded corners=4pt] (-0.75,0.75) rectangle (7.75,-4.75);
+  \node[text=nInk, font=\small, anchor=south west] at (-0.75,0.8) {\faWarehouse\ \ the warehouse: 5 rows $\times$ 8 columns};
+  \foreach \r in {0,...,4} \foreach \c in {0,...,7}
+    \draw[nLine, fill=white] (\c-0.42,-\r-0.42) rectangle (\c+0.42,-\r+0.42);
+  \foreach \c in {0,...,7} \node[font=\tiny, text=nLine] at (\c,0.62) {\c};
+  \foreach \r in {0,...,4} \node[font=\tiny, text=nLine] at (-0.62,-\r) {\r};
+  % the routes from routes.txt: one arrow = one letter of the route
+  \foreach \c/\r/\cc/\rr in {0/0/1/0, 1/0/2/0, 2/0/3/0, 3/0/3/1, 3/1/3/2}
+    \draw[-{Stealth}, very thick, sIndigo!70, shorten <=0.22cm, shorten >=0.22cm] (\c,-\r) -- (\cc,-\rr);
+  \foreach \c/\r/\cc/\rr in {7/4/7/3, 7/3/7/2, 7/2/6/2, 6/2/5/2, 5/2/4/2}
+    \draw[-{Stealth}, very thick, sPink!70, shorten <=0.22cm, shorten >=0.22cm] (\c,-\r) -- (\cc,-\rr);
+  % start: the robots; end: faded robots
+  \node[text=sIndigo, font=\Large] at (0,0) {\faRobot};
+  \node[text=sPink, font=\Large] at (7,-4) {\faRobot};
+  \node[text=sIndigo, font=\Large, opacity=0.35] at (3,-2) {\faRobot};
+  \node[text=sPink, font=\Large, opacity=0.35] at (4,-2) {\faRobot};
+  \node[font=\scriptsize\bfseries, text=sIndigo, fill=white, inner sep=1pt] at (0,-0.36) {A};
+  \node[font=\scriptsize\bfseries, text=sPinkText, fill=white, inner sep=1pt] at (7,-4.36) {B};
+  % legend
+  \node[font=\scriptsize, text=nInk, anchor=west, align=left] at (8.1,-0.2)
+    {A: start (0,0), route \texttt{RRRDD}\\B: start (4,7), route \texttt{UULLL}};
+  \node[font=\scriptsize, text=nInk, anchor=west, align=left] at (8.1,-1.75)
+    {one arrow = one letter of the route\\faded robot = where it ends};
+  \node[font=\scriptsize, text=nInk, anchor=west, align=left] at (8.1,-3.3)
+    {every robot is a thread,\\every cell is a mutex};
+\end{tikzpicture}
+\end{center}
+
+Every robot is a thread, and every cell of the grid is a mutex. A robot \textbf{holds} the lock of the cell it
+stands on. One step takes four moments:
+
+\begin{center}
+\begin{tikzpicture}[
+    cl/.style={draw=nLine, thick, fill=white, minimum size=0.8cm, inner sep=0pt},
+    held/.style={draw=sIndigo, line width=1.6pt, fill=white, minimum size=0.8cm, inner sep=0pt},
+    stepcap/.style={font=\small, text=nInk, align=center, text width=3.7cm, anchor=north}]
+  % 1. A stands on its cell
+  \node[held] (a1) at (0,0) {\large\textcolor{sIndigo}{\faRobot}};
+  \node[cl, right=0.1cm of a1] (b1) {};
+  \node[stepcap] at (0.45,-0.65) {\badge{1} A stands on its cell\\and holds its lock};
+  % 2. A locks the next cell
+  \begin{scope}[xshift=4.15cm]
+    \node[held] (a2) at (0,0) {\large\textcolor{sIndigo}{\faRobot}};
+    \node[held, right=0.1cm of a2] (b2) {\textcolor{nInk}{\faLock}};
+    \node[stepcap] at (0.45,-0.65) {\badge{2} A locks the next cell\\(now it holds two)};
+  \end{scope}
+  % 3. A drives over
+  \begin{scope}[xshift=8.3cm]
+    \node[held] (a3) at (0,0) {\textcolor{nInk}{\faLock}};
+    \node[held, right=0.1cm of a3] (b3) {\large\textcolor{sIndigo}{\faRobot}};
+    \draw[-{Stealth}, thick, sIndigo] (a3.north) to[bend left=40] (b3.north);
+    \node[stepcap] at (0.45,-0.65) {\badge{3} A drives over};
+  \end{scope}
+  % 4. A unlocks the old cell
+  \begin{scope}[xshift=12.45cm]
+    \node[cl] (a4) at (0,0) {\textcolor{AccentOrange}{\faUnlock}};
+    \node[held, right=0.1cm of a4] (b4) {\large\textcolor{sIndigo}{\faRobot}};
+    \node[stepcap] at (0.45,-0.65) {\badge{4} A unlocks the old cell};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+So a robot never stands on no cell, and two robots never stand on one cell.
+
+The program is \textbf{ready}: you do not change the code, only the input. The routes are in the file
+\texttt{routes.txt}. The grid has 5 rows (0 to 4) and 8 columns (0 to 7); the cell (0,0) is in the top left corner.
+
+\codefile[style=plain]{routes.txt}
+
+\runline
+
+A route is a list of steps: \texttt{R} right, \texttt{L} left, \texttt{U} up, \texttt{D} down. The last number is
+the time of one step of this robot in milliseconds.
+When a robot has finished its route, it leaves the warehouse: it unlocks its cell and disappears from the grid.
+
+After every step the program prints where the robot went and draws the grid:
+
+\begin{terminal}
+$ ./build/robots                # reads routes.txt
+start:
+  A . . . . . . .
+  . . . . . . . .
+  . . . . . . . .
+  . . . . . . . .
+  . . . . . . . B
+
+robot A: (0,0) -> (0,1)
+  . A . . . . . .
+  . . . . . . . .
+  . . . . . . . .
+  . . . . . . . .
+  . . . . . . . B
+
+...
+$ ./build/robots other.txt      # reads other.txt
+\end{terminal}
+
+When every robot that has not finished has waited for more than 2\,s, the program prints who waits for whom
+and stops:
+
+\begin{terminal}
+DEADLOCK: nobody can move.
+  robot A waits for (2,4), which robot B holds
+  robot B waits for (2,3), which robot A holds
+\end{terminal}
+
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Write routes for 2 robots after which they are stuck for ever (a deadlock).
+  \item Does your deadlock happen every time, or only sometimes? Change the speeds of the robots and check.
+  \item Three robots drive in a line, like a snake: A right behind B, B right behind C, all on the same path.
+        Each one may have a different speed, so a faster robot catches up with the slower one in front and waits
+        for its cell. Can they get stuck for ever? Why? Write such routes and check.
+        \begin{center}
+        \begin{tikzpicture}[x=0.5cm, y=0.5cm,
+            sn/.style={fill=#1, draw=#1, text=white, font=\scriptsize\bfseries, minimum size=0.42cm,
+              inner sep=0pt, rounded corners=1.5pt}]
+          % the path: (0,0) (0,1) (0,2) (0,3) (0,4) (1,4) (2,4); in frame k: A on cell k, B on k+1, C on k+2
+          \foreach \k/\gx/\gy/\t in {0/0/0/{start}, 1/1/0/{after 1 step}, 2/2/0/{after 2 steps},
+                                     3/0/1/{after 3 steps: C turns}, 4/1/1/{after 4 steps: B follows}} {
+            \begin{scope}[xshift=\gx*5.0cm, yshift=-\gy*2.6cm]
+              \foreach \r in {0,1,2} \foreach \c in {0,...,5}
+                \draw[nLine, fill=white] (\c-0.45,-\r-0.45) rectangle (\c+0.45,-\r+0.45);
+              \node[font=\scriptsize, text=nInk, anchor=north] at (2.5,-2.7) {\t};
+              \foreach \n/\col in {0/sIndigo, 1/sPink, 2/sViolet} {
+                \pgfmathtruncatemacro{\p}{\k+\n}
+                \ifnum\p<5 \def\rr{0}\edef\cc{\p}\else \pgfmathtruncatemacro{\rr}{\p-4}\def\cc{4}\fi
+                \ifnum\n=0 \def\nm{A}\fi \ifnum\n=1 \def\nm{B}\fi \ifnum\n=2 \def\nm{C}\fi
+                \node[sn=\col] at (\cc,-\rr) {\nm};
+              }
+            \end{scope}}
+          \foreach \gx/\gy in {0/0, 1/0, 0/1}
+            \draw[-{Stealth}, thick, nInk] (\gx*10+6.0,-\gy*5.2-1) -- (\gx*10+9.0,-\gy*5.2-1);
+          % the common path, in the first frame
+          \draw[nInk, dashed, rounded corners=3pt] (2.5,0) -- (4,0) -- (4,-2.3);
+        \end{tikzpicture}
+        \end{center}
+        Each robot drives into the cell that the robot in front of it has just left.
+  \item After your report, the engineers added a safety rule for the case from your report: when two robots want
+        \textbf{each other's} cells, they \textbf{swap} places. This works only when A wants the cell of B
+        \textbf{and} B wants the cell of A. In every other case a robot waits, as before:
+        \begin{center}
+        \begin{tikzpicture}[
+            rc/.style={draw=nLine, thick, fill=white, minimum size=0.75cm, inner sep=0pt},
+            rb/.style={fill=#1, draw=#1, text=white, font=\small\bfseries, minimum size=0.55cm, inner sep=0pt,
+              rounded corners=2pt},
+            wants/.style={-{Stealth}, thick, nInk, dashed}]
+          % the swap: A and B want each other's cells
+          \node[rc] (c1) at (0,0) {}; \node[rc] (c2) at (0.85,0) {};
+          \node[rb=sIndigo] (a) at (c1) {A}; \node[rb=sPink] (b) at (c2) {B};
+          \draw[wants] (c1.north) to[bend left=50] (c2.north);
+          \draw[wants] (c2.south) to[bend left=50] (c1.south);
+          \draw[-{Stealth}, thick, nInk] (1.55,0) -- node[above, font=\scriptsize] {swap} (2.55,0);
+          \node[rc] (c3) at (3.25,0) {}; \node[rc] (c4) at (4.1,0) {};
+          \node[rb=sPink] at (c3) {B}; \node[rb=sIndigo] at (c4) {A};
+          \node[font=\large] at (4.9,0) {\ok};
+          \node[font=\small, text=nInk, align=center, anchor=north] at (2.05,-1.0)
+            {A wants the cell of B,\\B wants the cell of A: they swap};
+          % no swap: D wants the cell of A, but A wants the cell of B
+          \begin{scope}[xshift=8.3cm]
+            \node[rc] (d1) at (0,0) {}; \node[rc] (d2) at (0.85,0) {}; \node[rc] (d3) at (0,-0.85) {};
+            \node[rb=sIndigo] at (d1) {A}; \node[rb=sPink] at (d2) {B};
+            \node[rb=sAmber, text=black] at (d3) {D};
+            \draw[wants] (d1.north) to[bend left=50] (d2.north);
+            \draw[wants] (d3.west) to[bend left=50] (d1.west);
+            \node[font=\large] at (1.6,-0.4) {\nok};
+            \node[font=\small, text=nInk, align=center, anchor=north] at (0.9,-1.45)
+              {D wants the cell of A, but A wants\\the cell of B: no swap, D waits};
+          \end{scope}
+          \node[font=\scriptsize, text=nInk, anchor=west] at (11.2,0.3) {\tikz\draw[wants] (0,0) -- (0.6,0);\ wants};
+        \end{tikzpicture}
+        \end{center}
+        The boss announces that the deadlock problem is solved. Is the boss right? If not, write routes after which
+        the robots are stuck for ever even with the safety rule. You may use as many robots as you want.
+        To switch the rule on, add the line \texttt{safety on} at the top of your routes file.
+\end{questions}
+
+\begin{note}{Hint}
+Draw the robots on paper first: for every robot, which cell does it hold, and which cell does it want?
+\end{note}
+
+\end{document}

@@ -31,13 +31,13 @@ threads.
 - **Lecture 6** replaces polling with **interrupts** (from a button and a timer), shows how a
   **scheduler** lets one processor run several tasks with time slices and context switches, and
   runs a real scheduler, **FreeRTOS**, on the ESP32-C3.
-- **Lecture 7** moves to **threads in C++** on a multi-core laptop: why `counter++` loses updates
-  (a race condition, seen down to the `lw`/`addi`/`sw` instructions), and how to fix it with
-  **mutexes** and **atomics**, and what each fix costs.
-- **Lecture 8** explains why the bank program from Lecture 7 stops: **deadlock**, its four
-  conditions and the dining philosophers. It fixes it with a lock order and `std::scoped_lock`,
-  then shows how threads can **cooperate** without busy waiting: condition variables, semaphores,
-  the producer-consumer pattern and a thread pool.
+- **Lecture 7** moves to **threads in C++** on a multi-core laptop: why threads that share data
+  lose updates (a **race condition**), how to fix it with **mutexes** and **atomics**, and what
+  each fix costs. Then **deadlock**, a circle of threads that wait for each other, and two ways to
+  break it: one lock order for everyone and `std::scoped_lock`. It ends with threads that
+  **cooperate** without busy waiting: condition variables, the producer-consumer pattern and semaphores.
+- **Lecture 8** has no slides: it is a list of 11 tasks to practise the concepts from Lecture 7, each with its
+  own PDF and an explained solution. It also introduces the **dining philosophers** problem.
 
 Author: **Ksawery Możdżyński**
 
@@ -55,8 +55,8 @@ The course is divided into eight lectures:
 | **4** | Memory and Cache | The memory wall, the memory hierarchy, locality, direct-mapped and set-associative caches, line/tag, hit rate, AMAT |
 | **5** | Input/Output: Devices and Polling | ESP32-C3 in Wokwi, LEDs and buttons on GPIO, an LCD on the I2C bus, memory-mapped I/O, controlling the GPIO controller through its registers, polling and its limits |
 | **6** | A Brief History of Concurrency: From a Button to a Scheduler | Interrupts and ISRs, timer interrupts, time slices, context switches, task states and priorities, FreeRTOS on the ESP32-C3 |
-| **7** | Threads and Synchronisation in C++ | Threads, race conditions and data races, critical sections, mutexes, atomics, lock granularity |
-| **8** | Deadlock and Cooperating Threads | Deadlock and its four conditions, dining philosophers, lock ordering, busy waiting, condition variables, semaphores, producer-consumer, thread pools |
+| **7** | Threads and Synchronisation in C++ | Threads, race conditions and data races, mutexes, atomics, deadlock, lock ordering, `std::scoped_lock`, busy waiting, condition variables, producer-consumer, semaphores |
+| **8** | Practice with Threads | 11 tasks with explained solutions: race conditions, atomics, deadlock, condition variables, producer-consumer, semaphores, dining philosophers |
 
 ---
 
@@ -72,8 +72,7 @@ nothing to install. Direct links to each topic:
 | 4 | [Direct-mapped cache](https://ksawerym.github.io/ComputerHardwareSimulators/#cache): blocks, lines, tags, hits and misses |
 | 5 | [I2C](https://ksawerym.github.io/ComputerHardwareSimulators/#io-i2c), [device registers](https://ksawerym.github.io/ComputerHardwareSimulators/#io-mmio), [GPIO controller](https://ksawerym.github.io/ComputerHardwareSimulators/#io-gpio) |
 | 6 | [Polling vs interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-poll), [an interrupt](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-intr), [interrupt step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-irq), [timer and tick](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-tick), [time slice](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-slice), [context switch](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-ctx), [states and priorities](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-states), [shared counter](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-shared) |
-| 7 | [Race step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-race), [mutex](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-mutex) |
-| 8 | [Deadlock](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-dead), [producer-consumer](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-pc) |
+| 7 | [Race step by step](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-race), [mutex](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-mutex), [deadlock](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-dead), [producer-consumer](https://ksawerym.github.io/ComputerHardwareSimulators/#cc-pc) |
 
 The course also uses these tools:
 
@@ -95,7 +94,8 @@ Ready-to-use presentation slides are available in the [`builded_presentation/`](
 - [Lecture 5: Input/Output: Devices and Polling](builded_presentation/Lecture_5_Input_Output_Devices_and_Polling.pdf)
 - [Lecture 6: A Brief History of Concurrency](builded_presentation/Lecture_6_A_Brief_History_of_Concurrency.pdf)
 - [Lecture 7: Threads and Synchronisation in C++](builded_presentation/Lecture_7_Threads_and_Synchronisation.pdf)
-- [Lecture 8: Deadlock and Cooperating Threads](builded_presentation/Lecture_8_Deadlock_and_Cooperating_Threads.pdf)
+- Lecture 8: Practice with Threads has no slides; the PDFs of its tasks and solutions are listed in
+  [its README](Lecture_8_Practice_with_Threads/README.md).
 
 ---
 
@@ -109,6 +109,8 @@ Every folder has a `Makefile` and a `README.md` with the instructions:
   Each one is a Wokwi project for the VS Code extension: `make` compiles it with `arduino-cli`,
   then **Wokwi: Start Simulator** runs it.
 - **Lectures 7 and 8** (C++ on your laptop): `make` compiles every `.cpp` file into `build/`, `make run` also runs them.
+  In Lecture 8 every task folder also has a PDF with the task, and the solutions are in
+  [`Lecture_8_Practice_with_Threads/Solutions`](Lecture_8_Practice_with_Threads/Solutions/).
 
 ---
 

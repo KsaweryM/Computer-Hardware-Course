@@ -1,0 +1,86 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 5}{The pizzeria}
+
+\begin{story}
+Three cooks make three kinds of pizza, and sometimes they need the same ingredients. The owner says that
+something is wrong with the kitchen software: some evenings the kitchen stops, and on other evenings the number
+of pizzas on the board does not match the till. This program has \textbf{two} bugs. Find both, tell them apart
+and fix them.
+\end{story}
+
+This task joins Tasks 1 to 4: one race condition and one deadlock in one program.
+
+\section{The kitchen}
+
+Every ingredient is a mutex: only one cook at a time takes from it. A cook takes the ingredients in their own order,
+holds all of them until the pizza is baked, and then gives them back.
+
+\begin{center}
+\begin{tikzpicture}[x=1.5cm, y=1cm]
+  % the ingredients (columns)
+  \foreach \c/\n/\i in {0/tomato\\sauce/\faCircle, 1/cheese\\sauce/\faCircle, 2/mozzarella/\faCheese,
+                        3/cheddar/\faCheese, 4/jalape\~no/\faPepperHot, 5/pepperoni/\faPizzaSlice} {
+    \node[text=nInk, font=\large] at (\c,1.4) {\i};
+    \node[font=\scriptsize, text=nInk, align=center, anchor=south] at (\c,0.42) {\n};
+  }
+  % the cooks (rows) and the order in which they take the ingredients
+  \foreach \r/\who/\pizza/\col in {0/A/Fat Peppa/sIndigo, 1/B/Fat Cheese/sPink, 2/C/Diavola/sViolet} {
+    \fill[\col!8] (-0.55,-\r-0.38) rectangle (5.5,-\r+0.38);
+    \node[actor=\col, minimum width=2.1cm, anchor=east, font=\scriptsize\bfseries] at (-0.65,-\r) {cook \who: \pizza};
+  }
+  \newcommand{\order}[3]{\node[circle, fill=AccentOrange, text=white, font=\scriptsize\bfseries, inner sep=1.5pt,
+    minimum size=0.45cm] at (#2,-#1) {#3};}
+  \order{0}{0}{1} \order{0}{2}{2} \order{0}{5}{3}
+  \order{1}{1}{1} \order{1}{2}{2} \order{1}{4}{3} \order{1}{3}{4}
+  \order{2}{4}{1} \order{2}{0}{2} \order{2}{2}{3} \order{2}{5}{4}
+  \node[font=\scriptsize, text=nInk, anchor=west] at (-2.4,-2.85)
+    {\textcolor{AccentOrange}{\faCircle}\ 1, 2, 3, 4: the order in which the cook takes the ingredients (each one is a mutex)};
+  % the board
+  \node[hw, align=center, font=\small, minimum width=1.9cm, minimum height=1.6cm] at (6.6,-1) {\faChalkboard\\[2pt] pizzas:\\\textbf{30?}};
+\end{tikzpicture}
+\end{center}
+
+After every pizza the cook adds 1 to the number on the board, \texttt{pizzas}. Every cook makes 10 pizzas, so at
+the end the board should show 30.
+
+\begin{note}{Ready code (in \texttt{kitchen.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{take(m)} & take an ingredient: lock its mutex \\
+\texttt{bake()} & bake the pizza: 2\,ms \\
+\texttt{write\_on\_board()} & write the number on the board: 2\,ms \\
+\texttt{serve(ms)} & bring the pizza to the table: A 20\,ms, B 30\,ms, C 40\,ms \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{PIZZAS} & 10: every cook makes 10 pizzas \\
+\end{tabularx}
+\end{note}
+
+\codesection
+
+The template is in \ghfolder{Task5}. This is \texttt{pizzeria.cpp}:
+
+\codefile[firstline=5]{pizzeria.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run the program 10 times. Write down what happens each time: it hangs, it prints a wrong number, or it
+        prints 30. (A program that hangs: stop it with Ctrl+C.)
+  \item Find the race condition on \texttt{pizzas}. Which lines, and what exactly goes wrong?
+  \item Fix the counter. \texttt{std::atomic} or a mutex? Why?
+  \item Draw who waits for whom when the program hangs, and find the circle.
+  \item Only cook B uses the cheese sauce and the cheddar. Are they part of the deadlock?
+  \item Cooks A and C both use pepperoni. Is it part of the deadlock?
+  \item Choose one order for everybody. A pizza is made from the bottom up: sauces first, then cheeses, then toppings:
+        tomato sauce, cheese sauce, mozzarella, cheddar, jalape\~no, pepperoni.
+        Change the order of cooks B and C to follow it.
+  \item Run the program 10 times again. Does it ever hang? Is the number always right?
+\end{questions}
+
+\end{document}

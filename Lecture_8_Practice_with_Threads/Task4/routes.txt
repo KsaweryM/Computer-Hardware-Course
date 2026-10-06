@@ -1,0 +1,8 @@
+# Routes of the robots. The grid has 5 rows (0 to 4) and 8 columns (0 to 7).
+# The cell (0,0) is the top left corner.
+#
+# robot  row  column  route  ms per step
+#   route: R = right, L = left, U = up, D = down
+
+A  0 0  RRRDD  200
+B  4 7  UULLL  300

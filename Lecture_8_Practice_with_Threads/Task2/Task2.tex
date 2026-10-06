@@ -1,0 +1,80 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 2}{The discount code}
+
+\begin{story}
+An online shop gave a customer the discount code \texttt{PROMO50}. The code may be used \textbf{at most 3 times}:
+the shop checks that in the code, with a counter. A week later the accountants saw that the code had been used
+several hundred times, although the limit was 3. How is this possible?
+\end{story}
+
+\section{The situation}
+
+Every click on \emph{Use code} starts a new thread that calls \texttt{redeem()}. The function checks the counter
+\texttt{used}, verifies the order (slow: stock, price, address) and counts the use.
+
+\begin{center}
+\begin{tikzpicture}
+  % shoppers with phones
+  \foreach \i/\y in {0/1.5, 1/0.5, 2/-0.5, 3/-1.5} {
+    \node[text=sIndigo, font=\LARGE] (ph\i) at (0,\y) {\faMobile*};
+    \node[draw=sIndigo, fill=sIndigo!12, rounded corners=2pt, font=\scriptsize\ttfamily, text=nInk, anchor=west,
+      inner sep=2pt] (btn\i) at (0.4,\y) {Use PROMO50};
+    \draw[-{Stealth}, thick, sIndigo] (btn\i.east) -- (3.35,\y*0.35);
+  }
+  \node[font=\scriptsize, text=nInk] at (1.1,-2.25) {1000 clicks at once};
+  % the shop
+  \node[hw, minimum width=4.6cm, minimum height=2.6cm] (shop) at (5.7,0) {};
+  \node[text=nInk, font=\Large, anchor=north west] at ($(shop.north west)+(0.2,-0.15)$) {\faShoppingCart};
+  \node[font=\bfseries, text=nInk, anchor=north west] at ($(shop.north west)+(0.95,-0.22)$) {online shop};
+  \node[font=\scriptsize\ttfamily, text=nInk, anchor=west, align=left] at ($(shop.west)+(0.25,-0.35)$)
+    {1. used < 3 ?\\2. verify\_order() \textrm{(100\,ms)}\\3. used++};
+  % what the shop gave out
+  \foreach \k in {0,...,11} {\pgfmathsetmacro{\xx}{9.0+mod(\k,4)*0.62} \pgfmathsetmacro{\yy}{0.9-floor(\k/4)*0.62}
+    \node[text=sPink, font=\large] at (\xx,\yy) {\faTag};}
+  \node[font=\scriptsize, text=nInk] at (9.95,-1.0) {$-50\%$ discounts given};
+  \draw[-{Stealth}, thick, nInk] (shop.east) -- (8.6,0);
+  \node[font=\small\bfseries, text=AccentOrange, align=center] at (9.95,-1.75) {limit: 3\\given: hundreds};
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{coupon.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{verify\_order()} & simulates the shop checking the order (stock, price, address): 100\,ms \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{MAX\_USES} & 3: the code may be used at most 3 times \\
+\end{tabularx}
+\end{note}
+
+This bug is not only a wrong number in a report. Here it costs the shop money, and the same mistake in a
+check of a limit (a number of tries, a budget, a quota) is a \textbf{security hole}. Programmers call it
+\emph{time of check to time of use} (TOCTOU): the program checks a rule at one moment and uses the result
+a moment later, when the rule may be already broken.
+
+\codesection
+
+The template is in \ghfolder{Task2}. This is \texttt{coupon.cpp}:
+
+\codefile[firstline=6]{coupon.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Does the limit of 3 uses really work? Suppose the code has already been used 2 times, so one use is left.
+        Two customers click \emph{Use code} at the same moment. Describe, step by step, how both of them can get
+        the discount.
+  \item Set \texttt{CLICKS} to 2, 10, 100 and 1000. Run each one 3 times and write the results in a table.
+        How many times was the code used? What do you notice?
+  \item Fix \texttt{redeem()} so that the code works at most 3 times, for any number of clicks.
+  \item \texttt{verify\_order()} is slow, and while one click verifies its order under the mutex, all the others
+        wait. It is possible to move \texttt{verify\_order()} \textbf{outside} the mutex and still allow at most
+        3 uses. Think how to do it (Task 1, question 4 is similar) and write it.
+\end{questions}
+
+\end{document}

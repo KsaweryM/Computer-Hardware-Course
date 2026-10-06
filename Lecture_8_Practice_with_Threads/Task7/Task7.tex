@@ -1,0 +1,76 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 7}{Threads take turns}
+
+\begin{story}
+Three threads must print in turn: \texttt{A B C A B C \dots} Now each of them asks again and again whether it is
+its turn. Make them sleep instead.
+\end{story}
+
+This task uses condition variables: read the introduction in Task 6 first. In Task 6 every player waited for
+the \textbf{same} thing (all players are here). Here every thread waits for something \textbf{different}: thread A
+waits for \texttt{turn == 0}, thread B for \texttt{turn == 1}, thread C for \texttt{turn == 2}.
+
+\begin{center}
+\begin{tikzpicture}
+  % three threads around the microphone: turn says who may speak
+  \node[circle, draw=nLine, fill=nFill, minimum size=1.7cm, align=center, font=\scriptsize, text=nInk] (mic) at (0,0)
+    {\large\faMicrophone\\[1pt]\texttt{turn}};
+  \foreach \n/\a/\c in {A/90/sIndigo, B/330/sPink, C/210/sViolet}
+    \node[actor=\c, circle, minimum size=1.0cm, inner sep=0pt, font=\small\bfseries] (\n) at (\a:2.3) {\n};
+  \node[font=\scriptsize, text=nInk, anchor=south] at (A.north) {waits for \texttt{turn == 0}};
+  \node[font=\scriptsize, text=nInk, anchor=north] at (B.south) {waits for \texttt{turn == 1}};
+  \node[font=\scriptsize, text=nInk, anchor=north] at (C.south) {waits for \texttt{turn == 2}};
+  \draw[flow] (A) to[bend left=35] node[right=2pt, font=\scriptsize, text=nInk] {\texttt{turn = 1}} (B);
+  \draw[flow] (B) -- node[below=1pt, font=\scriptsize, text=nInk] {\texttt{turn = 2}} (C);
+  \draw[flow] (C) to[bend left=35] node[left=2pt, font=\scriptsize, text=nInk] {\texttt{turn = 0}} (A);
+  % what the program prints
+  \begin{scope}[xshift=5.6cm, yshift=0.2cm]
+    \node[font=\small, text=nInk, anchor=west] at (0,1.2) {the output, one letter every 300\,ms:};
+    \foreach \k/\l/\c in {0/A/sIndigo,1/B/sPink,2/C/sViolet,3/A/sIndigo,4/B/sPink,5/C/sViolet,6/A/sIndigo} {
+      \node[actor=\c, minimum size=0.55cm, inner sep=0pt, font=\small\bfseries] at (\k*0.7+0.3,0.5) {\l};
+    }
+    \node[text=nInk] at (5.2,0.5) {$\cdots$};
+    \node[font=\small, text=nInk, anchor=west, align=left] at (0,-0.6)
+      {While one thread speaks, the other two\\ask again and again: ``is it my turn?''};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\begin{note}{Ready code (in \texttt{turns.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{say(name)} & print the letter: 300\,ms \\
+\end{tabularx}
+\par\smallskip\textbf{Constants}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{ROUNDS} & 10: every thread says its letter 10 times \\
+\end{tabularx}
+\end{note}
+
+\codesection
+
+The template is in \ghfolder{Task7}. This is \texttt{turns.cpp}:
+
+\codefile[firstline=7]{turns.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run it with \texttt{time ./build/turns}. How much processor time (\texttt{user}) did the threads use,
+        when they mostly waited for their turn?
+  \item Replace busy waiting with a \texttt{std::condition\_variable}. Run it with \texttt{time} again.
+  \item Try \texttt{notify\_one()}, then \texttt{notify\_all()}. Run each version several times.
+        Which one always works? Why?
+  \item With 2 threads (set \texttt{THREADS} to 2), \texttt{notify\_one()} works every time. With 3 the program
+        sometimes hangs. Why?
+\end{questions}
+
+\begin{note}{Hint for question 4}
+\texttt{notify\_one()} wakes up \textbf{one} of the waiting threads, but you do not choose which one.
+\end{note}
+
+\end{document}

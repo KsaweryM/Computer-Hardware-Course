@@ -1,22 +1,36 @@
 #!/bin/sh
-# Before every commit: if a presentation (Lecture_*/main.tex) is part of the commit,
-# rebuild the presentations that changed and add the new PDFs to the same commit.
+# Before every commit:
+#   - if a presentation (Lecture_*/main.tex) is part of the commit, rebuild the presentations
+#     that changed and add the new PDFs to the same commit;
+#   - if a file of Lecture 8 (a .tex file, common.tex or code shown in a PDF) is part of the commit,
+#     rebuild the PDFs of Lecture 8 that changed and add them to the same commit.
 #
 # Turn it on once in a fresh clone:   git config core.hooksPath .githooks
 # Skip it for one commit:             git commit --no-verify
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
-if ! git diff --cached --name-only | grep -q '^Lecture_[^/]*/main\.tex$'; then
-  exit 0
+STAGED=$(git diff --cached --name-only)
+mkdir -p build
+
+if echo "$STAGED" | grep -q '^Lecture_[^/]*/main\.tex$'; then
+  echo "pre-commit: building the presentations that changed..."
+  if ! make --no-print-directory all > build/pre-commit.log 2>&1; then
+    tail -n 20 build/pre-commit.log
+    echo "pre-commit: the build failed, the commit was stopped (full log: build/pre-commit.log)."
+    exit 1
+  fi
+  git add builded_presentation
+  echo "pre-commit: presentation PDFs are up to date and added to the commit."
 fi
 
-echo "pre-commit: building the presentations that changed..."
-mkdir -p build
-if ! make --no-print-directory all > build/pre-commit.log 2>&1; then
-  tail -n 20 build/pre-commit.log
-  echo "pre-commit: the build failed, the commit was stopped (full log: build/pre-commit.log)."
-  exit 1
+if echo "$STAGED" | grep -q '^Lecture_8_Practice_with_Threads/.*\.\(tex\|cpp\|h\|txt\)$\|^Lecture_8_Practice_with_Threads/Makefile_guide/examples/'; then
+  echo "pre-commit: building the PDFs of Lecture 8 that changed..."
+  if ! make --no-print-directory 8 > build/pre-commit-8.log 2>&1; then
+    tail -n 20 build/pre-commit-8.log
+    echo "pre-commit: the build failed, the commit was stopped (full log: build/pre-commit-8.log)."
+    exit 1
+  fi
+  git add 'Lecture_8_Practice_with_Threads/*.pdf'
+  echo "pre-commit: Lecture 8 PDFs are up to date and added to the commit."
 fi
-git add builded_presentation
-echo "pre-commit: PDFs are up to date and added to the commit."

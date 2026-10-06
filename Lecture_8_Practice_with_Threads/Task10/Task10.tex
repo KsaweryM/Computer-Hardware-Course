@@ -1,0 +1,66 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+\begin{document}
+\settitle{Task 10}{The decoder with two semaphores}
+
+\begin{story}
+Ticket VD-1503, from the e-mail of Tomasz in Task 9: ``Try to rewrite the buffer from VD-1482 with two semaphores:
+one counts the free places, the other one the ready frames. I'd like to compare both versions at the next code
+review.''
+\end{story}
+
+The template is the solution of Task 8, with condition variables. Rewrite it with two semaphores:
+
+\begin{center}
+\begin{tikzpicture}
+  \node[actor=sIndigo, minimum width=2.4cm, minimum height=1.4cm, align=center, font=\small\bfseries] (dec) at (0,0)
+    {\Large\faFilm\\[2pt] decoder};
+  \foreach \k in {0,1,2} \node[cellused, minimum size=0.75cm, font=\scriptsize] at (2.5+\k*0.78,0) {\#\k};
+  \foreach \k in {3,4} \node[cellfree, minimum size=0.75cm] at (2.5+\k*0.78,0) {};
+  \draw[data] (dec.east) -- (2.08,0);
+  \node[actor=sPink, minimum width=2.4cm, minimum height=1.4cm, align=center, font=\small\bfseries] (scr) at (7.8,0)
+    {\Large\faTv\\[2pt] display};
+  \draw[data] (6.04,0) -- (scr.west);
+  \node[font=\scriptsize, text=nInk] at (4.06,0.65) {buffer, \texttt{CAPACITY} = 5 in this picture};
+  % the two semaphores: counters with tokens
+  \node[hw, minimum width=3.3cm, minimum height=1.05cm, align=left, font=\scriptsize] (fs) at (1.9,-1.65) {};
+  \node[font=\scriptsize\ttfamily, text=nInk, anchor=north west] at (fs.north west) {free\_slots = 2};
+  \foreach \k in {0,1} \fill[nInk] ($(fs.west)+(0.35+\k*0.4,-0.18)$) circle (0.13);
+  \node[font=\scriptsize, text=nInk, anchor=north] at (fs.south) {how many free places};
+  \node[hw, minimum width=3.3cm, minimum height=1.05cm, align=left, font=\scriptsize] (fl) at (6.0,-1.65) {};
+  \node[font=\scriptsize\ttfamily, text=nInk, anchor=north west] at (fl.north west) {full\_slots = 3};
+  \foreach \k in {0,1,2} \fill[nInk] ($(fl.west)+(0.35+\k*0.4,-0.18)$) circle (0.13);
+  \node[font=\scriptsize, text=nInk, anchor=north] at (fl.south) {how many ready frames};
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+  \item \texttt{free\_slots}: how many free places are in the buffer;
+  \item \texttt{full\_slots}: how many decoded frames wait in the buffer.
+\end{itemize}
+Keep \texttt{std::queue}. A semaphore of this size is declared as
+\texttt{std::counting\_semaphore<CAPACITY> name\{start value\};} (header \texttt{<semaphore>}).
+
+\codesection
+
+The template is in \ghfolder{Task10}. This is \texttt{video.cpp}; \texttt{video.h} is the same as in Task 8.
+
+\codefile[firstline=8]{video.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item What values do \texttt{free\_slots} and \texttt{full\_slots} have at the start? Why?
+  \item Who calls \texttt{acquire()} and who calls \texttt{release()} on each of them? Write the new version.
+  \item With semaphores, do you still need the mutex? What for?
+  \item A colleague first locks the mutex and only then calls \texttt{acquire()} on a semaphore.
+        Write this version and run it. What happens? Why? (Draw who waits for whom.)
+  \item How do you now tell the display that the video is over? Why does the flag \texttt{finished}
+        from Task 8 not work so easily here?
+  \item Compare your version with the one with condition variables. Which one is shorter? Which one is easier to
+        read? When would you choose a condition variable, and when a semaphore?
+\end{questions}
+
+\end{document}

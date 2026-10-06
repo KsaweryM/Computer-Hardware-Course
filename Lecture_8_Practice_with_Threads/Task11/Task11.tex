@@ -1,0 +1,106 @@
+\documentclass[a4paper,11pt]{article}
+\input{../common.tex}
+% the round table: philosophers P0..P4 (S1 indigo, as threads of one kind), forks between them
+\newcommand{\tablefig}{%
+\begin{tikzpicture}[scale=1.1]
+  \fill[nFill] (0,0) circle (2.0); \draw[nLine, thick] (0,0) circle (2.0);
+  \foreach \i in {0,...,4} {
+    \pgfmathsetmacro{\a}{90-72*\i}
+    % the philosopher and the plate of spaghetti
+    \node[actor=sIndigo, circle, minimum size=1.15cm, inner sep=0pt, align=center, font=\scriptsize\bfseries]
+      at (\a:2.95) {\small\faUser\\P\i};
+    \fill[white] (\a:1.35) circle (0.42); \draw[nLine] (\a:1.35) circle (0.42);
+    \draw[sAmber, line width=1pt] (\a:1.35) circle (0.2); \draw[sAmber, line width=1pt] (\a:1.35) circle (0.1);
+    % fork i between philosopher i - 1 and philosopher i
+    \pgfmathsetmacro{\b}{90-72*\i+36}
+    \begin{scope}[rotate=\b]
+      \draw[nInk, line width=1.6pt, line cap=round] (0.85,0) -- (1.55,0);
+      \draw[nInk, line width=1pt, line cap=round] (1.55,-0.12) -- (1.55,0.12)
+        (1.55,-0.12) -- (1.8,-0.12) (1.55,0) -- (1.8,0) (1.55,0.12) -- (1.8,0.12);
+    \end{scope}
+    \node[font=\scriptsize\bfseries, text=nInk] at (\b:2.25) {fork \i};
+  }
+\end{tikzpicture}}
+\begin{document}
+\settitle{Task 11}{The dining philosophers}
+
+Task 11 is about one of the most famous problems of concurrent programming. Read this introduction first.
+
+\section{The dining philosophers problem}
+
+In 1965 Edsger Dijkstra (the same person who described producer-consumer and invented semaphores) gave his
+students an exam problem about five computers that share five tape drives. A few years later Tony Hoare told
+the same problem as a story, and this story is how everybody knows it today.
+
+\begin{center}
+\tablefig
+\end{center}
+
+Five philosophers sit at a round table. In front of each of them is a plate of spaghetti, and between every two
+neighbours lies \textbf{one fork}: five forks for five people. A philosopher does only two things, again and again:
+\textbf{thinks} and \textbf{eats}. To eat, a philosopher needs \textbf{both} forks: the one on the left and the one
+on the right. A fork can be held by only one philosopher at a time. After eating, the philosopher puts both forks
+back and thinks again.
+
+\textbf{Why is this important?} The philosophers are threads, and the forks are resources that two threads share:
+locks, files, devices, database rows. Every program in which a thread needs \textbf{two or more} shared resources at
+the same time has the same problem. The table only makes it easy to see.
+
+\textbf{What can go wrong?} The simplest rule is: ``take the left fork, then the right fork''. Imagine that all five
+philosophers get hungry at the same moment, and each one takes the left fork. Now every fork is in someone's hand,
+and every philosopher waits for the right fork, which the neighbour holds and will never put down. Nobody eats, ever.
+This is a \textbf{deadlock}, and you know its shape from Tasks 4 and 5: a \textbf{circle of waiting}, here all the way
+around the table.
+
+There is a second danger: \textbf{starvation}. Even without a deadlock, a rule could be unfair, so that one
+philosopher almost never gets both forks while the neighbours eat again and again. A good solution has neither
+a deadlock nor starvation.
+
+\begin{definition}{Deadlock and starvation}
+\textbf{Deadlock}: a group of threads waits in a circle, and none of them can ever go on.\\
+\textbf{Starvation}: the program goes on, but one thread waits much longer than the others, or for ever.
+\end{definition}
+
+\section{The program}
+
+Every philosopher is a thread, and every fork is a \texttt{std::mutex}. Philosopher \texttt{i} has fork \texttt{i}
+on the left and fork \texttt{(i + 1) \% 5} on the right. Everybody takes the left fork first. The dinner lasts 3\,s;
+then the program prints how many times each philosopher has eaten.
+
+\begin{note}{Ready code (in \texttt{table.h}, we do not look inside)}
+\textbf{Functions}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{think(id)} & think: 0 to 9\,ms \\
+\texttt{pick\_up(fork)} & pick up a fork: lock its mutex \\
+\texttt{eat(id)} & eat: 5\,ms, and count the meal \\
+\texttt{wait\_for\_end()} & wait 3\,s, then end the dinner \\
+\texttt{report()} & print the number of meals of every philosopher \\
+\end{tabularx}
+\par\smallskip\textbf{Constants and variables}\\[2pt]
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\texttt{N} & 5 philosophers and 5 forks \\
+\texttt{dinner\_over} & becomes \texttt{true} when the dinner ends \\
+\end{tabularx}
+\end{note}
+
+The template is in \ghfolder{Task11}. This is \texttt{philosophers.cpp}:
+
+\codefile[firstline=6]{philosophers.cpp}
+
+\runline
+
+\section{Your tasks}
+
+\begin{questions}
+  \item Run the program several times. Does it always end? (A program that hangs: stop it with Ctrl+C.)
+  \item When it hangs, draw the table: which fork does each philosopher hold, and which one does each wait for?
+        Where is the circle?
+  \item \textbf{Fix 1:} one philosopher takes the forks in the other order. Rule: everybody takes the fork with the
+        \textbf{smaller number} first. Which philosopher changes? Why does this break the circle?
+  \item \textbf{Fix 2:} go back to the original code. A waiter lets at most \textbf{4} philosophers sit at the table at the
+        same time; the fifth one waits until somebody stands up. Write it with a \texttt{std::counting\_semaphore}
+        (Task 9). Why are 4 enough to prevent the deadlock?
+  \item Look at the numbers of meals in both fixes. Does anybody starve? Is one fix fairer than the other?
+\end{questions}
+
+\end{document}
