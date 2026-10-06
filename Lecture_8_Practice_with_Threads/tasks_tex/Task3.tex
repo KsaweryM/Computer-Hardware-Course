@@ -99,7 +99,9 @@ packets per second \texttt{on\_packet()} handled.
   \item Replace the mutex with \texttt{std::atomic}. To check your solution, change \texttt{TEST} from 0 to 1 at the
         top of \texttt{stats.cpp}: the program then does not measure, but runs ready tests. Do all tests pass?
         If not, why not, when every variable is atomic?
-  \item Set \texttt{TEST} back to 0. How many times faster is it now?
+  \item Fix \texttt{on\_packet()} so that all tests pass, and keep it fast. Hint: most packets are not longer than
+        \texttt{longest\_packet}, and such a packet does not change it. Does it have to lock anything?
+  \item Set \texttt{TEST} back to 0. How many times faster is it now than in question 1? Why?
 \end{questions}
 
 \begin{note}{The tests (\texttt{TEST 1})}

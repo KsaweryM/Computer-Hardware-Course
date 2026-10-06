@@ -88,7 +88,7 @@ them later. The other tasks start their threads in the same way.
   \item \texttt{pay()} talks to the bank, and in real life it can take several seconds. While one customer pays
         under the mutex, all the others wait. It is possible to move \texttt{pay()} \textbf{outside} the mutex and keep
         the shop safe. Think how to do it, write it, and check it with \texttt{check()}.
-        Measure how long the program takes before and after.
+        Measure how long the program takes before and after: \texttt{time ./build/tickets}.
   \item Would it be enough to change \texttt{int tickets} to \texttt{std::atomic<int> tickets} and keep the
         same \texttt{if}? Try it.
 \end{questions}
