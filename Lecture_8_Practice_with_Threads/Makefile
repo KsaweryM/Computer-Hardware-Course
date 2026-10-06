@@ -20,7 +20,7 @@ all: $(PDF)
 	cp $(dir $<)build/tex/$(notdir $@) $@
 
 # Tasks.pdf shows the text and the code of every task
-Tasks.pdf: $(wildcard Task*/*.tex Task*/*.cpp Task*/*.h Task*/*.txt)
+Tasks.pdf: $(wildcard tasks_tex/*.tex Task*/*.cpp Task*/*.h Task*/*.txt)
 
 rebuild:
 	$(MAKE) clean

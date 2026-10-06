@@ -33,7 +33,7 @@ removes `build/`.
 ## The PDFs
 
 The PDFs are in the repository, next to their `.tex` files. `Tasks.tex` puts the text of every task
-(`TaskK/TaskK.tex`) into one PDF. To build them again (needs `latexmk`):
+(`tasks_tex/TaskK.tex`) into one PDF; the code shown in it comes from the task folders. To build them again (needs `latexmk`):
 
 ```
 make            # build the PDFs whose source changed
