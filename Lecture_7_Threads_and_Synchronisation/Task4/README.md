@@ -1,7 +1,7 @@
 # Task4: who waits for whom?
 
-Three workers, three machines, two offices. Office A and office B differ only in worker 2.
-To run office B, comment out the line of office A in `main()` and uncomment the line of office B.
+Three offices, three workers in each, three machines. Each office is one function: `office_a()`,
+`office_b()`, `office_c()`. To choose the office, set `OFFICE` in `main()` to `'A'`, `'B'` or `'C'`.
 A program that hangs can be stopped with Ctrl+C.
 
 ## Compile and run

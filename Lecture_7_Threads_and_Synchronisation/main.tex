@@ -2779,18 +2779,23 @@
     \draw[waits] (w1) -- node[above, text=nInk] {waits for \texttt{kettle\_m}} (w2);
     \draw[waits] (w2.south) -- ++(0,-0.55) -| node[pos=0.25, below, text=nInk] {waits for \texttt{fridge\_m}} (w0.south);
   \end{tikzpicture}}
-\newcommand{\officeBorder}{%
+% #1 = the three mutexes in the order, #2 = w0/a/b/y/c entries (a, b: x of the first and second lock)
+\newcommand{\officeorder}[2]{%
   \begin{tikzpicture}[>=Stealth, font=\scriptsize]
-    \foreach \m/\x in {fridge\_m/1.4, micro\_m/3.3, kettle\_m/5.2} \node[font=\ttfamily\scriptsize, text=nInk] at (\x,0) {\m};
+    \foreach \m/\x [count=\k] in {#1} \node[font=\ttfamily\scriptsize, text=nInk] (o\k) at (\x,0) {\m};
     \node[font=\scriptsize\bfseries, text=nInk, anchor=east] at (0.3,0) {order:};
-    \draw[flow] (2.05,0) -- (2.75,0);  \draw[flow] (3.85,0) -- (4.55,0);
-    \foreach \w/\a/\b/\y/\c in {w0/1.4/3.3/-0.55/sViolet, w1/3.3/5.2/-1.05/sAmber, w2/1.4/5.2/-1.55/sTeal} {
+    \draw[flow, shorten <=2pt, shorten >=2pt] (o1) -- (o2);  \draw[flow, shorten <=2pt, shorten >=2pt] (o2) -- (o3);
+    \foreach \w/\a/\b/\y/\c in {#2} {
       \ifx\c\amberslot \tikzset{wn/.style={actoramber}}\else \tikzset{wn/.style={actor=\c}}\fi
       \node[wn, minimum width=0.8cm, minimum height=0.4cm, anchor=east, inner sep=2pt] at (0.3,\y) {\w};
       \fill[nInk] (\a,\y) circle (2pt);  \fill[nInk] (\b,\y) circle (2pt);
       \draw[holds] (\a+0.1,\y) -- (\b-0.1,\y);
     }
   \end{tikzpicture}}
+\newcommand{\officeBorder}{\officeorder{fridge\_m/1.4, micro\_m/3.3, kettle\_m/5.2}%
+  {w0/1.4/3.3/-0.55/sViolet, w1/3.3/5.2/-1.05/sAmber, w2/1.4/5.2/-1.55/sTeal}}
+\newcommand{\officeCorder}{\officeorder{kettle\_m/1.4, fridge\_m/3.3, micro\_m/5.2}%
+  {w0/3.3/5.2/-0.55/sViolet, w1/1.4/5.2/-1.05/sAmber, w2/1.4/3.3/-1.55/sTeal}}
 \def\amberslot{sAmber}
 
 % ---------- the coffee: #1 = 0 the problem, 1 busy waiting, 2 asleep until notify ----------
@@ -4135,11 +4140,11 @@ $ ./deadlock
   \keymsg{A deadlock needs a circle. No circle, no deadlock. In \textbf{Fixing a deadlock}: break the circle.}
 \end{frame}
 
-% Template: Task4/office3.cpp (office A active, office B commented out). use() = 1 ms.
+% Template: Task4/office3.cpp (offices A, B, C as functions, OFFICE in main() chooses one). use() = 1 ms.
 % std::ref (from <functional>), because std::thread copies its arguments and a mutex cannot be copied.
 \begin{frame}[fragile]{Task 4: who waits for whom?}
   \begin{columns}[T,onlytextwidth]
-    \column{0.62\textwidth}
+    \column{0.64\textwidth}
 \begin{lstlisting}[style=cpp]
 std::mutex fridge_m, micro_m, kettle_m;
 void worker(std::mutex &first, std::mutex &second,
@@ -4153,27 +4158,39 @@ void worker(std::mutex &first, std::mutex &second,
     }
 }
 // std::ref: the thread gets the mutex itself, not a copy
-std::thread w0(worker, std::ref(fridge_m), std::ref(micro_m), 30);
-std::thread w1(worker, std::ref(micro_m), std::ref(kettle_m), 40);
-// office A:
-std::thread w2(worker, std::ref(kettle_m), std::ref(fridge_m), 50);
-// office B:
-std::thread w2(worker, std::ref(fridge_m), std::ref(kettle_m), 50);
+void office_a() {
+  std::thread w0(worker, std::ref(fridge_m), std::ref(micro_m), 30);
+  std::thread w1(worker, std::ref(micro_m), std::ref(kettle_m), 40);
+  std::thread w2(worker, std::ref(kettle_m), std::ref(fridge_m), 50);
+  w0.join(); w1.join(); w2.join();
+}
 \end{lstlisting}
-    \column{0.35\textwidth}
-      \taskhead{Task}{Open \texttt{office3.cpp} from \ghlink{Task4}. Office A and office B differ only in worker 2.}
+    \column{0.33\textwidth}
+      \taskhead{Task}{Open \texttt{office3.cpp} from \ghlink{Task4}. \texttt{OFFICE} in \texttt{main()} picks the office.}
+      {\scriptsize
+      \begin{tabular}{@{}l@{\hspace{10pt}}c@{\hspace{10pt}}c@{\hspace{10pt}}c@{}}
+        \toprule
+                   & \textbf{w0}   & \textbf{w1}   & \textbf{w2} \\
+        \midrule
+        \textbf{A} & F $\to$ M & M $\to$ K & K $\to$ F \\
+        \textbf{B} & F $\to$ M & M $\to$ K & F $\to$ K \\
+        \textbf{C} & F $\to$ M & K $\to$ M & K $\to$ F \\
+        \bottomrule
+      \end{tabular}\par\vspace{2pt}
+      \textcolor{gray}{F $\to$ M: first \texttt{fridge\_m}, then \texttt{micro\_m}.}\par}
+      \vspace{0.05cm}
       \scriptsize
-      \begin{enumerate}\setlength{\itemsep}{4pt}
-        \item For each office, draw who can wait for whom.
-        \item Which office can hang? Answer \textbf{before} you run it.
+      \begin{enumerate}\setlength{\itemsep}{1pt}
+        \item In each office, draw who can wait for whom.
+        \item Which offices can hang? Answer \textbf{before} you run it.
         \item Run each office 3 times. Were you right?
         \item Office A with only two of the three workers: can it hang?
       \end{enumerate}
   \end{columns}
 \end{frame}
 
-% CHECKED: g++ 13.3, -O0, Task4 (office A) and Task4/solution/office3_b.cpp, timeout 3:
-% office A 10 of 10 runs hang, office B 0 of 10. Question 4 without a measurement: every pair of office A
+% CHECKED: g++ 13.3, -O0, 8 cores, Task4/office3.cpp with OFFICE = 'A', 'B', 'C', timeout 3:
+% office A 10 of 10 runs hang, offices B and C 0 of 10. Question 4 without a measurement: every pair of office A
 % has only one arrow between them, so there is no circle.
 \begin{frame}{Solution: who waits for whom?}
   \begin{columns}[T,onlytextwidth]
@@ -4189,6 +4206,19 @@ std::thread w2(worker, std::ref(fridge_m), std::ref(kettle_m), 50);
   \end{columns}
   \vfill
   \keymsg{A deadlock needs a circle. No circle, no deadlock.}
+\end{frame}
+
+\begin{frame}{Solution: office C}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.55\textwidth}
+      {\footnotesize\textbf{Office C:} 0 of 10 runs hang}\\[0.1cm]
+      \resizebox{0.85\linewidth}{!}{\officeCorder}
+    \column{0.42\textwidth}
+      \stepbox{Questions 1 to 3}{The orders look different, but everyone keeps \textbf{one order}:
+        \texttt{kettle\_m}, \texttt{fridge\_m}, \texttt{micro\_m}. Everyone goes left to right: no circle.}
+  \end{columns}
+  \vfill
+  \keymsg{Any order works, as long as it is \textbf{one order} for everyone.}
 \end{frame}
 
 % =====================================================================
@@ -4208,7 +4238,7 @@ std::thread w2(worker, std::ref(fridge_m), std::ref(kettle_m), 50);
         \textbf{nothing}, so nobody waits for it: no arrow can end at it.}
   \end{columns}
   \vfill
-  \keymsg{Office B in Task 4 already used Fix 1.}
+  \keymsg{Offices B and C in Task 4 already used Fix 1.}
 \end{frame}
 
 % CHECKED: TODO/prototypy/deadlock.cpp -DFIX_ORDER: 0 of 10 runs hang (earlier 0 of 30); without the fix 10 of 10.
