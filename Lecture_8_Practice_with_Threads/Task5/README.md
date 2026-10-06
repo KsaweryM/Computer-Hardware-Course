@@ -1,6 +1,6 @@
 # Task 5: the pizzeria
 
-Three cooks, one race condition and one deadlock. The task: [Task5.pdf](Task5.pdf).
+Three cooks, one race condition and one deadlock. The task: [Tasks.pdf](../Tasks.pdf), page 13.
 
 ```
 make         compile

@@ -36,8 +36,8 @@ threads.
   each fix costs. Then **deadlock**, a circle of threads that wait for each other, and two ways to
   break it: one lock order for everyone and `std::scoped_lock`. It ends with threads that
   **cooperate** without busy waiting: condition variables, the producer-consumer pattern and semaphores.
-- **Lecture 8** has no slides: it is a list of 11 tasks to practise the concepts from Lecture 7, each with its
-  own PDF and an explained solution. It also introduces the **dining philosophers** problem.
+- **Lecture 8** has no slides: it is a list of 11 tasks to practise the concepts from Lecture 7, all in one PDF.
+  It also introduces the **dining philosophers** problem.
 
 Author: **Ksawery Możdżyński**
 
@@ -94,8 +94,8 @@ Ready-to-use presentation slides are available in the [`builded_presentation/`](
 - [Lecture 5: Input/Output: Devices and Polling](builded_presentation/Lecture_5_Input_Output_Devices_and_Polling.pdf)
 - [Lecture 6: A Brief History of Concurrency](builded_presentation/Lecture_6_A_Brief_History_of_Concurrency.pdf)
 - [Lecture 7: Threads and Synchronisation in C++](builded_presentation/Lecture_7_Threads_and_Synchronisation.pdf)
-- Lecture 8: Practice with Threads has no slides; the PDFs of its tasks and solutions are listed in
-  [its README](Lecture_8_Practice_with_Threads/README.md).
+- Lecture 8: Practice with Threads has no slides; its tasks are in
+  [one PDF](Lecture_8_Practice_with_Threads/Tasks.pdf), listed in [its README](Lecture_8_Practice_with_Threads/README.md).
 
 ---
 
@@ -109,8 +109,7 @@ Every folder has a `Makefile` and a `README.md` with the instructions:
   Each one is a Wokwi project for the VS Code extension: `make` compiles it with `arduino-cli`,
   then **Wokwi: Start Simulator** runs it.
 - **Lectures 7 and 8** (C++ on your laptop): `make` compiles every `.cpp` file into `build/`, `make run` also runs them.
-  In Lecture 8 every task folder also has a PDF with the task, and the solutions are in
-  [`Lecture_8_Practice_with_Threads/Solutions`](Lecture_8_Practice_with_Threads/Solutions/).
+  The text of the Lecture 8 tasks is in [`Lecture_8_Practice_with_Threads/Tasks.pdf`](Lecture_8_Practice_with_Threads/Tasks.pdf).
 
 ---
 

@@ -1,0 +1,52 @@
+% Tasks.tex: all tasks of Lecture 8 in one PDF. The text of task K is in TaskK/TaskK.tex,
+% next to the code that the task shows.
+\documentclass[a4paper,11pt]{article}
+\input{common.tex}
+
+% one task: a new page, \codefile reads from the folder of the task
+\newcommand{\task}[1]{\clearpage\renewcommand{\taskdir}{#1/}\phantomsection\label{#1}\input{#1/#1.tex}}
+
+\begin{document}
+\settitle{Lecture 8}{Practice with Threads}
+
+Lecture 8 has no slides. It is a list of tasks to practise the concepts from Lecture 7: race conditions,
+atomics, deadlock, condition variables, the producer-consumer problem and semaphores. Every task has a story,
+the ready functions, the code and the questions. The code of each task is in its folder on GitHub,
+for example \ghfolder{Task1}.
+
+Tasks 6, 8, 9 and 11 start with an introduction to a new tool or problem: condition variables, the
+producer-consumer problem, semaphores and the dining philosophers.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}llr@{}}
+\toprule
+& task & page \\
+\midrule
+Task 1 & \hyperref[Task1]{The ticket shop} & \pageref{Task1} \\
+Task 2 & \hyperref[Task2]{The discount code} & \pageref{Task2} \\
+Task 3 & \hyperref[Task3]{Statistics in a 5G base station} & \pageref{Task3} \\
+Task 4 & \hyperref[Task4]{Robots in a warehouse} & \pageref{Task4} \\
+Task 5 & \hyperref[Task5]{The pizzeria} & \pageref{Task5} \\
+Task 6 & \hyperref[Task6]{The lobby of an online game} & \pageref{Task6} \\
+Task 7 & \hyperref[Task7]{Threads take turns} & \pageref{Task7} \\
+Task 8 & \hyperref[Task8]{The video decoder} & \pageref{Task8} \\
+Task 9 & \hyperref[Task9]{At most 3 decoders at the same time} & \pageref{Task9} \\
+Task 10 & \hyperref[Task10]{The decoder with two semaphores} & \pageref{Task10} \\
+Task 11 & \hyperref[Task11]{The dining philosophers} & \pageref{Task11} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\task{Task1}
+\task{Task2}
+\task{Task3}
+\task{Task4}
+\task{Task5}
+\task{Task6}
+\task{Task7}
+\task{Task8}
+\task{Task9}
+\task{Task10}
+\task{Task11}
+\end{document}

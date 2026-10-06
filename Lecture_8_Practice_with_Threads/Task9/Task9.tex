@@ -1,12 +1,10 @@
-\documentclass[a4paper,11pt]{article}
-\input{../common.tex}
+% Task 9: the text of the task. Tasks.tex puts all tasks into one PDF; the code shown here is in this folder.
 % an e-mail window
 \newtcolorbox{email}{enhanced, breakable, colback=white, colframe=nLine, boxrule=0.6pt, arc=4pt,
   left=12pt, right=12pt, top=8pt, bottom=10pt,
   before upper={\setlength{\parskip}{0.6em}},
   title={\small\faEnvelope\ \ Inbox}, coltitle=nInk, colbacktitle=nFill, fonttitle=\bfseries}
 \newcommand{\mailfield}[2]{\textcolor{nLine}{\makebox[1.6cm][l]{#1}}#2\\}
-\begin{document}
 \settitle{Task 9}{At most 3 decoders at the same time}
 
 You have just closed the ticket of Task 8. The next morning you find this e-mail:
@@ -142,5 +140,3 @@ The template is in \ghfolder{Task9}. This is \texttt{streams.cpp}:
   \item Somebody forgets \texttt{release()} in one place (for example on a path that ends the function early).
         What happens after a few videos?
 \end{questions}
-
-\end{document}

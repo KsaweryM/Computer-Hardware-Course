@@ -1,5 +1,4 @@
-\documentclass[a4paper,11pt]{article}
-\input{../common.tex}
+% Task 11: the text of the task. Tasks.tex puts all tasks into one PDF; the code shown here is in this folder.
 % the round table: philosophers P0..P4 (S1 indigo, as threads of one kind), forks between them
 \newcommand{\tablefig}{%
 \begin{tikzpicture}[scale=1.1]
@@ -21,7 +20,6 @@
     \node[font=\scriptsize\bfseries, text=nInk] at (\b:2.25) {fork \i};
   }
 \end{tikzpicture}}
-\begin{document}
 \settitle{Task 11}{The dining philosophers}
 
 Task 11 is about one of the most famous problems of concurrent programming. Read this introduction first.
@@ -102,5 +100,3 @@ The template is in \ghfolder{Task11}. This is \texttt{philosophers.cpp}:
         (Task 9). Why are 4 enough to prevent the deadlock?
   \item Look at the numbers of meals in both fixes. Does anybody starve? Is one fix fairer than the other?
 \end{questions}
-
-\end{document}

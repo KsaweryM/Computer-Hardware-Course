@@ -1,7 +1,7 @@
-% common.tex: the shared preamble of all A4 documents of Lecture 8 (tasks, solutions, the Makefile guide).
+% common.tex: the shared preamble of all A4 documents of Lecture 8 (Tasks.tex, the solutions, the Makefile guide).
 % Every document starts with:
 %   \documentclass[a4paper,11pt]{article}
-%   \input{../common.tex}           (or ../../common.tex from Solutions/TaskK)
+%   \input{common.tex}             (or ../../common.tex from Solutions/TaskK, ../common.tex from Makefile_guide)
 %   \settitle{Task 3}{Statistics in a 5G base station}
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc}
@@ -104,7 +104,9 @@
 % code typed into the document: \begin{code} ... \end{code}, or \begin{code}[style=plain]
 \newtcblisting{code}[1][]{codebox, listing only, listing options={style=cpp,#1}}
 % code from a file: \codefile{tickets.cpp} or \codefile[firstline=10,lastline=30]{tickets.cpp}
-\newtcbinputlisting{\codefile}[2][]{codebox, listing only, listing file={#2}, listing options={style=cpp,#1}}
+% The file is read from \taskdir: the folder of the current task in Tasks.tex, empty elsewhere.
+\newcommand{\taskdir}{}
+\newtcbinputlisting{\codefile}[2][]{codebox, listing only, listing file={\taskdir#2}, listing options={style=cpp,#1}}
 % terminal output: \begin{terminal} ... \end{terminal}
 \newtcblisting{terminal}[1][]{codebox, listing only, listing options={style=plain,#1}}
 

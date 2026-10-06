@@ -9,7 +9,7 @@
 #   make list                            show the available lectures
 #   make clean-4                         remove the auxiliary files and the PDF of one presentation
 #   make clean                           remove auxiliary files and PDFs
-#   make 8                               Lecture 8 has no slides: build the PDFs of its tasks and solutions
+#   make 8                               Lecture 8 has no slides: build the PDF of its tasks (and the local solutions)
 
 LATEXMK   := latexmk
 LATEXOPTS := -pdf -interaction=nonstopmode -halt-on-error -file-line-error
@@ -51,7 +51,7 @@ $(PDF)/%.pdf: %/main.tex
 clean:
 	rm -rf $(BUILD) $(PDF)
 
-# Lecture 8 is a list of tasks (A4 PDFs next to their .tex files), built by its own Makefile.
+# Lecture 8 is a list of tasks (one A4 PDF, Tasks.pdf), built by its own Makefile.
 PRACTICE := Lecture_8_Practice_with_Threads
 .PHONY: 8
 8:

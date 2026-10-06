@@ -1,6 +1,6 @@
 # Task 7: threads take turns
 
-Three threads print `A B C A B C ...` in turn. The task: [Task7.pdf](Task7.pdf).
+Three threads print `A B C A B C ...` in turn. The task: [Tasks.pdf](../Tasks.pdf), page 19.
 
 ```
 make         compile

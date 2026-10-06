@@ -1,5 +1,4 @@
-\documentclass[a4paper,11pt]{article}
-\input{../common.tex}
+% Task 8: the text of the task. Tasks.tex puts all tasks into one PDF; the code shown here is in this folder.
 % the buffer figure: producer S1, consumer S2
 \newcommand{\bufferfig}{%
 \begin{tikzpicture}
@@ -13,7 +12,6 @@
   \node[font=\scriptsize, text=nInk] at (3.75,0.65) {used};
   \node[font=\scriptsize, text=nInk] at (5.62,0.65) {free};
 \end{tikzpicture}}
-\begin{document}
 \settitle{Task 8}{The video decoder}
 
 Task 8 is about a famous problem of concurrency. Read this introduction first.
@@ -134,5 +132,3 @@ The template is in \ghfolder{Task8}. This is \texttt{video.cpp}:
   \item Set \texttt{CAPACITY} to 1, then 10, then 100. How many times does the picture freeze?
         Why does the decoder work ahead? What does a larger buffer cost?
 \end{questions}
-
-\end{document}

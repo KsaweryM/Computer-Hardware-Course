@@ -1,9 +1,7 @@
-\documentclass[a4paper,11pt]{article}
-\input{../common.tex}
+% Task 4: the text of the task. Tasks.tex puts all tasks into one PDF; the code shown here is in this folder.
 % a grid of cells: \grid{rows}{cols}
 \newcommand{\grid}[2]{\foreach \r in {1,...,#1} \foreach \c in {1,...,#2}
   \node[cellfree, minimum size=0.75cm] at (\c*0.75-0.75,-\r*0.75+0.75) {};}
-\begin{document}
 \settitle{Task 4}{Robots in a warehouse}
 
 \begin{story}
@@ -198,5 +196,3 @@ DEADLOCK: nobody can move.
 \begin{note}{Hint}
 Draw the robots on paper first: for every robot, which cell does it hold, and which cell does it want?
 \end{note}
-
-\end{document}
