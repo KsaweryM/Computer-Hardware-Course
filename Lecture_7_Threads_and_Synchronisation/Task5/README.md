@@ -1,6 +1,7 @@
-# Task5: atomic, and a better idea
+# Task5: fix office A
 
-Two more versions of the counter: an atomic one and a local sum. Measure the time of each.
+`office3.cpp` is office A from Task 4: it can hang. Fix it in two ways: with one order of the locks
+(change only `main()`) and with `std::scoped_lock` (change only `worker()`).
 
 ## Compile and run
 
@@ -14,8 +15,8 @@ make run        # compile and run
 Or by hand:
 
 ```
-g++ -std=c++20 -O0 -pthread counter.cpp -o counter
-./counter
+g++ -std=c++20 -O0 -pthread office3.cpp -o office3
+./office3
 ```
 
-With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od counter.cpp`, then `counter.exe`.
+With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od office3.cpp`, then `office3.exe`.

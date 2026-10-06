@@ -1,6 +1,8 @@
-# Task4: fix it with a mutex, and measure
+# Task4: who waits for whom?
 
-Start from the counter of Task 3. Fill in the `TODO` parts.
+Three workers, three machines, two offices. Office A and office B differ only in worker 2.
+To run office B, comment out the line of office A in `main()` and uncomment the line of office B.
+A program that hangs can be stopped with Ctrl+C.
 
 ## Compile and run
 
@@ -14,8 +16,8 @@ make run        # compile and run
 Or by hand:
 
 ```
-g++ -std=c++20 -O0 -pthread race_mutex.cpp -o race_mutex
-./race_mutex
+g++ -std=c++20 -O0 -pthread office3.cpp -o office3
+./office3
 ```
 
-With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od race_mutex.cpp`, then `race_mutex.exe`.
+With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od office3.cpp`, then `office3.exe`.

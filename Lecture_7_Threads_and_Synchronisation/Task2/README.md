@@ -1,6 +1,7 @@
-# Task2: four threads say hello
+# Task2: lock the fridge
 
-Start 4 threads; thread `i` prints `Hello from thread i`. Fill in the `TODO` parts.
+`fridge.cpp` is the program from Task 1. Add a mutex, so that the fridge is never overfull.
+The ready functions are in `office.h` (we do not look inside).
 
 ## Compile and run
 
@@ -14,8 +15,8 @@ make run        # compile and run
 Or by hand:
 
 ```
-g++ -std=c++20 -O0 -pthread hello4.cpp -o hello4
-./hello4
+g++ -std=c++20 -O0 -pthread fridge.cpp -o fridge
+./fridge
 ```
 
-With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od hello4.cpp`, then `hello4.exe`.
+With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od fridge.cpp`, then `fridge.exe`.

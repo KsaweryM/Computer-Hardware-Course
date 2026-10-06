@@ -1,6 +1,7 @@
-# Task3: Monday's counter in C++
+# Task3: an order for 1000 engines
 
-Two threads increase one shared counter. Compile it with `-O0` and run it several times.
+Three lines build exactly 1000 engines, each with its own serial number. Write `line()` in
+`factory.cpp` with `std::atomic`, no mutex. The ready functions are in `factory.h` (we do not look inside).
 
 ## Compile and run
 
@@ -14,8 +15,8 @@ make run        # compile and run
 Or by hand:
 
 ```
-g++ -std=c++20 -O0 -pthread race.cpp -o race
-./race
+g++ -std=c++20 -O0 -pthread factory.cpp -o factory
+./factory
 ```
 
-With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od race.cpp`, then `race.exe`.
+With MSVC (Developer Command Prompt): `cl /std:c++20 /EHsc /Od factory.cpp`, then `factory.exe`.

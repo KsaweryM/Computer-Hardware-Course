@@ -13,7 +13,7 @@ BIN := $(SRC:%.cpp=build/%)
 
 all: $(BIN)
 
-build/%: %.cpp
+build/%: %.cpp $(wildcard *.h)
 	@mkdir -p build
 	$(CXX) $(CXXFLAGS) $< -o $@
 
