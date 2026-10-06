@@ -99,20 +99,6 @@ Ready-to-use presentation slides are available in the [`builded_presentation/`](
 
 ---
 
-## Tasks
-
-The starter files of the tasks are in the folder of each lecture, one folder per task
-(for example [`Lecture_7_Threads_and_Synchronisation/Task3`](Lecture_7_Threads_and_Synchronisation/Task3/)).
-Every folder has a `Makefile` and a `README.md` with the instructions:
-
-- **Lecture 6** (ESP32-C3 in Wokwi): `Circuit` (the circuit from Lecture 5) and `Task1` to `Task5`.
-  Each one is a Wokwi project for the VS Code extension: `make` compiles it with `arduino-cli`,
-  then **Wokwi: Start Simulator** runs it.
-- **Lectures 7 and 8** (C++ on your laptop): `make` compiles every `.cpp` file into `build/`, `make run` also runs them.
-  The text of the Lecture 8 tasks is in [`Lecture_8_Practice_with_Threads/Tasks.pdf`](Lecture_8_Practice_with_Threads/Tasks.pdf).
-
----
-
 ## Building the presentations yourself
 
 Requirements:
@@ -138,15 +124,6 @@ make clean
 ```
 
 The Makefile automatically places the resulting PDFs in `builded_presentation/`.
-
-To keep the PDFs up to date automatically, turn on the pre-commit hook once:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-Then every commit that changes a `Lecture_*/main.tex` rebuilds the changed presentations
-and adds the new PDFs to the same commit (skip it once with `git commit --no-verify`).
 
 ---
 
